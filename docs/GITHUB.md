@@ -8,7 +8,7 @@ Télécharger l’installeur Windows depuis [la dernière version](https://githu
 
 Après cette installation, les versions de l’app sont vérifiées au démarrage et toutes les quatre heures. Le téléchargement est automatique ; l’installation se fait à la fermeture normale de l’application, ou via **Installer et redémarrer**. Une draft en cours n’est pas interrompue. Les données statistiques ne sont jamais actualisées au lancement, y compris après une mise à jour de l’app.
 
-Les anciennes versions sans flux de publication, notamment 0.5.0, doivent installer une première fois la 0.6.0. L’identité NSIS et le dossier de données restent identiques pour conserver les paramètres et sessions. Le lanceur de développement utilise `data/local` et désactive les installations automatiques pour ce lancement ; les amis doivent utiliser l’installeur.
+Les anciennes versions sans flux de publication, notamment 0.5.0, doivent installer une première fois la 0.6.2. L’identité NSIS et le dossier de données restent identiques pour conserver les paramètres et sessions. Le lanceur de développement utilise `data/local` et désactive les installations automatiques pour ce lancement ; les amis doivent utiliser l’installeur.
 
 ## Collecter et publier les statistiques
 
@@ -24,7 +24,7 @@ La première commande de scraping réutilise les caches existants ; elle ne fait
 
 `data:export` ouvre `data/local/tchim.sqlite` en lecture seule. Il conserve les agrégats réels gol.gg/Lolalytics, les trois derniers patchs disponibles par source, Master+ côté Solo, les matchs pro et le catalogue des champions. Il exclut les packs de démonstration, les paramètres, équipes OP.GG, sessions, logs, caches bruts et secrets. La provenance est conservée ; l’accès public ou robots.txt ne constitue pas une licence de redistribution des fournisseurs.
 
-Chaque patch est découpé en packs JSON gzip, nommés par leur SHA-256. Une publication réutilise les fichiers identiques et téléverse les nouveaux avant de remplacer le petit `manifest.json`. La Release permanente `dataset` est marquée **prerelease**, avec `latest=false`, pour rester distincte des versions de l’application. Ne pas en faire la dernière version stable.
+Chaque patch est découpé en packs JSON gzip, nommés par leur SHA-256. Une publication réutilise les fichiers identiques, même si seule leur date de collecte a changé, et téléverse les nouveaux avant de remplacer le petit `manifest.json`. La Release permanente `dataset` est marquée **prerelease**, avec `latest=false`, pour rester distincte des versions de l’application. Ne pas en faire la dernière version stable.
 
 Le client vérifie HTTPS, redirections GitHub autorisées, tailles, SHA-256, schémas, compteurs et identifiants. Il conserve les packs gzip en cache et ne télécharge que les parties absentes ou modifiées. L’import de toutes les modifications et le retrait des anciens packs partagés se font dans une transaction SQLite après validation complète. Un échec conserve la dernière base exploitable. Les tables personnelles et les packs importés manuellement sont conservés. Les anciens assets à hash restent disponibles dans GitHub ; surveiller la limite de 1 000 assets par Release si les publications deviennent nombreuses.
 

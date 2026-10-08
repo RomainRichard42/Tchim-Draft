@@ -30,7 +30,7 @@ try {
   const file=path.resolve(result.files[0]);expect(file.startsWith(root+path.sep)).toBe(true);
   const installer=await readFile(file);expect(createHash('sha512').update(installer).digest('base64')).toBe(checksum);
   const after=await page.evaluate(()=>window.draftApi.snapshot());expect(after.update).toBe('downloaded');expect(after.data.packs).toEqual(before.data.packs);expect(after.data.lastRefresh).toBe(before.data.lastRefresh);expect(after.draft).toEqual(before.draft);expect(after.teams).toEqual(before.teams);expect(errors).toEqual([]);
-  await expect(page.getByRole('button',{name:'Mise à jour prête',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Mise à jour prête',exact:true}).first()).toBeVisible();
   await page.getByRole('button',{name:'Paramètres',exact:true}).click();await expect(page.getByText('Version téléchargée : installation automatique à la fermeture.',{exact:true})).toBeVisible();
   await writeFile('artifacts/update-download-report.json',JSON.stringify({from:setup.currentVersion,to:result.targetVersion,installerBytes:installer.length,sha256:createHash('sha256').update(installer).digest('hex'),nativeUpdaterDownloadVerified:true,checksumMatchesMetadata:true,defaultInstallOnQuit:setup.defaultInstallOnQuit,installationDisabledInTest:true,userDataPreserved:true,statisticsRemainIdle:true,rendererErrors:errors},null,2));
   console.log(`UPDATE_DOWNLOAD_OK ${setup.currentVersion} -> ${result.targetVersion}, ${installer.length} bytes, checksum verified, ready UI visible, installer not executed`);

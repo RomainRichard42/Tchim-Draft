@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { createHash } from 'node:crypto';
-import { gzipSync } from 'node:zlib';
-import { mkdir, writeFile, rename } from 'node:fs/promises';
+import { gzipSync, gunzipSync } from 'node:zlib';
+import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
 import path from 'node:path';
 import { mergeDataPacks } from '../shared/packs';
 import { validateDataPack } from '../shared/validate-pack';
@@ -24,6 +24,8 @@ export async function exportDataset(db:Database.Database,directory:string):Promi
   const createdAt=packs.map(p=>p.createdAt).sort().at(-1)!;
   const parts:DatasetManifest['parts']=[],coverage:DatasetManifest['coverage']=[];
   await mkdir(directory,{recursive:true});
+  let previous:DatasetManifest|undefined;
+  try {previous=datasetSchema.parse(JSON.parse(await readFile(path.join(directory,'manifest.json'),'utf8')));} catch { /* First export or invalid local cache. */ }
   for(const source of ['solo','pro'] as const) {
     const patches=latestPatches(input.stats.filter(s=>s.source===source&&(source!=='solo'||s.rank==='MASTER_PLUS')).map(s=>s.patch));
     const stats=input.stats.filter(s=>s.source===source&&patches.includes(s.patch)&&(source!=='solo'||s.rank==='MASTER_PLUS'));
@@ -37,8 +39,18 @@ export async function exportDataset(db:Database.Database,directory:string):Promi
         const pack:DataPack={schemaVersion:1,id:`shared-${source}-${patch}-${Math.floor(offset/75000)}`,createdAt:stamp,
           provenance:{name:source==='pro'?`gol.gg ${patch}`:`Lolalytics Master+ ${patch}`,url:source==='pro'?'https://gol.gg/':'https://lolalytics.com/',license:'Public statistics collected by the publisher. Source attribution retained; robots.txt is not a redistribution license.',demo:false},
           stats:offset?[]:patchStats,pairs:patchPairs.slice(offset,offset+75000),games:offset?[]:patchGames};
-        const raw=JSON.stringify(validateDataPack(pack,known)),body=gzipSync(raw,{level:9});
+        const raw=JSON.stringify(validateDataPack(pack,known));let body:Buffer|undefined;
         if(Buffer.byteLength(raw)>48*1024*1024)throw new Error('Dataset part too large');
+        const old=previous?.parts.find(p=>p.id===pack.id);
+        if(old) try {
+          const cached=await readFile(path.join(directory,`${old.sha256}.json.gz`));
+          if(cached.length===old.bytes&&hash(cached)===old.sha256) {
+            const oldRaw=gunzipSync(cached,{maxOutputLength:48*1024*1024}).toString('utf8');
+            // A new collection timestamp alone does not require everyone to download identical statistics again.
+            if(oldRaw.replace(/("createdAt":)"[^"]*"/,`$1${JSON.stringify(pack.createdAt)}`)===raw)body=cached;
+          }
+        } catch { /* Repair the exported part from the validated local data. */ }
+        body??=gzipSync(raw,{level:9});
         const sha256=hash(body);await writeFile(path.join(directory,`${sha256}.json.gz`),body);
         parts.push({id:pack.id,sha256,bytes:body.length,stats:pack.stats.length,pairs:pack.pairs.length,games:pack.games.length});
       }

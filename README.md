@@ -100,18 +100,13 @@ Sécurité : renderer sandboxé, `contextIsolation: true`, `nodeIntegration: fal
 npm.cmd run dist:win
 ```
 
-Produit `release/0.6.1/Tchim-Draft-0.6.1-win-x64.exe`, installeur NSIS par utilisateur, et `release/0.6.1/win-unpacked/Tchim Draft.exe`. Le packaging utilise un dossier par version pour permettre la construction pendant qu’une ancienne version est ouverte ; `TCHIM_BUILD_OUTPUT` permet un autre dossier. Icône et métadonnées Windows intégrées. Cette build locale n’est pas signée ; configurer la signature Windows avant distribution publique (`signExecutable` actuellement désactivé).
+Produit `release/0.6.2/Tchim-Draft-0.6.2-win-x64.exe`, installeur NSIS par utilisateur, et `release/0.6.2/win-unpacked/Tchim Draft.exe`. Le packaging utilise un dossier par version pour permettre la construction pendant qu’une ancienne version est ouverte ; `TCHIM_BUILD_OUTPUT` permet un autre dossier. Icône et métadonnées Windows intégrées. La signature Windows n’est pas configurée (`signExecutable` désactivé) ; elle peut être ajoutée au workflow.
 
 macOS : `npm.cmd run dist:mac` sur une machine macOS. Configuration DMG/ZIP fournie ; ni build macOS, ni signature, ni notarisation validées sous Windows.
 
-Les mises à jour applicatives utilisent `electron-updater`, à configurer **au build** :
+Les mises à jour applicatives utilisent `electron-updater` avec les Releases GitHub configurées dans `resources/distribution.json`. Le tag `vX.Y.Z` déclenche le workflow Windows, qui vérifie le numéro de version, lance les tests, construit et publie l’installeur, son `.blockmap` et `latest.yml`. Les clients vérifient au lancement et toutes les quatre heures, téléchargent automatiquement et installent à la fermeture normale, ou sur clic dans Paramètres. Les statistiques restent actualisées uniquement sur clic, séparément de l’app. [Procédure de publication](docs/GITHUB.md), [documentation electron-builder](https://www.electron.build/v26/docs/features/auto-update/).
 
-```powershell
-$env:TCHIM_UPDATE_URL = 'https://votre-domaine.fr/releases/'
-npm.cmd run dist:win
-```
-
-Publier l’installeur, son blockmap et `latest.yml` sur ce flux HTTPS après signature et test. Le téléchargement de mise à jour est automatique, l’installation déclenchée depuis Paramètres après disponibilité. Sans URL, aucun fournisseur fictif n’est configuré. Aucun fichier n’est publié à distance par les commandes du projet. Les updates de données et d’application sont deux mécanismes distincts. [Documentation electron-builder](https://www.electron.build/v26/docs/features/auto-update/).
+Un autre flux HTTPS peut être choisi au build via `TCHIM_UPDATE_URL` ; par défaut, GitHub est actif sans configuration supplémentaire.
 
 ## Vérifications
 

@@ -16,7 +16,7 @@ try {
   const refresh=page.getByRole('button',{name:'Actualiser',exact:true}).first(),start=performance.now();await refresh.click();
   await expect.poll(async()=>{const s=await page.evaluate(()=>window.draftApi.snapshot());return !s.data.refreshing&&!!s.data.lastRefresh;},{timeout:240000,intervals:[1000,2000]}).toBe(true);
   const elapsedMs=Math.round(performance.now()-start);state=await page.evaluate(()=>window.draftApi.snapshot());
-  expect(state.data.coverage).toEqual(manifest.coverage);expect(state.data.packs).toHaveLength(manifest.parts.length);expect(state.teams.ally.players).toEqual([]);expect(state.teams.enemy.players).toEqual([]);expect(state.sessions).toEqual([]);
+  await expect(page.locator('.pack-row')).toHaveCount(6);expect(state.data.coverage).toEqual(manifest.coverage);expect(state.data.packs).toHaveLength(manifest.parts.length);expect(state.teams.ally.players).toEqual([]);expect(state.teams.enemy.players).toEqual([]);expect(state.sessions).toEqual([]);
   const requests=await desktop.evaluate(()=>globalThis.__distributionRequests),sites=requests.map(u=>new URL(u).hostname);
   expect(sites.some(h=>h==='gol.gg'||h.includes('lolalytics'))).toBe(false);
   const fileRequests=requests.filter(u=>new URL(u).hostname==='github.com'&&new URL(u).pathname.endsWith('.json.gz'));

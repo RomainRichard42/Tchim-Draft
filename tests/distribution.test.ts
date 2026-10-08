@@ -36,6 +36,10 @@ describe('Shared dataset distribution',()=>{
     for(const part of f.manifest.parts){const bytes=await readFile(path.join(f.output,`${part.sha256}.json.gz`));expect(sha256(bytes)).toBe(part.sha256);}
     expect(f.storage.db.prepare('SELECT * FROM packs ORDER BY id').all()).toEqual(signature);
   });
+  it('reuses exported content when only the source collection timestamps change',async()=>{
+    const f=await dataset();for(const pack of f.storage.packs())f.storage.importPack({...pack,createdAt:'2026-10-08T20:00:00.000Z'});
+    const again=await exportDataset(f.storage.db,f.output);expect(again.parts).toEqual(f.manifest.parts);expect(again.revision).toBe(f.manifest.revision);expect(again.createdAt).toBe('2026-10-08T20:00:00.000Z');
+  });
   it('imports into fresh SQLite, preserves user data, and downloads only changed files on later clicks',async()=>{
     const f=await dataset(),client=await fixture();client.storage.settings.pool.Ahri=5;client.storage.draft.side='red';client.storage.draft.patch='16.20';client.storage.persist();client.storage.saveSession('My series');
     const state=JSON.stringify({settings:client.storage.settings,draft:client.storage.draft,teams:client.storage.teams,sessions:client.storage.snapshot().sessions});
