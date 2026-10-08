@@ -1,7 +1,7 @@
-En compétition, les recommandations évaluent maintenant les matchups selon le rôle : davantage de valeur au counter direct top, aux synergies mid/jungle et jungle/support, ainsi qu’à la compatibilité de l’ADC avec sa botlane et les menaces adverses.
+Les recommandations compétitives prennent désormais en compte les réponses encore disponibles lorsque le vis-à-vis est inconnu, à tous les tours. Le poids du matchup reste présent dans le contexte du rôle. Les bans, le Fearless et les pools adverses modifient les réponses évaluées.
 
-Le support utilise une base de 40 % pour notre duo contre leur duo, 40 % pour répondre à leur composition et 20 % pour notre plan de jeu. Les poids évoluent avec les picks révélés et vos réglages. La synergie ADC/support est intégrée au bloc du duo uniquement. « Pourquoi » affiche les sous-scores et leurs poids effectifs en français et en anglais.
+Le risque combine des matchups lissés et les réponses défavorables plausibles. Les données manquantes reçoivent un coût d’incertitude séparé pour éviter de favoriser des picks peu documentés. Les tops dépendants de leur développement reçoivent aussi un coût qualitatif explicite avant la révélation du top adverse, sans liste d’exclusion de champions.
 
-La jauge utilise le même contexte par rôle que les recommandations. Les statistiques de paires sur un ou deux matchs restent neutralisées. Les sessions, historiques Fearless, pools OP.GG et paramètres sont conservés ; les statistiques restent actualisées sur clic.
+Les cartes affichent « Blind exposé » ou « Blind peu documenté ». « Pourquoi » détaille les réponses à surveiller, la couverture, l’incertitude et le coût de développement. Dès que le rôle adverse est révélé, le moteur utilise le matchup connu.
 
-Les poids sont des hypothèses de coaching à tester. L’évaluation du 2v2 repose sur des paires et des règles qualitatives ; elle ne constitue pas une mesure directe de domination de lane ou une probabilité de victoire.
+Les statistiques de partie restent distinctes de la domination de lane. Les scores de blind, distributions de réponses et coûts qualitatifs sont heuristiques, sans calibration de probabilité. Les données existantes, paramètres et sessions sont conservés ; aucune nouvelle collecte de sites n’est nécessaire.

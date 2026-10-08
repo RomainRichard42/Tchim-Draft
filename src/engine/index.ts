@@ -7,6 +7,7 @@ import { scoutingBan } from './scouting';
 import { gamePlan } from './gameplan';
 import { banConsequences } from './ban-impact';
 import { contextualRisk, contextualScore, roleContext } from './role-context';
+import { assessBlind, blindDevelopment } from './blind';
 
 function text(input: EngineInput, fr: string, en: string): string { return input.settings.language === 'fr' ? fr : en }
 interface Prepared {
@@ -121,10 +122,31 @@ function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AU
   const beforeOwnPlan=input.draft.mode==='pro'?gamePlan(allyTeam,allies.map(a=>a.role),[],[],input.settings.language):null;
   const results: Recommendation[] = [], prepared = prepare(input);
   const scout=input.teams?.[side===input.draft.side?'ally':'enemy'];
-  const summary = (key: string, rows: (Stat | PairStat)[]) => {
-    const cacheKey = `${side}|${input.draft.mode}|${input.draft.patch}|${input.draft.rank}|${input.draft.league}|${input.settings.oldPatchDecay}|${key}`;
-    if (!prepared.aggregates.has(cacheKey)) prepared.aggregates.set(cacheKey, aggregate(rows, input, side));
+  const summary = (key: string, rows: (Stat | PairStat)[], targetSide:Side=side) => {
+    const cacheKey = `${targetSide}|${input.draft.mode}|${input.draft.patch}|${input.draft.rank}|${input.draft.league}|${input.settings.oldPatchDecay}|${key}`;
+    if (!prepared.aggregates.has(cacheKey)) prepared.aggregates.set(cacheKey, aggregate(rows, input, targetSide));
     return prepared.aggregates.get(cacheKey)!;
+  };
+  const responseCache=new Map<Role,{champion:Champion;popularity:number;familiarity:number}[]>();
+  const replies=(role:Role)=>{
+    if(responseCache.has(role))return responseCache.get(role)!;
+    const opponent=opposite(side),enemyScout=input.teams?.[opponent===input.draft.side?'ally':'enemy'];
+    const players=enemyScout?.players.filter(p=>p.role===role||(p.role==='AUTO'&&!enemyScout.players.some(other=>other.role===role)))??[];
+    const restricted=enemyScout?.poolOnly&&players.length&&players.every(p=>p.pool.length>0);
+    const options=input.champions.flatMap(champion=>{
+      if(locked.has(champion.id))return [];
+      const declared=players.some(p=>p.pool.some(ch=>ch.championId===champion.id&&(!ch.role||ch.role===role)&&(ch.games>=3||(ch.games===0&&p.status==='manual'))));
+      if(restricted&&!declared)return [];
+      // Response viability/popularity use the opponent's side, not the candidate's side.
+      const stat=summary(`stat|${champion.id}|${role}`,prepared.stats.get(`${champion.id}|${role}`)??[],opponent);
+      const roleStats=[...prepared.roles.get(champion.id)??[]].flatMap(r=>summary(`stat|${champion.id}|${r}`,prepared.stats.get(`${champion.id}|${r}`)??[],opponent)?.groups??[]);
+      const observed=stat?.groups.some(g=>g.usable&&g.pickRate>=.005&&g.n/Math.max(1,roleStats.filter(s=>s.source===g.source).reduce((sum,s)=>sum+s.n,0))>=.1);
+      const explicitRole=players.some(p=>p.pool.some(ch=>ch.championId===champion.id&&ch.role===role&&(ch.games>=3||(ch.games===0&&p.status==='manual'))));
+      if(!observed&&!explicitRole)return [];
+      const comfort=scoutingBan(enemyScout,champion.id,role,100);
+      return [{champion,popularity:stat?.pickRate??.01,familiarity:comfort?comfort.score/100*comfort.appliedWeight/100:0}];
+    });
+    responseCache.set(role,options);return options;
   };
   for (const c of input.champions) {
     if (locked.has(c.id)||(candidateId&&c.id!==candidateId)) continue;
@@ -150,13 +172,18 @@ function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AU
       const afterPlan=gamePlan([...allyTeam,c],[...allies.map(a=>a.role),role],enemyTeam,enemies.map(e=>e.role),input.settings.language);
       const planContribution=allies.length?clamp(50+(afterPlan.score-beforePlan.score)*1.5):50;
       const synergy=clamp(statisticalSynergy+(contextual.synergy-50)*.5),comp=clamp(contextual.score*.65+planContribution*.35);
+      const opponentLane = enemies.find(e => e.role === role);
+      const blind=input.draft.mode==='pro'&&role!=='SUPPORT'&&!opponentLane&&input.stats.length
+        ?assessBlind(replies(role).filter(reply=>reply.champion.id!==c.id).map(reply=>({championId:reply.champion.id,
+          popularity:reply.popularity,familiarity:reply.familiarity,
+          evidence:summary(`matchup|${c.id}|${role}|${reply.champion.id}|${role}`,pairRows(input,c,role,{championId:reply.champion.id,role},'matchup'))})),role==='TOP'?1:role==='MID'?.625:.25):undefined;
+      if(blind&&role==='TOP'){blind.developmentPenalty=blindDevelopment(c);blind.score=clamp(blind.score-blind.developmentPenalty);}
       const ownAfter=beforeOwnPlan?gamePlan([...allyTeam,c],[...allies.map(a=>a.role),role],[],[],input.settings.language):null;
       const context=ownAfter&&beforeOwnPlan?roleContext({candidate:c,role,allies,enemies,champions:input.champions,
-        language:input.settings.language,weights:input.settings.weights,
+        language:input.settings.language,weights:input.settings.weights,blind,
         ownPlan:allies.length?clamp(50+(ownAfter.score-beforeOwnPlan.score)*1.5):50,
         pair:(candidate,candidateRole,target,kind)=>summary(`${kind}|${candidate.id}|${candidateRole}|${target.championId}|${target.role}`,pairRows(input,candidate,candidateRole,target,kind))}):undefined;
       // Unseen lanes imply risk: early selections reward role ambiguity and protection.
-      const opponentLane = enemies.find(e => e.role === role);
       const viableRoles=[...prepared.roles.get(c.id)??c.roles].filter(r=>input.stats.length?observedRole(summary(`stat|${c.id}|${r}`,prepared.stats.get(`${c.id}|${r}`)??[])):c.roles.includes(r));
       const priority=stats?stats.groups.reduce((sum,g)=>{
         const total=g.source==='pro'?championPro:championSolo;
@@ -167,7 +194,7 @@ function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AU
       const historical = prepared.historical.get(`${c.id}|${role}|${side}`);
       const historyPriority = historical && historical.total >= 10 ? posterior(historical.early, historical.total, 0.3, 20) * 100 : null;
       // Evaluate prospective lane counters before an early blind pick, when pair data exists.
-      const potential = early && input.pairs.length > 0 && !opponentLane ? input.champions.filter(o => !locked.has(o.id) && o.id !== c.id && o.roles.includes(role))
+      const potential = input.draft.mode==='solo'&&early && input.pairs.length > 0 && !opponentLane ? input.champions.filter(o => !locked.has(o.id) && o.id !== c.id && o.roles.includes(role))
         .flatMap(o => summary(`matchup|${c.id}|${role}|${o.id}|${role}`, pairRows(input, c, role, { championId: o.id, role }, 'matchup')) ?? []) : [];
       const blindCounterPenalty = potential.length ? Math.max(0, -Math.min(...potential.map(p => p.delta))) * 100 : 0;
       const orderValue = last && opponentLane ? clamp(50 + (matchup - 50) * 1.5) : early ? clamp(blindSafety - blindCounterPenalty + (input.draft.mode === 'pro' && historyPriority !== null ? (historyPriority - 50) * .2 : 0)) : opponentLane ? clamp(50 + (matchup - 50) * 1.2) : blindSafety;
@@ -186,6 +213,12 @@ function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AU
       if (stats?.rounded) reasons.push(text(input, 'Lolalytics : victoires reconstituées à partir des taux publiés arrondis ; intervalle approximatif.', 'Lolalytics: wins reconstructed from rounded published rates; approximate interval.'));
       if (viableRoles.length > 1 && early) reasons.push(text(input, `Flex observé ${viableRoles.join(' / ')} : conserve l’ambiguïté du premier tour.`, `${viableRoles.join(' / ')} observed flex: preserves early-round ambiguity.`));
       reasons.push(...contextual.reasons);
+      if(blind){
+        const threats=blind.threats.map(t=>input.champions.find(ch=>ch.id===t.championId)?.name??t.championId).join(' / ');
+        reasons.push(text(input,`Vis-à-vis ${role} inconnu : risque des réponses disponibles ${blind.score.toFixed(0)}/100 · ${blind.assessed}/${blind.available} matchups exploitables${threats?` · réponses à surveiller : ${threats}`:''}.`,`Unknown opposing ${role}: remaining-response assessment ${blind.score.toFixed(0)}/100 · ${blind.assessed}/${blind.available} usable matchups${threats?` · watch for: ${threats}`:''}.`));
+        if(blind.coverage<.5)reasons.push(text(input,`Couverture des réponses faible : ce blind ne peut pas être déclaré sûr. Coût d’incertitude distinct : ${blind.uncertaintyPenalty.toFixed(1)} points dans le critère blind.`,`Low response coverage: this blind cannot be described as safe. Separate uncertainty cost: ${blind.uncertaintyPenalty.toFixed(1)} points in the blind criterion.`));
+        if(blind.developmentPenalty>.5)reasons.push(text(input,`Développement du top : coût qualitatif ${blind.developmentPenalty.toFixed(1)} dans le critère blind. Son utilité dépend davantage de l’économie et du passage de lane ; ce n’est pas une statistique mesurée.`,`Top development: qualitative cost ${blind.developmentPenalty.toFixed(1)} in the blind criterion. Its utility depends more on economy and surviving lane; this is not a measured statistic.`));
+      }
       if(context){
         reasons.push(text(input,`Contexte ${role} : ${context.parts.map(p=>`${p.label} ${p.weight.toFixed(0)} %`).join(' · ')}${context.partial?' · informations partielles':''}.`,`Context ${role}: ${context.parts.map(p=>`${p.label} ${p.weight.toFixed(0)}%`).join(' · ')}${context.partial?' · partial information':''}.`));
         if(role==='SUPPORT')reasons.push(text(input,'Botlane : approximation du 2v2 par les quatre paires adverses, la synergie ADC/support et des règles qualitatives. Les statistiques mesurent des victoires de partie, pas la domination de lane.','Bot lane: 2v2 approximated from four opposing pairs, ADC/support synergy and qualitative rules. Statistics measure game wins, not lane dominance.'));
@@ -205,9 +238,10 @@ function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AU
       if (!c.curated) reasons.push(text(input, 'Profil de composition générique : à vérifier.', 'Generic composition profile: verify manually.'));
       const coverage = (1 + matchups.reduce((n,m)=>n+m.confidence,0) + synergies.reduce((n,m)=>n+m.confidence,0)) / Math.max(1, 1 + enemies.length + allies.length);
       const strongest=context?.parts.filter(p=>p.weight>0&&p.score>52).sort((a,b)=>(b.score-50)*b.weight-(a.score-50)*a.weight)[0];
-      const brief=strongest?text(input,`${strongest.label} : favorable${context?.partial?' · draft encore partielle':''}.`,`${strongest.label}: favorable${context?.partial?' · draft still partial':''}.`):contextual.reasons[0]??(useFamiliarity&&familiarity?(familiarity.games?text(input,`${familiarity.player.riotId} joue ce champion (${familiarity.games} parties connues).`,`${familiarity.player.riotId} plays this champion (${familiarity.games} known games).`):text(input,`Déclaré jouable par ${familiarity.player.riotId}.`,`Declared playable by ${familiarity.player.riotId}.`)):viableRoles.length>1&&early?text(input,'Un flex qui garde plusieurs options ouvertes.','A flex pick that keeps several options open.'):opponentLane&&matchup>52?text(input,'Matchup favorable face au rôle adverse déjà révélé.','Favorable matchup against the revealed enemy role.'):priority>55?text(input,'Champion prioritaire dans la méta sur les patchs analysés.','High-priority champion in the analyzed patch meta.'):stats&&stats.delta>0?text(input,'Résultats solides sur les derniers patchs.','Solid results across the latest patches.'):text(input,'À comparer avec les autres options pour votre composition.','Compare with the other options for your composition.'));
+      const blindBrief=blind&&blind.coverage<.5?text(input,'Blind : couverture des réponses insuffisante.','Blind: insufficient response coverage.'):blind&&blind.score<47?text(input,`Blind exposé${blind.threats.length?` : ${blind.threats.map(t=>input.champions.find(ch=>ch.id===t.championId)?.name??t.championId).join(' / ')} encore disponibles`:''}.`,`Exposed blind${blind.threats.length?`: ${blind.threats.map(t=>input.champions.find(ch=>ch.id===t.championId)?.name??t.championId).join(' / ')} still available`:''}.`):null;
+      const brief=blindBrief??(strongest?text(input,`${strongest.label} : favorable${context?.partial?' · draft encore partielle':''}.`,`${strongest.label}: favorable${context?.partial?' · draft still partial':''}.`):contextual.reasons[0]??(useFamiliarity&&familiarity?(familiarity.games?text(input,`${familiarity.player.riotId} joue ce champion (${familiarity.games} parties connues).`,`${familiarity.player.riotId} plays this champion (${familiarity.games} known games).`):text(input,`Déclaré jouable par ${familiarity.player.riotId}.`,`Declared playable by ${familiarity.player.riotId}.`)):viableRoles.length>1&&early?text(input,'Un flex qui garde plusieurs options ouvertes.','A flex pick that keeps several options open.'):opponentLane&&matchup>52?text(input,'Matchup favorable face au rôle adverse déjà révélé.','Favorable matchup against the revealed enemy role.'):priority>55?text(input,'Champion prioritaire dans la méta sur les patchs analysés.','High-priority champion in the analyzed patch meta.'):stats&&stats.delta>0?text(input,'Résultats solides sur les derniers patchs.','Solid results across the latest patches.'):text(input,'À comparer avec les autres options pour votre composition.','Compare with the other options for your composition.')));
       results.push({ championId: c.id, role, score: Math.round(score * 10) / 10, confidence: stats ? Math.round(stats.confidence * coverage * 100) : 0,
-        games: stats ? Math.round(stats.n) : 0, winrate: stats?.usable ? stats.estimate : null, interval: stats?.usable ? stats.interval : null, factors, reasons,context,summary:stats&&!stats.usable?text(input,`Échantillon insuffisant (${Math.round(stats.n)} parties) · choix évalué sur son plan de jeu et le pool.`,`Insufficient sample (${Math.round(stats.n)} games) · evaluated through game plan and pool.`):brief,lowSample:!!stats&&!stats.usable,
+        games: stats ? Math.round(stats.n) : 0, winrate: stats?.usable ? stats.estimate : null, interval: stats?.usable ? stats.interval : null, factors, reasons,context,blind,summary:stats&&!stats.usable?text(input,`Échantillon insuffisant (${Math.round(stats.n)} parties) · choix évalué sur son plan de jeu et le pool.`,`Insufficient sample (${Math.round(stats.n)} games) · evaluated through game plan and pool.`):brief,lowSample:!!stats&&!stats.usable,
         responseRisk: context?contextualRisk(context):enemyTeam.length ? clamp(50 + (50 - matchup)) : 50, source: stats ? (input.demo ? 'DEMO · ' : '') + stats.sources : 'heuristic' });
     }
   }

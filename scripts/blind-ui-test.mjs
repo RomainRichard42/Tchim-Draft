@@ -1,0 +1,71 @@
+import { _electron as electron, expect } from '@playwright/test';
+import Database from 'better-sqlite3';
+import { mkdir, cp, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+
+const root = path.resolve(`.test-data/blind-${Date.now()}`);
+await mkdir(root, { recursive: true }); await mkdir('artifacts', { recursive: true });
+const original = new Database('data/local/tchim.sqlite', { readonly: true });
+await original.backup(path.join(root, 'tchim.sqlite')); original.close();
+await cp('data/local/icons', path.join(root, 'icons'), { recursive: true });
+const env = { ...process.env, TCHIM_DATA_DIR: root, TCHIM_OFFLINE: '1', TCHIM_TEST_HEADLESS: '1' }; delete env.ELECTRON_RUN_AS_NODE;
+const executablePath = process.env.TCHIM_TEST_EXECUTABLE;
+const desktop = await electron.launch({ args: executablePath ? [] : ['.'], ...(executablePath ? { executablePath } : {}), env, timeout: 30000 });
+const errors = [], report = {};
+try {
+  await desktop.evaluate(({ BrowserWindow }) => { for (const win of BrowserWindow.getAllWindows()) win.webContents.setBackgroundThrottling(false); });
+  const page = await desktop.firstWindow(); page.on('pageerror', e => errors.push(e.message));
+  await expect(page.getByTestId('app')).toBeVisible();
+  await page.evaluate(async () => {
+    await window.draftApi.reset(); await window.draftApi.configure({ mode: 'pro', side: 'blue', targetRole: 'TOP', league: 'all', series: { format: 'single', games: [] } });
+    const empty = { url: '', region: 'euw', poolOnly: false, message: '', players: [] }; await window.draftApi.teams({ ally: empty, enemy: empty });
+    const snapshot = await window.draftApi.snapshot();
+    await window.draftApi.settings({ ...snapshot.settings, language: 'fr', weights: { winrate: 14, matchup: 18, synergy: 18, meta: 16, flex: 3, order: 8, composition: 18, mastery: 5 } });
+    for (let i = 0; i < 6; i++) await window.draftApi.select(null);
+  });
+  const start = Date.now(), open = await page.evaluate(() => window.draftApi.analyze()); report.analysisMs = Date.now() - start;
+  console.log('Blind analysis ready');
+  const camille = open.picks.find(p => p.championId === 'Camille'); expect(camille).toBeTruthy(); expect(camille.blind).toBeTruthy();
+  expect(camille.blind.developmentPenalty).toBeGreaterThan(0); expect(camille.blind.score).toBeLessThan(47);
+  await page.getByRole('textbox', { name: 'Rechercher parmi les picks…', exact: true }).fill('Camille');
+  const region = page.getByTestId('recommendation-scroll'); await expect(region.locator('.recommendation')).toHaveCount(1, { timeout: 30000 });
+  await expect(region).toHaveAttribute('aria-busy', 'false', { timeout: 30000 });
+  await expect(region).toContainText('Blind exposé'); await region.locator('.rec-meta button').click();
+  const detail = page.getByTestId('blind-detail'); await expect(detail).toBeVisible();
+  await expect(detail).toContainText('Vis-à-vis encore inconnu'); await expect(detail).toContainText('Développement du top');
+  await expect(page.getByTestId('role-context-detail')).toContainText('Blind : réponses encore disponibles');
+  await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click();
+  report.open = { score: camille.score, blind: camille.blind, top: open.picks.slice(0, 10).map(p => ({ championId: p.championId, score: p.score })) };
+  expect(camille.blind.threats.length).toBeGreaterThan(0);
+  const target = camille.blind.threats[0].championId;
+  await page.evaluate(async championId => {
+    const empty = { url: '', region: 'euw', poolOnly: false, message: '', players: [] };
+    await window.draftApi.teams({ ally: empty, enemy: { ...empty, players: [{ riotId: 'Fixture#TEST', role: 'TOP', status: 'manual', message: '', pool: [{ championId, role: 'TOP', games: 300, wins: 150 }] }] } });
+  }, target);
+  const comfortableReply = (await page.evaluate(() => window.draftApi.analyze())).picks.find(p => p.championId === 'Camille');
+  expect(comfortableReply.blind.score).toBeLessThan(camille.blind.score);
+  report.enemyComfort = { championId: target, score: comfortableReply.score, blind: comfortableReply.blind };
+  await page.evaluate(async () => { const empty = { url: '', region: 'euw', poolOnly: false, message: '', players: [] }; await window.draftApi.teams({ ally: empty, enemy: empty }); });
+  await page.evaluate(async target => { await window.draftApi.undo(0); await window.draftApi.select(target); for (let i = 1; i < 6; i++) await window.draftApi.select(null); }, target);
+  const protectedByBan = (await page.evaluate(() => window.draftApi.analyze())).picks.find(p => p.championId === 'Camille');
+  expect(protectedByBan.blind.threats.some(t => t.championId === target)).toBe(false);
+  expect(protectedByBan.blind.score).toBeGreaterThan(camille.blind.score);
+  report.banned = { target, score: protectedByBan.score, blind: protectedByBan.blind };
+  console.log('Ban response verified');
+  await page.evaluate(async () => { await window.draftApi.reset(); await window.draftApi.configure({ side: 'red', targetRole: 'TOP' }); for (let i = 0; i < 6; i++) await window.draftApi.select(null); await window.draftApi.select('Renekton', 'TOP'); });
+  const revealed = (await page.evaluate(() => window.draftApi.analyze())).picks.find(p => p.championId === 'Camille');
+  expect(revealed.blind).toBeUndefined(); report.revealed = { score: revealed.score, context: revealed.context };
+  await page.evaluate(async () => {
+    await window.draftApi.reset(); await window.draftApi.configure({ side: 'blue', targetRole: 'TOP' }); const snapshot = await window.draftApi.snapshot();
+    await window.draftApi.settings({ ...snapshot.settings, language: 'en' }); for (let i = 0; i < 6; i++) await window.draftApi.select(null);
+  });
+  await page.getByRole('textbox', { name: 'Search available picks…', exact: true }).fill('Camille');
+  await expect(region.locator('.recommendation')).toHaveCount(1, { timeout: 30000 });
+  await expect(region).toHaveAttribute('aria-busy', 'false', { timeout: 30000 });
+  await expect(region).toContainText('Exposed blind'); await region.locator('.rec-meta button').click();
+  await expect(detail).toContainText('Opposing role still unknown'); await expect(detail).toContainText('Top development');
+  const final = await page.evaluate(() => window.draftApi.snapshot()); expect(final.data.refreshing).toBe(false);
+  expect(errors).toEqual([]); Object.assign(report, { version: await desktop.evaluate(({ app }) => app.getVersion()), errors, realData: true, noCollection: true, localized: ['fr', 'en'] });
+  await writeFile('artifacts/blind-ui-report.json', JSON.stringify(report, null, 2));
+  console.log(JSON.stringify({ version: report.version, analysisMs: report.analysisMs, camilleScore: camille.score, bannedResponse: target, scoreAfterBan: protectedByBan.score, errors }));
+} finally { await desktop.close(); }

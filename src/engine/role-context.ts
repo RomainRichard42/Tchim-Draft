@@ -1,4 +1,4 @@
-import type { Champion, ContextPart, DraftContext, Role, Weights } from '../shared/types';
+import type { BlindAssessment, Champion, ContextPart, DraftContext, Role, Weights } from '../shared/types';
 import { DEFAULT_WEIGHTS } from '../shared/draft';
 import { clamp } from './math';
 import { teamplay } from './teamplay';
@@ -18,6 +18,7 @@ type PairLookup = (champion: Champion, role: Role, other: Pick, kind: 'matchup' 
 interface Input {
   candidate: Champion; role: Role; allies: Pick[]; enemies: Pick[]; champions: Champion[];
   weights: Weights; ownPlan: number; language: string; pair: PairLookup;
+  blind?: BlindAssessment;
 }
 type Criterion = 'matchup' | 'synergy' | 'composition';
 const neutral = 50;
@@ -81,8 +82,8 @@ export function roleContext(input: Input): DraftContext {
   } else {
     const profile = ROLE_CONTEXT_WEIGHTS[role], lane = enemies.find(p => p.role === role);
     const others = enemies.filter(p => p.role !== role);
-    add('lane', tr('Matchup contre le vis-à-vis', 'Matchup against the opposing role'), profile.lane, lane ? 1 : 0,
-      [{ score: lane ? neutral + match(lane) : neutral, share: 1, criterion: 'matchup' }]);
+    add('lane', input.blind?tr('Blind : réponses encore disponibles', 'Blind: remaining responses'):tr('Matchup contre le vis-à-vis', 'Matchup against the opposing role'), profile.lane, lane||input.blind ? 1 : 0,
+      [{ score: lane ? neutral + match(lane) : input.blind?.score??neutral, share: 1, criterion: 'matchup' }]);
     add('opposition', tr('Réponse aux autres ennemis', 'Answer to other enemies'), profile.opposition, others.length / 4, [
       { score: neutral + average(others, match, oppositionImportance), share: .7, criterion: 'matchup' },
       { score: mechanics.counterScore, share: .3, criterion: 'composition' }
@@ -97,7 +98,7 @@ export function roleContext(input: Input): DraftContext {
   const total = parts.reduce((sum, p) => sum + p.weight, 0);
   for (const p of parts) p.weight = total ? p.weight / total * 100 : 0;
   return { role, score: total ? clamp(parts.reduce((sum, p) => sum + p.score * p.weight, 0) / 100) : neutral,
-    parts, partial: parts.some(p => p.coverage < 1) };
+    parts, partial: !!input.blind||parts.some(p => p.coverage < 1) };
 }
 
 // Shared by recommendations and the live gauge. Context replaces, rather than adds

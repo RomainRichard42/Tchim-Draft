@@ -36,6 +36,7 @@ try {
   expect(first.picks.length).toBeGreaterThan(5);
   expect(first.picks.every(p => p.role === 'SUPPORT' && p.context.parts.length === 3)).toBe(true);
   await expect(page.getByTestId('recommendation-scroll').locator('.recommendation')).toHaveCount(first.picks.length, { timeout: 30000 });
+  await expect(page.getByTestId('recommendation-scroll')).toHaveAttribute('aria-busy', 'false', { timeout: 30000 });
   await page.getByTestId('recommendation-scroll').locator('.rec-meta button').first().click();
   const detail = page.getByTestId('role-context-detail');
   await expect(detail).toBeVisible(); await expect(detail).toContainText('Notre duo contre leur duo');
@@ -57,6 +58,8 @@ try {
     await window.draftApi.settings({ ...snapshot.settings, language: 'en' });
   });
   await expect(page.getByTestId('recommendation-scroll').locator('.recommendation')).toHaveCount(after.picks.length, { timeout: 30000 });
+  await expect(page.getByTestId('recommendation-scroll').locator('.rec-meta button').first()).toHaveText(/Why this choice/);
+  await expect(page.getByTestId('recommendation-scroll')).toHaveAttribute('aria-busy', 'false', { timeout: 30000 });
   await page.getByTestId('recommendation-scroll').locator('.rec-meta button').first().click();
   await expect(detail).toContainText('Our duo against their duo'); await expect(detail).toContainText('Answer to their composition');
   await expect(detail).toContainText('Contribution to our plan');
