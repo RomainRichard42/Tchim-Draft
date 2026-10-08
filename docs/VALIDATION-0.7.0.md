@@ -30,3 +30,11 @@ La capture Playwright du nouveau panneau a rencontré un blocage de rendu dans l
 Ces coefficients sont des hypothèses de coaching, sans calibration prédictive. Le 2v2 est approximé à partir de statistiques de paires et de profils qualitatifs, sans mesure individuelle de gold/CS/XP à 15 minutes. Les scores ne sont pas des probabilités de victoire. Les rôles ennemis doivent être attribués manuellement ; l'incertitude des flex n'est pas modélisée.
 
 Le test utilise le binaire empaqueté ; il n'exécute pas l'installation NSIS ni une mise à jour dans l'installation personnelle. La collecte des statistiques reste manuelle ; aucun scraping ni republication de données n'a été nécessaire pour cette version.
+
+## Publication et mise à jour
+
+La [release 0.7.0](https://github.com/RomainRichard42/Tchim-Draft/releases/tag/v0.7.0) est publique. Le [workflow Windows](https://github.com/RomainRichard42/Tchim-Draft/actions/runs/37839649442) a terminé avec succès sur le commit `f436138` : 93 tests, build et packaging, puis publication de l'installeur, du blockmap et de `latest.yml`.
+
+L'installeur officiel a été téléchargé sans compte, cookie ni en-tête Authorization : **125 988 860 octets**, SHA-256 `59669e2e2d9496192975195fecb72c2ce08dc48ba01ece294d2ffdb764f1be16`. Son SHA-512 correspond à `latest.yml`. Rapport local : `artifacts/public-release-report.json` ; copie du binaire officiel : `release/0.7.0/github/`.
+
+`scripts/update-download-test.mjs` a aussi vérifié le téléchargement natif **0.6.2 → 0.7.0** via `electron-updater`, dans une instance isolée avec le cache de téléchargement dans le répertoire de test. Le même fichier et son checksum ont été contrôlés ; le bouton « Mise à jour prête » et le message d'installation à la fermeture sont visibles. Les paramètres, draft, équipes et données sont conservés ; aucune collecte statistique ni erreur renderer. La politique normale d'installation à la fermeture est activée ; son exécution a été désactivée uniquement dans le test pour ne pas installer le binaire sur l'ordinateur personnel. Rapport local : `artifacts/update-download-report.json`.
