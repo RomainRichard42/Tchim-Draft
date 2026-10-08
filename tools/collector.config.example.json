@@ -1,0 +1,17 @@
+{
+  "publisher": {
+    "name": "Votre collecteur autorisé",
+    "url": "https://votre-domaine.fr",
+    "license": "Remplacer par les droits de collecte et de redistribution obtenus auprès des fournisseurs."
+  },
+  "outputDirectory": "../collector-output",
+  "minIntervalMs": 2000,
+  "allowDemo": false,
+  "sources": [
+    {
+      "id": "licensed-provider",
+      "url": "https://votre-fournisseur.fr/exports/normalized.json",
+      "authorizationFile": "./authorization.private.json"
+    }
+  ]
+}

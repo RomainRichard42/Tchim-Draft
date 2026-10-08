@@ -1,0 +1,61 @@
+import { _electron as electron,expect } from '@playwright/test';
+import Database from 'better-sqlite3';
+import {mkdir,cp,readFile,writeFile} from 'node:fs/promises';
+import path from 'node:path';
+const root=path.resolve(`.test-data/teams-ui-${Date.now()}`);await mkdir(root,{recursive:true});
+const original=new Database('data/local/tchim.sqlite',{readonly:true});await original.backup(path.join(root,'tchim.sqlite'));original.close();
+await cp('data/local/scouting',path.join(root,'scouting'),{recursive:true});await cp('data/local/icons',path.join(root,'icons'),{recursive:true});
+const env={...process.env,TCHIM_DATA_DIR:root,TCHIM_OFFLINE:'1',TCHIM_TEST_HEADLESS:'1'};delete env.ELECTRON_RUN_AS_NODE;
+const executablePath=process.env.TCHIM_TEST_EXECUTABLE;
+const desktop=await electron.launch({args:executablePath?[]:['.'],...(executablePath?{executablePath}:{}),env,timeout:30000});
+const errors=[];
+try{
+ const page=await desktop.firstWindow();page.on('pageerror',e=>errors.push(e.message));
+ await expect(page.getByTestId('app')).toBeVisible();
+ await expect(page.getByRole('heading',{name:'La victoire commence ici.'})).toBeVisible();
+ expect(await page.getByText('Mon rôle',{exact:true}).count()).toBe(0);
+ await page.getByRole('button',{name:'Équipes',exact:true}).click();
+ const example=JSON.parse(await readFile('artifacts/scouting-example.json','utf8'));
+ for(const key of ['ally','enemy']){
+  const panel=page.getByTestId(`scouting-${key}`);await panel.getByLabel(`${key} multi OP.GG`).fill(example.url);
+  await panel.getByRole('button',{name:'Importer les joueurs et leurs pools',exact:true}).click();
+  await expect(panel.locator('.scouting-player')).toHaveCount(5,{timeout:30000});
+  await expect(panel.getByText('5/5 profils chargés. Vérifiez les rôles de votre équipe.',{exact:true})).toBeVisible({timeout:30000});
+  await panel.getByRole('checkbox').check();
+ }
+ const state=await page.evaluate(()=>window.draftApi.snapshot());
+ expect(state.teams.ally.players.map(p=>p.riotId)).toEqual(example.players.map(p=>p.riotId));
+ expect(state.teams.enemy.players.every(p=>p.pool.length>0)).toBe(true);
+ const ownTop=page.getByTestId('scouting-ally').getByLabel(`${state.teams.ally.players[0].riotId} champion`);await ownTop.fill('Gwen');
+ await ownTop.locator('..').getByRole('button',{name:'+',exact:true}).click();
+ expect((await page.evaluate(()=>window.draftApi.snapshot())).teams.ally.players[0].pool.some(p=>p.championId==='Gwen')).toBe(true);
+ await desktop.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].showInactive());
+ await page.screenshot({path:'artifacts/teams-desktop.png',fullPage:true});
+ await page.getByRole('button',{name:'Draft',exact:true}).click();
+ await page.evaluate(()=>window.draftApi.reset());
+ const bans=await page.evaluate(()=>window.draftApi.analyze());
+ expect(bans.bans[0].banScouting.games).toBeGreaterThan(3);expect(bans.bans[0].banScouting.appliedWeight).toBeGreaterThan(0);
+ await expect(page.locator('.recommendation').first()).toContainText('Ciblage OP.GG',{timeout:30000});
+ await page.locator('.recommendation').first().getByRole('button',{name:'Pourquoi ce choix ?',exact:false}).click();
+ await expect(page.getByTestId('ban-scouting-factor')).toBeVisible();
+ await page.keyboard.press('Escape');
+ await page.screenshot({path:'artifacts/opgg-bans.png',fullPage:true});
+ await page.getByRole('button',{name:'Paramètres',exact:true}).click();
+ const weight=page.getByRole('slider',{name:'Poids OP.GG · bans'});await expect(weight).toHaveValue('35');
+ await weight.focus();await weight.press('Home');await page.getByRole('button',{name:'Appliquer',exact:true}).first().click();
+ expect((await page.evaluate(()=>window.draftApi.snapshot())).settings.banScoutingWeight).toBe(0);
+ const unweighted=await page.evaluate(()=>window.draftApi.analyze());
+ expect(unweighted.bans.map(b=>[b.championId,b.score])).not.toEqual(bans.bans.map(b=>[b.championId,b.score]));
+ expect(unweighted.bans.every(b=>!b.banScouting||b.banScouting.appliedWeight===0)).toBe(true);
+ await page.evaluate(async()=>{const s=await window.draftApi.snapshot();await window.draftApi.settings({...s.settings,banScoutingWeight:35});});
+ await page.getByRole('button',{name:'Draft',exact:true}).click();
+ await page.evaluate(async()=>{await window.draftApi.reset();for(let i=0;i<6;i++)await window.draftApi.select(null);});
+ const analysis=await page.evaluate(()=>window.draftApi.analyze());
+ expect(analysis.picks.length).toBeGreaterThan(5);
+ await expect(page.locator('.recommendation')).toHaveCount(analysis.picks.length,{timeout:30000});
+ for(const rec of analysis.picks){const player=state.teams.ally.players.find(p=>p.role===rec.role);expect(player.pool.some(c=>c.championId===rec.championId)).toBe(true);}
+ await page.screenshot({path:'artifacts/team-pool-draft.png',fullPage:true});
+ expect(errors).toEqual([]);
+ await writeFile('artifacts/teams-desktop-report.json',JSON.stringify({executablePath,players:state.teams.ally.players.map(p=>({riotId:p.riotId,role:p.role,champions:p.pool.length})),bans:bans.bans.map(b=>({championId:b.championId,score:b.score,scouting:b.banScouting})),bansWithoutScouting:unweighted.bans.map(b=>({championId:b.championId,score:b.score})),picks:analysis.picks.map(p=>({championId:p.championId,role:p.role,score:p.score})),errors},null,2));
+ console.log('TEAMS_DESKTOP_OK real OP.GG profiles, both rosters, targeted bans, weight slider, editable pools, secure IPC, competitive picks');
+}finally{await desktop.close();}

@@ -1,0 +1,99 @@
+import { _electron as electron, expect } from '@playwright/test';
+import { mkdir,writeFile } from 'node:fs/promises';
+import path from 'node:path';
+
+await mkdir('artifacts',{recursive:true});
+const root=path.resolve(`.test-data/coach-${Date.now()}`);await mkdir(root,{recursive:true});
+const env={...process.env,TCHIM_DATA_DIR:root,TCHIM_OFFLINE:'1',TCHIM_TEST_HEADLESS:'1'};delete env.ELECTRON_RUN_AS_NODE;
+const executablePath=process.env.TCHIM_TEST_EXECUTABLE;
+const desktop=await electron.launch({args:executablePath?[]:['.'],...(executablePath?{executablePath}:{}),env,timeout:30000});
+const errors=[],report={};
+let closed=false;
+const roster={blue:[['Jinx','ADC'],['Lulu','SUPPORT'],['Orianna','MID'],['Ornn','TOP'],['Sejuani','JUNGLE']],red:[['Vi','JUNGLE'],['Akali','MID'],['Ashe','ADC'],['Nautilus','SUPPORT'],['Gwen','TOP']]};
+try{
+ const page=await desktop.firstWindow();page.on('pageerror',e=>errors.push(e.message));
+ await expect(page.getByTestId('app')).toBeVisible();
+ await expect(page.getByTestId('decision-desk')).toBeVisible({timeout:30000});
+ const fearless=page.getByTestId('fearless-panel');
+ await page.getByRole('combobox',{name:'Format Fearless'}).selectOption('bo3');
+ await page.evaluate(async()=>{await window.draftApi.select('Zed');for(let i=1;i<6;i++)await window.draftApi.select(null);});
+ await page.evaluate(async roster=>{
+  const seq=['blue','red','red','blue','blue','red','ban','ban','ban','ban','red','blue','blue','red'];
+  for(const side of seq)if(side==='ban')await window.draftApi.select(null);else{const [id,role]=roster[side].shift();await window.draftApi.select(id,role);}
+ },structuredClone(roster));
+ await expect(page.locator('.recommendation-heading h2')).toHaveText('Draft terminée',{timeout:30000});
+ await expect(fearless.getByRole('button',{name:'Archiver et continuer'})).toBeEnabled({timeout:30000});
+ await fearless.getByRole('combobox',{name:'Résultat de la manche'}).selectOption('blue');
+ await fearless.getByRole('button',{name:'Archiver et continuer'}).click();
+ await expect(fearless).toContainText('Manche 2/3',{timeout:30000});
+ await expect(fearless).toContainText('10 champions indisponibles');
+ const archived=await page.evaluate(()=>window.draftApi.snapshot());report.archived=archived.draft.series;
+ expect(archived.draft.series.games[0].picks).toHaveLength(10);expect(archived.draft.series.games[0].winner).toBe('ally');
+ const available=await page.evaluate(()=>window.draftApi.analyze());
+ const blocked=new Set(archived.draft.series.games[0].picks);
+ for(const r of [...available.picks,...available.bans,...available.enemies])expect(blocked.has(r.championId)).toBe(false);
+ const rejected=await page.evaluate(async()=>{try{await window.draftApi.select('Jinx');return false;}catch{return true;}});expect(rejected).toBe(true);
+ await page.getByRole('button',{name:'Ban',exact:true}).click();
+ await page.getByPlaceholder('Rechercher un champion…').fill('Jinx');await expect(page.locator('.champion-option')).toHaveCount(0);
+ await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ await page.evaluate(async()=>{await window.draftApi.select('Zed');await window.draftApi.undo();});
+ await fearless.getByRole('button',{name:'Rouvrir la précédente'}).click();
+ await expect(page.locator('.timeline-track .done')).toHaveCount(20);
+ expect((await page.evaluate(()=>window.draftApi.snapshot())).draft.series.games).toHaveLength(0);
+ await expect(fearless.getByRole('button',{name:'Archiver et continuer'})).toBeEnabled({timeout:30000});
+ await fearless.getByRole('button',{name:'Archiver et continuer'}).click();
+ await expect(page.getByTestId('decision-desk')).toBeVisible({timeout:30000});
+ await page.locator('.recommendations .rec-meta button').first().click();
+ await expect(page.getByTestId('ban-impact-detail')).toBeVisible();
+ await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ await page.keyboard.press('Control+1');await expect(page.getByRole('dialog')).toBeVisible();
+ await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ await fearless.getByRole('button',{name:'Saisir les 10 picks d’une manche précédente'}).click();
+ const prior=['Ahri','Aatrox','Alistar','Anivia','Annie','Aphelios','Azir','Bard','Blitzcrank','Brand'];
+ for(const id of prior){await fearless.getByRole('textbox',{name:'Rechercher dans l’historique Fearless'}).fill(id);await fearless.locator('.fearless-choices').getByRole('button',{name:id,exact:true}).click();}
+ await fearless.getByRole('button',{name:'Enregistrer la manche · 10/10'}).click();
+ await expect(fearless).toContainText('Manche 3/3',{timeout:30000});report.manualPrior=prior;
+ await page.evaluate(()=>window.draftApi.saveSession('Coach Fearless regression'));
+ await expect(fearless.getByRole('button',{name:'Nouvelle série'})).toBeEnabled({timeout:30000});
+ await fearless.getByRole('button',{name:'Nouvelle série'}).click();
+ await expect(fearless).toContainText('Manche 1/3');
+ const sessions=await page.evaluate(()=>window.draftApi.snapshot());
+ await page.evaluate(id=>window.draftApi.loadSession(id),sessions.sessions.find(s=>s.name==='Coach Fearless regression').id);
+ await expect(fearless).toContainText('20 champions indisponibles');
+ await page.evaluate(async()=>{await window.draftApi.series('reset');for(let i=0;i<6;i++)await window.draftApi.select(null);await window.draftApi.select('Jinx','ADC');await window.draftApi.select('Vi','JUNGLE');await window.draftApi.select('Akali','MID');});
+ await expect(page.getByTestId('game-plan')).toHaveCount(2,{timeout:30000});
+ await expect(page.locator('.game-plan').first()).toContainText('PLAN DE JEU');
+ await expect(page.getByTestId('draft-balance')).toContainText('3/10 picks révélés',{timeout:30000});
+ await expect(page.getByTestId('recommendation-scroll')).toHaveAttribute('aria-busy','false',{timeout:30000});
+ await desktop.evaluate(({BrowserWindow})=>{const w=BrowserWindow.getAllWindows()[0];w.setSize(1480,1000);w.showInactive();});
+ await page.screenshot({path:'artifacts/coach-plan.png',fullPage:true});
+ const newWindow=desktop.waitForEvent('window');await page.getByRole('button',{name:'Overlay',exact:true}).click();const overlay=await newWindow;
+ await expect(overlay.getByTestId('draft-balance')).toBeVisible({timeout:30000});
+ await page.evaluate(()=>window.draftApi.overlay());
+ // Inspect a genuinely insufficient sample through import + renderer, not a mocked analysis.
+ await page.evaluate(async()=>{
+  await window.draftApi.series('reset');await window.draftApi.configure({series:{format:'single',games:[]},side:'blue',targetRole:'MID'});
+  const empty={url:'',region:'euw',players:[],poolOnly:false,message:''};
+  await window.draftApi.teams({ally:{...empty,players:[{riotId:'Coach#EUW',role:'MID',pool:[{championId:'Zed',role:'MID',games:0,wins:0}],status:'manual',message:''}]},enemy:empty});
+ });
+ const sample={championId:'Zed',role:'MID',patch:'16.20',source:'pro',rank:'all',league:'all',side:'all',games:2,wins:2,pickRate:1,banRate:1,baseline:.5};
+ const packFile=path.join(root,'small-sample.json');
+ await writeFile(packFile,JSON.stringify({schemaVersion:1,id:'coach-sample',createdAt:new Date().toISOString(),provenance:{name:'Synthetic regression',url:'https://example.org/fixture',license:'test fixture',demo:true},stats:[sample],pairs:[],games:[]}));
+ await desktop.evaluate(({dialog},file)=>{dialog.showOpenDialog=async()=>({canceled:false,filePaths:[file]});},packFile);
+ await page.evaluate(async()=>{await window.draftApi.importPack();for(let i=0;i<6;i++)await window.draftApi.select(null);});
+ const region=page.getByTestId('recommendation-scroll');
+ await expect(region.locator('.recommendation')).toHaveCount(1,{timeout:30000});await expect(region).toContainText('Échantillon insuffisant · 2 parties');
+ await expect(region).toContainText('Fiabilité 0%');report.sample=(await page.evaluate(()=>window.draftApi.analyze())).picks[0];
+ expect(report.sample.factors.winrate).toBe(50);expect(report.sample.factors.meta).toBe(35);expect(report.sample.winrate).toBeNull();
+ await page.screenshot({path:'artifacts/coach-small-sample.png',fullPage:true});
+ await page.evaluate(async()=>{const s=await window.draftApi.snapshot();await window.draftApi.settings({...s.settings,language:'en'});});
+ await expect(region).toContainText('Insufficient sample');await expect(page.getByTestId('game-plan').first()).toContainText('GAME PLAN');
+ await page.evaluate(async previous=>{const s=await window.draftApi.snapshot();await window.draftApi.settings({...s.settings,language:'fr'});await window.draftApi.configure({series:{format:'bo5',games:[{picks:previous}]}});},Object.values(roster).flat().map(p=>p[0]));
+ await expect(fearless).toContainText('Manche 2/5');
+ await desktop.close();
+ closed=true;
+ const reopened=await electron.launch({args:executablePath?[]:['.'],...(executablePath?{executablePath}:{}),env,timeout:30000});
+ try{const p=await reopened.firstWindow();await expect(p.getByTestId('fearless-panel')).toContainText('Manche 2/5',{timeout:30000});const s=await p.evaluate(()=>window.draftApi.snapshot());expect(s.draft.series.games[0].picks).toHaveLength(10);report.persisted=true;}finally{await reopened.close();}
+ expect(errors).toEqual([]);report.errors=errors;await writeFile('artifacts/coach-ui-report.json',JSON.stringify(report,null,2));
+ console.log('COACH_UI_OK Fearless archive/reopen/manual history/session/restart, blocked IPC + picker, plans, ban impact, shortcuts, low samples, FR/EN, overlay');
+}finally{if(!closed)await desktop.close();}

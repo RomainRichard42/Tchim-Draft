@@ -1,0 +1,14 @@
+import { chromium } from '@playwright/test';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { load } from 'cheerio';
+await mkdir('artifacts/v3-probes', { recursive: true });
+const userUrl=process.env.TCHIM_OPGG_URL ?? (()=>{throw new Error('Set TCHIM_OPGG_URL to your multi OP.GG URL')})();
+const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', headless: true });
+const page = await browser.newPage();
+page.on('response',async r=>{if(r.url().includes('op.gg')&&/summoner|multi|champion/.test(r.url())&&r.headers()['content-type']?.includes('json')) {try{const body=await r.text();await writeFile(`artifacts/v3-probes/response-${Date.now()}.json`,body); console.log('OPGG DATA',r.status(),r.url(),body.slice(0,300));}catch{}}});
+await page.goto(userUrl,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForTimeout(10000);
+await writeFile('artifacts/v3-probes/opgg-user.html',await page.content()); console.log('USER', (await page.locator('body').innerText()).slice(-6500));
+await page.goto('https://lolalytics.com/lol/ahri/build/?tier=master_plus&patch=16.20&lane=middle',{waitUntil:'domcontentloaded',timeout:60000});
+page.on('response',async r=>{if(r.url().includes('lolalytics')&&r.headers()['content-type']?.includes('json')){try{const body=await r.text();await writeFile(`artifacts/v3-probes/lol-response-${Date.now()}.json`,body);console.log('LOL DATA',r.status(),r.url(),body.slice(0,500));}catch{}}});
+await page.locator('[data-type="common_synergy"]').click();await page.waitForTimeout(5000);console.log('SYNERGY URL',page.url());await writeFile('artifacts/v3-probes/lol-synergy.html',await page.content());
+console.log('SYNERGY TEXT',(await page.locator('body').innerText()).slice(-5000));await browser.close();

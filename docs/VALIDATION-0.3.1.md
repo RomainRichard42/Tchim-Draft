@@ -1,0 +1,16 @@
+# Validation 0.3.1 — 8 octobre 2026
+
+Les bans disposent d’un poids OP.GG distinct de la familiarité des picks. Maximum par défaut : **35 %**, réglable de 0 à 100 dans Paramètres. Fréquence, concentration du pool, résultats saisonniers lissés et fiabilité des données modulent ce score. Les rôles déjà remplis sont exclus ; les rôles d’un flex sont évalués avant déduplication. Le détail affiche le joueur, les parties, leur part dans le pool connu et le poids réellement appliqué. Le score se désactive à 0 sans désactiver les restrictions de pool.
+
+- **44 tests unitaires** dans six fichiers : six nouvelles régressions vérifient le poids sans restriction de pool, sa désactivation sans influence indirecte de maîtrise, la concentration du pool, les petits échantillons, le ciblage sur le côté rouge, les flex, la seconde phase de bans et les anciens paramètres.
+- **TypeScript et build Electron/React réussis**. Packaging NSIS x64 terminé dans un dossier versionné : une instance 0.3.0 était ouverte et verrouillait le dossier précédent. Le processus utilisateur a été conservé.
+- **Test Electron des équipes réussi**, sur `release/0.3.1/win-unpacked/Tchim Draft.exe` avec une copie isolée de la base : import des cinq profils réels dans les deux équipes, bans avec ciblage OP.GG, détail « Menace OP.GG », modification du slider à zéro et sauvegarde, changement mesuré des scores, restauration à 35, picks et pools éditables. Aucune erreur renderer.
+- **Test Electron des données réelles réussi** : SQLite, worker, cinq recommandations, trois scénarios complets, trois patchs par source, importations et sandbox. Le test repart sur une nouvelle draft dans sa copie de test ; la draft utilisateur reste conservée.
+
+Avec le multi d’exemple, la liste à 0 % est Vi, Lulu, Nocturne, Syndra, Orianna ; à 35 %, elle devient Lulu, Xin Zhao, Ezreal, Seraphine, Jhin. Xin Zhao cible **le joueur jungle adverse**, avec **234 parties**, **23,4 % des parties connues**, et **29,9 % de poids effectif**. Cette comparaison utilise les pools restreints des deux équipes dans le test ; les tests unitaires couvrent aussi les pools non restreints. Ce résultat illustre une influence effective et ne constitue pas une validation de probabilité de victoire.
+
+Capture : `artifacts/opgg-bans.png`. Rapport : `artifacts/teams-desktop-report.json`. Données conservées : Lolalytics Master+ **16.20 / 16.19 / 16.18**, gol.gg **16.18 / 16.17 / 16.16**, avec 1 504 matchs pro. Les limites et décomptes détaillés sont dans `docs/VALIDATION-0.3.md` et `docs/DATA.md`.
+
+Installeur : `release/0.3.1/Tchim-Draft-0.3.1-win-x64.exe`, **125 926 338 octets**. SHA-256 : `6B53DD8902EA57053D222CEE94A26EF91ADEFD897885180500E69B26C963CCF0`.
+
+`Lancer Tchim Draft.cmd` pointe sur la 0.3.1 et la même base du projet. Fermer puis relancer l’ancienne application pour charger ce binaire ; un second lancement pendant qu’elle est ouverte active son ancienne instance. L’installeur n’a pas été exécuté dans le profil utilisateur ; le binaire packagé a été testé directement. Build non signée, sans publication distante. Les profils OP.GG représentent une saison, indépendamment des winrates de patch. Les calculs restent heuristiques et explicables.

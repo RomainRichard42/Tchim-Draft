@@ -1,0 +1,14 @@
+node_modules/
+dist/
+release/
+.test-data/
+artifacts/
+data/local/
+*.log
+.env
+*.sqlite*
+data/shared/
+data/local-*/
+.env.*
+tools/collector.config.json
+**/authorizations/
