@@ -6,6 +6,7 @@ import { damageShare, teamplay } from './teamplay';
 import { scoutingBan } from './scouting';
 import { gamePlan } from './gameplan';
 import { banConsequences } from './ban-impact';
+import { contextualRisk, contextualScore, roleContext } from './role-context';
 
 function text(input: EngineInput, fr: string, en: string): string { return input.settings.language === 'fr' ? fr : en }
 interface Prepared {
@@ -14,13 +15,15 @@ interface Prepared {
   historical: Map<string, { early: number; total: number }>;
   windows: Record<'solo'|'pro',string[]>;
   configuration: string;
+  pairsInput: PairStat[]; gamesInput: EngineInput['games']; counts: string;
 }
 const preparedCache = new WeakMap<Stat[], Prepared>();
 function prepare(input: EngineInput): Prepared {
   const configuration=`${input.draft.league}|${input.settings.oldPatchDecay}`;
-  const existing = preparedCache.get(input.stats); if (existing?.configuration===configuration) return existing;
+  const counts=`${input.stats.length}|${input.pairs.length}|${input.games?.length??0}`;
+  const existing = preparedCache.get(input.stats); if (existing?.configuration===configuration&&existing.pairsInput===input.pairs&&existing.gamesInput===input.games&&existing.counts===counts) return existing;
   const patches=(source:'solo'|'pro')=>{const stat=input.stats.filter(s=>s.source===source&&(source==='pro'||s.rank==='MASTER_PLUS'||s.rank==='all'));return latestPatches((stat.length?stat:input.pairs.filter(p=>p.source===source)).map(s=>s.patch));};
-  const data: Prepared = { stats: new Map(), pairs: new Map(), roles: new Map(), aggregates: new Map(), historical: new Map(),windows:{solo:patches('solo'),pro:patches('pro')},configuration };
+  const data: Prepared = { stats: new Map(), pairs: new Map(), roles: new Map(), aggregates: new Map(), historical: new Map(),windows:{solo:patches('solo'),pro:patches('pro')},configuration,pairsInput:input.pairs,gamesInput:input.games,counts };
   for (const row of input.stats) {
     const key = `${row.championId}|${row.role}`, values = data.stats.get(key) ?? []; values.push(row); data.stats.set(key, values);
     const roles = data.roles.get(row.championId) ?? new Set<Role>(); roles.add(row.role); data.roles.set(row.championId, roles);
@@ -115,6 +118,7 @@ function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AU
   const allyTeam = team(input, side), before = composition(allyTeam,'fr',allies.map(a=>a.role)), enemyTeam = team(input, opposite(side));
   const pickIndex = allies.length, early = pickIndex < 2, last = pickIndex === 4;
   const beforePlan=gamePlan(allyTeam,allies.map(a=>a.role),enemyTeam,enemies.map(e=>e.role),input.settings.language);
+  const beforeOwnPlan=input.draft.mode==='pro'?gamePlan(allyTeam,allies.map(a=>a.role),[],[],input.settings.language):null;
   const results: Recommendation[] = [], prepared = prepare(input);
   const scout=input.teams?.[side===input.draft.side?'ally':'enemy'];
   const summary = (key: string, rows: (Stat | PairStat)[]) => {
@@ -146,6 +150,11 @@ function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AU
       const afterPlan=gamePlan([...allyTeam,c],[...allies.map(a=>a.role),role],enemyTeam,enemies.map(e=>e.role),input.settings.language);
       const planContribution=allies.length?clamp(50+(afterPlan.score-beforePlan.score)*1.5):50;
       const synergy=clamp(statisticalSynergy+(contextual.synergy-50)*.5),comp=clamp(contextual.score*.65+planContribution*.35);
+      const ownAfter=beforeOwnPlan?gamePlan([...allyTeam,c],[...allies.map(a=>a.role),role],[],[],input.settings.language):null;
+      const context=ownAfter&&beforeOwnPlan?roleContext({candidate:c,role,allies,enemies,champions:input.champions,
+        language:input.settings.language,weights:input.settings.weights,
+        ownPlan:allies.length?clamp(50+(ownAfter.score-beforeOwnPlan.score)*1.5):50,
+        pair:(candidate,candidateRole,target,kind)=>summary(`${kind}|${candidate.id}|${candidateRole}|${target.championId}|${target.role}`,pairRows(input,candidate,candidateRole,target,kind))}):undefined;
       // Unseen lanes imply risk: early selections reward role ambiguity and protection.
       const opponentLane = enemies.find(e => e.role === role);
       const viableRoles=[...prepared.roles.get(c.id)??c.roles].filter(r=>input.stats.length?observedRole(summary(`stat|${c.id}|${r}`,prepared.stats.get(`${c.id}|${r}`)??[])):c.roles.includes(r));
@@ -169,22 +178,25 @@ function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AU
         mastery: !useFamiliarity?50:familiarity?(familiarity.games?clamp(40+Math.log2(1+familiarity.games)*9):80):players.some(p=>p.pool.length>0)?25:side === input.draft.side && mastery !== undefined ? mastery * 20 : 50 };
       const weights = { ...input.settings.weights };
       if (input.draft.mode === 'solo') { weights.mastery *= 2; weights.flex *= 0.4; weights.synergy *= 0.7 }
-      else { weights.synergy *= allies.length?1.3:.4; weights.flex *= early?1:.2; weights.order *= 1.3;weights.composition*=allies.length||enemies.length?1.4:.3;if(useFamiliarity&&players.some(p=>p.pool.length>0))weights.mastery*=3; }
-      const total = Object.values(weights).reduce((a, b) => a + b, 0);
-      const score = Object.keys(weights).reduce((s, k) => s + factors[k as keyof Weights] * weights[k as keyof Weights], 0) / total;
+      else { weights.flex *= early?1:.2; weights.order *= 1.3;if(useFamiliarity&&players.some(p=>p.pool.length>0))weights.mastery*=3; }
+      const score = contextualScore(factors, weights, context);
       const reasons: string[] = [];
       if (stats) reasons.push(text(input, `${(stats.estimate * 100).toFixed(1)} % lissé · ${Math.round(stats.n).toLocaleString('fr-FR')} parties pondérées${stats.old ? ' · anciens patchs inclus' : ''}`, `${(stats.estimate * 100).toFixed(1)}% smoothed · ${Math.round(stats.n)} weighted games${stats.old ? ' · older patches included' : ''}`));
       else reasons.push(text(input, 'Aucune statistique compatible : priorité qualitative uniquement.', 'No matching statistics: qualitative priority only.'));
       if (stats?.rounded) reasons.push(text(input, 'Lolalytics : victoires reconstituées à partir des taux publiés arrondis ; intervalle approximatif.', 'Lolalytics: wins reconstructed from rounded published rates; approximate interval.'));
       if (viableRoles.length > 1 && early) reasons.push(text(input, `Flex observé ${viableRoles.join(' / ')} : conserve l’ambiguïté du premier tour.`, `${viableRoles.join(' / ')} observed flex: preserves early-round ambiguity.`));
       reasons.push(...contextual.reasons);
+      if(context){
+        reasons.push(text(input,`Contexte ${role} : ${context.parts.map(p=>`${p.label} ${p.weight.toFixed(0)} %`).join(' · ')}${context.partial?' · informations partielles':''}.`,`Context ${role}: ${context.parts.map(p=>`${p.label} ${p.weight.toFixed(0)}%`).join(' · ')}${context.partial?' · partial information':''}.`));
+        if(role==='SUPPORT')reasons.push(text(input,'Botlane : approximation du 2v2 par les quatre paires adverses, la synergie ADC/support et des règles qualitatives. Les statistiques mesurent des victoires de partie, pas la domination de lane.','Bot lane: 2v2 approximated from four opposing pairs, ADC/support synergy and qualitative rules. Statistics measure game wins, not lane dominance.'));
+      }
       if(allies.length>=2)reasons.push(text(input,`Plan de jeu : ${afterPlan.title}. ${afterPlan.conditions[0]??afterPlan.timing}`,`Game plan: ${afterPlan.title}. ${afterPlan.conditions[0]??afterPlan.timing}`));
       if(stats)for(const g of stats.groups.filter(g=>!g.usable))reasons.push(text(input,`${g.source} : ${Math.round(g.n)} parties pondérées, échantillon insuffisant (minimum ${g.source==='pro'?10:200}). Winrate et priorité méta neutralisés pour cette source.`,`${g.source}: ${Math.round(g.n)} weighted games, insufficient sample (minimum ${g.source==='pro'?10:200}). Win-rate and meta effects neutralized for this source.`));
       const unsupportedPairs=[...matchups,...synergies].filter(m=>!m.usable).length;
       if(unsupportedPairs)reasons.push(text(input,`${unsupportedPairs} matchup(s) ou synergie(s) sans échantillon suffisant : aucun bonus statistique.`,`${unsupportedPairs} matchup or synergy samples below the minimum: no statistical bonus.`));
       if(stats)reasons.push(text(input,`Écart au niveau moyen : ${(stats.delta*100).toFixed(2)} points ; mix ${stats.groups.map(g=>`${g.source} ${Math.round(100*g.mixture/stats.groups.reduce((s,x)=>s+x.mixture,0))}%`).join(' / ')} ajusté à la fiabilité.`,`Baseline-adjusted edge: ${(stats.delta*100).toFixed(2)} points; reliability-weighted source blend.`));
       if(useFamiliarity&&familiarity)reasons.push(familiarity.games?text(input,`${familiarity.player.riotId} : ${familiarity.games} parties sur ce champion.`,`${familiarity.player.riotId}: ${familiarity.games} games on this champion.`):text(input,`${familiarity.player.riotId} : champion déclaré jouable.`,`${familiarity.player.riotId}: declared playable champion.`));
-      if (matchups.length) reasons.push(text(input, `Matchups observés : ${matchups.length}/${enemies.length} ennemis · effet ${matchup >= 50 ? 'favorable' : 'défavorable'}.`, `Observed matchups: ${matchups.length}/${enemies.length} enemies · ${matchup >= 50 ? 'favorable' : 'unfavorable'} effect.`));
+      if (matchups.length) reasons.push(context?text(input,`Paires adverses observées : ${matchups.length}/${enemies.length} ennemis · effets répartis dans les critères du rôle.`,`Observed opposing pairs: ${matchups.length}/${enemies.length} enemies · effects allocated to role criteria.`):text(input, `Matchups observés : ${matchups.length}/${enemies.length} ennemis · effet ${matchup >= 50 ? 'favorable' : 'défavorable'}.`, `Observed matchups: ${matchups.length}/${enemies.length} enemies · ${matchup >= 50 ? 'favorable' : 'unfavorable'} effect.`));
       if (synergies.length) reasons.push(text(input, `Synergies observées : ${synergies.length}/${allies.length} alliés.`, `Observed synergies: ${synergies.length}/${allies.length} allies.`));
       if (last && opponentLane) reasons.push(text(input, 'Dernier pick : le matchup de lane est déjà révélé.', 'Last pick: the lane matchup is already revealed.'));
       if (blindCounterPenalty > 1) reasons.push(text(input, 'Attention : un counter statistique de lane reste disponible en face.', 'Caution: an observed lane counter is still available to the enemy.'));
@@ -192,10 +204,11 @@ function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AU
       if (useFamiliarity && mastery !== undefined && side === input.draft.side) reasons.push(text(input, `Maîtrise déclarée : ${mastery}/5.`, `Declared proficiency: ${mastery}/5.`));
       if (!c.curated) reasons.push(text(input, 'Profil de composition générique : à vérifier.', 'Generic composition profile: verify manually.'));
       const coverage = (1 + matchups.reduce((n,m)=>n+m.confidence,0) + synergies.reduce((n,m)=>n+m.confidence,0)) / Math.max(1, 1 + enemies.length + allies.length);
-      const brief=contextual.reasons[0]??(useFamiliarity&&familiarity?(familiarity.games?text(input,`${familiarity.player.riotId} joue ce champion (${familiarity.games} parties connues).`,`${familiarity.player.riotId} plays this champion (${familiarity.games} known games).`):text(input,`Déclaré jouable par ${familiarity.player.riotId}.`,`Declared playable by ${familiarity.player.riotId}.`)):viableRoles.length>1&&early?text(input,'Un flex qui garde plusieurs options ouvertes.','A flex pick that keeps several options open.'):opponentLane&&matchup>52?text(input,'Matchup favorable face au rôle adverse déjà révélé.','Favorable matchup against the revealed enemy role.'):priority>55?text(input,'Champion prioritaire dans la méta sur les patchs analysés.','High-priority champion in the analyzed patch meta.'):stats&&stats.delta>0?text(input,'Résultats solides sur les derniers patchs.','Solid results across the latest patches.'):text(input,'À comparer avec les autres options pour votre composition.','Compare with the other options for your composition.'));
+      const strongest=context?.parts.filter(p=>p.weight>0&&p.score>52).sort((a,b)=>(b.score-50)*b.weight-(a.score-50)*a.weight)[0];
+      const brief=strongest?text(input,`${strongest.label} : favorable${context?.partial?' · draft encore partielle':''}.`,`${strongest.label}: favorable${context?.partial?' · draft still partial':''}.`):contextual.reasons[0]??(useFamiliarity&&familiarity?(familiarity.games?text(input,`${familiarity.player.riotId} joue ce champion (${familiarity.games} parties connues).`,`${familiarity.player.riotId} plays this champion (${familiarity.games} known games).`):text(input,`Déclaré jouable par ${familiarity.player.riotId}.`,`Declared playable by ${familiarity.player.riotId}.`)):viableRoles.length>1&&early?text(input,'Un flex qui garde plusieurs options ouvertes.','A flex pick that keeps several options open.'):opponentLane&&matchup>52?text(input,'Matchup favorable face au rôle adverse déjà révélé.','Favorable matchup against the revealed enemy role.'):priority>55?text(input,'Champion prioritaire dans la méta sur les patchs analysés.','High-priority champion in the analyzed patch meta.'):stats&&stats.delta>0?text(input,'Résultats solides sur les derniers patchs.','Solid results across the latest patches.'):text(input,'À comparer avec les autres options pour votre composition.','Compare with the other options for your composition.'));
       results.push({ championId: c.id, role, score: Math.round(score * 10) / 10, confidence: stats ? Math.round(stats.confidence * coverage * 100) : 0,
-        games: stats ? Math.round(stats.n) : 0, winrate: stats?.usable ? stats.estimate : null, interval: stats?.usable ? stats.interval : null, factors, reasons,summary:stats&&!stats.usable?text(input,`Échantillon insuffisant (${Math.round(stats.n)} parties) · choix évalué sur son plan de jeu et le pool.`,`Insufficient sample (${Math.round(stats.n)} games) · evaluated through game plan and pool.`):brief,lowSample:!!stats&&!stats.usable,
-        responseRisk: enemyTeam.length ? clamp(50 + (50 - matchup)) : 50, source: stats ? (input.demo ? 'DEMO · ' : '') + stats.sources : 'heuristic' });
+        games: stats ? Math.round(stats.n) : 0, winrate: stats?.usable ? stats.estimate : null, interval: stats?.usable ? stats.interval : null, factors, reasons,context,summary:stats&&!stats.usable?text(input,`Échantillon insuffisant (${Math.round(stats.n)} parties) · choix évalué sur son plan de jeu et le pool.`,`Insufficient sample (${Math.round(stats.n)} games) · evaluated through game plan and pool.`):brief,lowSample:!!stats&&!stats.usable,
+        responseRisk: context?contextualRisk(context):enemyTeam.length ? clamp(50 + (50 - matchup)) : 50, source: stats ? (input.demo ? 'DEMO · ' : '') + stats.sources : 'heuristic' });
     }
   }
   return results.sort((a, b) => b.score - a.score || a.championId.localeCompare(b.championId) || a.role.localeCompare(b.role));
@@ -277,14 +290,17 @@ function simulate(input: EngineInput, current: Recommendation[]): Scenario[] {
 export function draftBalance(input:EngineInput):DraftBalance {
   const criteria=['winrate','matchup','synergy','composition'] as const;
   const configured=criteria.reduce((sum,key)=>sum+input.settings.weights[key],0);
+  const weights:Weights={winrate:0,matchup:0,synergy:0,composition:0,meta:0,flex:0,order:0,mastery:0};
+  for(const key of criteria)weights[key]=configured?input.settings.weights[key]:1;
+  const evaluationInput=configured?input:{...input,settings:{...input.settings,weights}};
   const sequence=order(input.draft);
   const evaluate=(side:Side)=>{
     const ratings=input.draft.history.flatMap((selection,index)=>{
       if(sequence[index].kind!=='pick'||sequence[index].side!==side||!selection.championId||!selection.role)return [];
       const history=input.draft.history.map((s,i)=>i===index?{championId:null}:s);
-      const recommendation=rankCandidates({...input,draft:{...input.draft,history}},side,selection.role,false,false,selection.championId)[0];
+      const recommendation=rankCandidates({...evaluationInput,draft:{...input.draft,history}},side,selection.role,false,false,selection.championId)[0];
       if(!recommendation)return [50];
-      return [criteria.reduce((sum,key)=>sum+recommendation.factors[key]*(configured?input.settings.weights[key]:1),0)/(configured||criteria.length)];
+      return [contextualScore(recommendation.factors,weights,recommendation.context)];
     });
     return {score:ratings.length?Math.round(ratings.reduce((sum,r)=>sum+r,0)/ratings.length*10)/10:50,count:ratings.length};
   };

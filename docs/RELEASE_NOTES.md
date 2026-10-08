@@ -1,7 +1,7 @@
-Les statistiques gol.gg et Lolalytics Master+ peuvent désormais être téléchargées depuis GitHub sans compte. Une collecte chez l’éditeur suffit ; chaque utilisateur conserve les trois derniers patchs dans sa propre base SQLite. Le bouton Actualiser ne télécharge que les fichiers modifiés, contrôle leur intégrité et conserve la base précédente si un téléchargement échoue.
+En compétition, les recommandations évaluent maintenant les matchups selon le rôle : davantage de valeur au counter direct top, aux synergies mid/jungle et jungle/support, ainsi qu’à la compatibilité de l’ADC avec sa botlane et les menaces adverses.
 
-Les nouvelles versions de l’application sont vérifiées au lancement et toutes les quatre heures, téléchargées automatiquement, puis installées à la fermeture. Aucun téléchargement de statistiques ne démarre au lancement ou après une mise à jour de l’application.
+Le support utilise une base de 40 % pour notre duo contre leur duo, 40 % pour répondre à leur composition et 20 % pour notre plan de jeu. Les poids évoluent avec les picks révélés et vos réglages. La synergie ADC/support est intégrée au bloc du duo uniquement. « Pourquoi » affiche les sous-scores et leurs poids effectifs en français et en anglais.
 
-Les paramètres, équipes OP.GG, sessions et historiques Fearless restent sur votre ordinateur. Les fonctions de draft de la version 0.5.0 sont conservées.
+La jauge utilise le même contexte par rôle que les recommandations. Les statistiques de paires sur un ou deux matchs restent neutralisées. Les sessions, historiques Fearless, pools OP.GG et paramètres sont conservés ; les statistiques restent actualisées sur clic.
 
-Les packs téléchargés sont regroupés par source et patch dans l’onglet Données. Retirer un patch partagé retire l’ensemble de ses statistiques, matchups et synergies.
+Les poids sont des hypothèses de coaching à tester. L’évaluation du 2v2 repose sur des paires et des règles qualitatives ; elle ne constitue pas une mesure directe de domination de lane ou une probabilité de victoire.

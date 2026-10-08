@@ -8,7 +8,7 @@ Télécharger l’installeur Windows depuis [la dernière version](https://githu
 
 Après cette installation, les versions de l’app sont vérifiées au démarrage et toutes les quatre heures. Le téléchargement est automatique ; l’installation se fait à la fermeture normale de l’application, ou via **Installer et redémarrer**. Une draft en cours n’est pas interrompue. Les données statistiques ne sont jamais actualisées au lancement, y compris après une mise à jour de l’app.
 
-Les anciennes versions sans flux de publication, notamment 0.5.0, doivent installer une première fois la 0.6.2. L’identité NSIS et le dossier de données restent identiques pour conserver les paramètres et sessions. Le lanceur de développement utilise `data/local` et désactive les installations automatiques pour ce lancement ; les amis doivent utiliser l’installeur.
+Les anciennes versions sans flux de publication, notamment 0.5.0, doivent installer une première fois la version actuelle depuis la dernière Release. L’identité NSIS et le dossier de données restent identiques pour conserver les paramètres et sessions. Le lanceur de développement utilise `data/local` et désactive les installations automatiques pour ce lancement ; les amis doivent utiliser l’installeur.
 
 ## Collecter et publier les statistiques
 

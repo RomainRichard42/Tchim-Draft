@@ -69,3 +69,5 @@
 .draft-page .decision-option{padding:7px 9px;gap:4px}.draft-page .decision-shortcuts{font-size:8px}.draft-page .decision-desk{gap:5px;margin-bottom:8px}
 .draft-page .recommendation .rec-body>p{-webkit-line-clamp:1;margin-top:4px;margin-bottom:4px}.draft-page .fearless-history{margin-top:3px}
 .draft-page .recommendation-panel:has(.turn-guide)>.recommendation-heading{display:none}
+
+.role-context-detail{margin:18px 0;padding:14px;background:#141e2e;border:1px solid #334258;border-radius:10px}.role-context-heading{display:flex;justify-content:space-between;gap:12px}.role-context-part{display:grid;grid-template-columns:minmax(130px,1fr) minmax(60px,120px) 28px;gap:10px;align-items:center;margin:12px 0;font-size:12px}.role-context-part small{display:block;color:#95a5bd;font-size:10px;margin-top:4px}.role-context-part progress{width:100%;height:7px;accent-color:#83b5ed}.role-context-part>b{text-align:right}

@@ -26,7 +26,7 @@ Node >= 22.12 est requis. Le projet est verrouillé par `package-lock.json`. `np
 
 1. Choisir Compétitif ou Solo/Duo, patch, ligue et côté. Le rôle personnel concerne uniquement la Solo Queue.
 2. Saisir chaque ban/pick dans l’ordre de la barre de draft, via le bouton principal, une proposition ou un emplacement actif. Attribuer un rôle libre à chaque pick. Les bans peuvent être vides.
-3. Faire défiler tous les picks éligibles, classés par score, ou rechercher un champion. Les filtres de rôle et pools restent appliqués. La jauge compare les deux équipes à chaque pick et annulation, y compris dans l’overlay. Inspecter « Pourquoi ce choix ? » pour la fiabilité et les facteurs. Un double pick compétitif propose trois paires et une réponse adverse ; un clic sur la paire inscrit ses deux champions.
+3. Faire défiler tous les picks éligibles, classés par score, ou rechercher un champion. Les filtres de rôle et pools restent appliqués. La jauge compare les deux équipes à chaque pick et annulation, y compris dans l’overlay. Inspecter « Pourquoi ce choix ? » pour la fiabilité, les facteurs et les poids propres au rôle. En compétitif, le support évalue notre duo contre leur duo, la réponse à leur composition et le plan allié ; les autres rôles distinguent le vis-à-vis des autres ennemis. Un double pick compétitif propose trois paires et une réponse adverse ; un clic sur la paire inscrit ses deux champions.
 4. Utiliser Simulations pour les continuations, Mon pool pour la maîtrise en Solo et Équipes pour importer les deux multis OP.GG. En compétitif, les pools des joueurs peuvent limiter chaque équipe. Un pool restreint doit contenir les rôles nécessaires.
 5. Sauvegarder/charger une session ou l’exporter/importer en JSON. La draft courante et les paramètres se sauvegardent aussi automatiquement. Revenir sur une ancienne étape retire la suite pour permettre une nouvelle saisie.
 6. Ouvrir l’overlay, le déplacer par sa barre et ajuster son opacité dans Paramètres. Position et taille sont mémorisées. Les recommandations et étapes se synchronisent avec la fenêtre principale.
@@ -100,7 +100,7 @@ Sécurité : renderer sandboxé, `contextIsolation: true`, `nodeIntegration: fal
 npm.cmd run dist:win
 ```
 
-Produit `release/0.6.2/Tchim-Draft-0.6.2-win-x64.exe`, installeur NSIS par utilisateur, et `release/0.6.2/win-unpacked/Tchim Draft.exe`. Le packaging utilise un dossier par version pour permettre la construction pendant qu’une ancienne version est ouverte ; `TCHIM_BUILD_OUTPUT` permet un autre dossier. Icône et métadonnées Windows intégrées. La signature Windows n’est pas configurée (`signExecutable` désactivé) ; elle peut être ajoutée au workflow.
+Produit `release/0.7.0/Tchim-Draft-0.7.0-win-x64.exe`, installeur NSIS par utilisateur, et `release/0.7.0/win-unpacked/Tchim Draft.exe`. Le packaging utilise un dossier par version pour permettre la construction pendant qu’une ancienne version est ouverte ; `TCHIM_BUILD_OUTPUT` permet un autre dossier. Icône et métadonnées Windows intégrées. La signature Windows n’est pas configurée (`signExecutable` désactivé) ; elle peut être ajoutée au workflow.
 
 macOS : `npm.cmd run dist:mac` sur une machine macOS. Configuration DMG/ZIP fournie ; ni build macOS, ni signature, ni notarisation validées sous Windows.
 

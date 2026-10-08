@@ -1,0 +1,70 @@
+import { _electron as electron, expect } from '@playwright/test';
+import Database from 'better-sqlite3';
+import { mkdir, cp, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+
+const root = path.resolve(`.test-data/role-context-${Date.now()}`);
+await mkdir(root, { recursive: true }); await mkdir('artifacts', { recursive: true });
+const original = new Database('data/local/tchim.sqlite', { readonly: true });
+await original.backup(path.join(root, 'tchim.sqlite')); original.close();
+await cp('data/local/icons', path.join(root, 'icons'), { recursive: true });
+const env = { ...process.env, TCHIM_DATA_DIR: root, TCHIM_OFFLINE: '1', TCHIM_TEST_HEADLESS: '1' };
+delete env.ELECTRON_RUN_AS_NODE;
+const executablePath = process.env.TCHIM_TEST_EXECUTABLE;
+const desktop = await electron.launch({ args: executablePath ? [] : ['.'], ...(executablePath ? { executablePath } : {}), env, timeout: 30000 });
+const errors = [], report = {};
+try {
+  // Keep rendering active for this isolated hidden test window; no change to app defaults.
+  await desktop.evaluate(({ BrowserWindow }) => { for (const win of BrowserWindow.getAllWindows()) win.webContents.setBackgroundThrottling(false); });
+  const page = await desktop.firstWindow(); page.on('pageerror', e => errors.push(e.message));
+  await expect(page.getByTestId('app')).toBeVisible();
+  await page.evaluate(async () => {
+    await window.draftApi.reset();
+    await window.draftApi.configure({ mode: 'pro', side: 'blue', targetRole: 'SUPPORT', league: 'all' });
+    const empty = { url: '', region: 'euw', poolOnly: false, message: '', players: [] };
+    await window.draftApi.teams({ ally: empty, enemy: empty });
+    const snapshot = await window.draftApi.snapshot();
+    await window.draftApi.settings({ ...snapshot.settings, language: 'fr', weights: { winrate: 14, matchup: 18, synergy: 18, meta: 16, flex: 3, order: 8, composition: 18, mastery: 5 } });
+    for (let i = 0; i < 6; i++) await window.draftApi.select(null);
+    await window.draftApi.select('Ezreal', 'ADC');
+    await window.draftApi.select('Ashe', 'ADC');
+    await window.draftApi.select('Nautilus', 'SUPPORT');
+  });
+  const start = Date.now();
+  const first = await page.evaluate(() => window.draftApi.analyze());
+  report.analysisMs = Date.now() - start;
+  expect(first.picks.length).toBeGreaterThan(5);
+  expect(first.picks.every(p => p.role === 'SUPPORT' && p.context.parts.length === 3)).toBe(true);
+  await expect(page.getByTestId('recommendation-scroll').locator('.recommendation')).toHaveCount(first.picks.length, { timeout: 30000 });
+  await page.getByTestId('recommendation-scroll').locator('.rec-meta button').first().click();
+  const detail = page.getByTestId('role-context-detail');
+  await expect(detail).toBeVisible(); await expect(detail).toContainText('Notre duo contre leur duo');
+  await expect(detail).toContainText('Réponse à leur composition'); await expect(detail).toContainText('Contribution à notre plan');
+  await expect(detail).toContainText('base 40 %'); await expect(detail).toContainText('base 20 %');
+  await expect(detail.locator('[data-context-part]')).toHaveCount(3);
+  const screenshot = await desktop.evaluate(async ({ BrowserWindow }) => (await BrowserWindow.getAllWindows()[0].capturePage()).toPNG().toString('base64'));
+  await writeFile('artifacts/role-context-support.png', Buffer.from(screenshot, 'base64'));
+  await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click();
+  const before = first.picks.map(p => [p.championId, p.score]);
+  await page.evaluate(async () => { await window.draftApi.undo(); await window.draftApi.select('Karma', 'SUPPORT'); });
+  const after = await page.evaluate(() => window.draftApi.analyze());
+  expect(after.picks.map(p => [p.championId, p.score])).not.toEqual(before);
+  report.before = first.picks.slice(0, 8).map(p => ({ champion: p.championId, score: p.score, context: p.context }));
+  report.after = after.picks.slice(0, 8).map(p => ({ champion: p.championId, score: p.score, context: p.context }));
+  report.balance = after.balance;
+  await page.evaluate(async () => {
+    const snapshot = await window.draftApi.snapshot();
+    await window.draftApi.settings({ ...snapshot.settings, language: 'en' });
+  });
+  await expect(page.getByTestId('recommendation-scroll').locator('.recommendation')).toHaveCount(after.picks.length, { timeout: 30000 });
+  await page.getByTestId('recommendation-scroll').locator('.rec-meta button').first().click();
+  await expect(detail).toContainText('Our duo against their duo'); await expect(detail).toContainText('Answer to their composition');
+  await expect(detail).toContainText('Contribution to our plan');
+  await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click();
+  const final = await page.evaluate(() => window.draftApi.snapshot());
+  expect(final.draft.history).toHaveLength(9); expect(final.data.refreshing).toBe(false);
+  expect(errors).toEqual([]);
+  Object.assign(report, { version: await desktop.evaluate(({ app }) => app.getVersion()), errors, realData: true, noCollection: true, localized: ['fr', 'en'] });
+  await writeFile('artifacts/role-context-report.json', JSON.stringify(report, null, 2));
+  console.log(JSON.stringify({ version: report.version, suggestions: first.picks.length, analysisMs: report.analysisMs, changedWithEnemyDuo: true, errors }));
+} finally { await desktop.close(); }

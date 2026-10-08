@@ -17,10 +17,10 @@ const damageWeight:Record<Role,number>={TOP:1,JUNGLE:.85,MID:1.3,ADC:1.6,SUPPORT
 export function damageShare(team:Champion[],roles:Role[]=[]):number{
   let ad=0,total=0;team.forEach((c,i)=>{const w=roles[i]?damageWeight[roles[i]]:c.tags.includes('Support')?.2:1;ad+=c.traits.ad*w;total+=w;});return total?ad/total:.5;
 }
-export function teamplay(candidate:Champion,role:Role,allies:Champion[],allyRoles:Role[],enemies:Champion[],language='fr'):{score:number;synergy:number;reasons:string[]}{
-  let value=0,synergy=0;const reasons:string[]=[];
+export function teamplay(candidate:Champion,role:Role,allies:Champion[],allyRoles:Role[],enemies:Champion[],language='fr'):{score:number;synergy:number;ownScore:number;counterScore:number;reasons:string[]}{
+  let value=0,synergy=0,ownValue=0,counterValue=0;const reasons:string[]=[];
   const sum=(team:Champion[],key:keyof Champion['traits'])=>team.reduce((s,c)=>s+c.traits[key],0);
-  const add=(delta:number,reason:string,combo=false)=>{value+=delta;if(combo)synergy+=delta;reasons.push(reason);};
+  const add=(delta:number,reason:string,combo=false,opposition=false)=>{value+=delta;if(combo)synergy+=delta;if(opposition)counterValue+=delta;else ownValue+=delta;reasons.push(reason);};
   const damage=damageShare(allies,allyRoles),isCarry=role!=='SUPPORT',alliedCarry=allies.filter((_,i)=>allyRoles[i]!=='SUPPORT');
   if(alliedCarry.length>=2&&isCarry){
     const after=damageShare([...allies,candidate],[...allyRoles,role]),improvement=Math.abs(damage-.5)-Math.abs(after-.5);
@@ -32,20 +32,20 @@ export function teamplay(candidate:Champion,role:Role,allies:Champion[],allyRole
   if(sum(allies,'frontline')>=5&&candidate.traits.frontline>=2&&role!=='SUPPORT')add(-10,'Frontline déjà suffisante : risque de manquer de dégâts.');
   if(allies.some(c=>hypercarry.has(c.id))){
     if(candidate.traits.peel>=2)add(10,'Protège le carry principal dans les combats prolongés.',true);
-    if(role==='SUPPORT'&&candidate.traits.peel<1.5&&enemies.some(c=>dive.has(c.id)))add(-12,'Protection insuffisante du carry face au dive adverse.');
+    if(role==='SUPPORT'&&candidate.traits.peel<1.5&&enemies.some(c=>dive.has(c.id)))add(-12,'Protection insuffisante du carry face au dive adverse.',false,true);
   }
   if((delivery.has(candidate.id)&&allies.some(c=>aoe.has(c.id)))||(aoe.has(candidate.id)&&allies.some(c=>delivery.has(c.id))))add(12,'Combine une entrée de combat avec les dégâts de zone alliés.',true);
   if(candidate.id==='Yasuo'&&allies.some(c=>delivery.has(c.id)||c.id==='Gragas'))add(7,'Les projections alliées permettent d’activer l’ultime de Yasuo.',true);
   if(enemies.filter(c=>dive.has(c.id)).length>=2){
-    if(disengage.has(candidate.id))add(16,'Protège contre plusieurs menaces de dive adverses.');
-    if(immobile.has(candidate.id)&&sum(allies,'peel')<3)add(-18,'Carry immobile exposé à plusieurs menaces de dive.');
+    if(disengage.has(candidate.id))add(16,'Protège contre plusieurs menaces de dive adverses.',false,true);
+    if(immobile.has(candidate.id)&&sum(allies,'peel')<3)add(-18,'Carry immobile exposé à plusieurs menaces de dive.',false,true);
   }
-  if(enemies.filter(c=>c.traits.frontline>=2).length>=2&&antiTank.has(candidate.id))add(14,'Dégâts soutenus ou adaptés à la double frontline adverse.');
+  if(enemies.filter(c=>c.traits.frontline>=2).length>=2&&antiTank.has(candidate.id))add(14,'Dégâts soutenus ou adaptés à la double frontline adverse.',false,true);
   if(siege.has(candidate.id)&&allies.filter(c=>siege.has(c.id)).length>=1){
     add(10,'Renforce un plan de poke et de siège cohérent.',true);
-    if(enemies.filter(c=>delivery.has(c.id)).length>=2&&sum(allies,'peel')<3)add(-12,'Le poke reste vulnérable aux initiations adverses.');
+    if(enemies.filter(c=>delivery.has(c.id)).length>=2&&sum(allies,'peel')<3)add(-12,'Le poke reste vulnérable aux initiations adverses.',false,true);
   }
-  if(enemies.filter(c=>siege.has(c.id)).length>=2&&initiation.has(candidate.id)&&sum(allies,'engage')<4)add(12,'Permet de forcer un combat avant de subir le poke adverse.');
+  if(enemies.filter(c=>siege.has(c.id)).length>=2&&initiation.has(candidate.id)&&sum(allies,'engage')<4)add(12,'Permet de forcer un combat avant de subir le poke adverse.',false,true);
   if(split.has(candidate.id)&&allies.filter(c=>split.has(c.id)).length>=1)add(-10,'Deux champions de side lane compliquent le regroupement et le contrôle des objectifs.');
   const early=sum(allies,'early'),late=sum(allies,'scaling');
   if(allies.length>=2&&late>early+3&&candidate.traits.early>=2.5)add(7,'Apporte de la présence avant les pics de puissance tardifs.');
@@ -69,5 +69,5 @@ export function teamplay(candidate:Champion,role:Role,allies:Champion[],allyRole
     'Apporte de la présence avant les pics de puissance tardifs.':'Adds presence before the team’s late power spikes.',
     'Jungle lente avec des lanes peu actives en début de partie.':'Slow jungle with lanes that lack early pressure.'
   };
-  return {score:clamp(50+value),synergy:clamp(50+synergy),reasons:language==='fr'?reasons:reasons.map(r=>english[r]??r)};
+  return {score:clamp(50+value),synergy:clamp(50+synergy),ownScore:clamp(50+ownValue),counterScore:clamp(50+counterValue),reasons:language==='fr'?reasons:reasons.map(r=>english[r]??r)};
 }
