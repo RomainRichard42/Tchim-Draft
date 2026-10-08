@@ -37,3 +37,11 @@ Les résultats locaux de comparaison sont dans `artifacts/blind-before.json` et 
 Les coefficients du risque, de l'incertitude et du développement sont des hypothèses de coaching, sans calibration prédictive. Les statistiques de paire mesurent des résultats de partie ; elles ne décrivent pas directement les vagues, le gold, les CS ou les ressources nécessaires à la lane. Les rôles ennemis doivent être attribués manuellement ; les flex non résolus ne sont pas modélisés.
 
 Le test utilise le binaire empaqueté. Il n'exécute pas l'installation NSIS sur l'installation personnelle. Aucun scraping ni republication de données n'est nécessaire pour cette version.
+
+## Publication et mise à jour
+
+La [release 0.7.1](https://github.com/RomainRichard42/Tchim-Draft/releases/tag/v0.7.1) est publique. Le [workflow Windows](https://github.com/RomainRichard42/Tchim-Draft/actions/runs/37857982252) a terminé avec succès sur le commit `7283a8a` : 105 tests, build, packaging et publication de l'installeur, du blockmap et de `latest.yml`.
+
+L'installeur officiel a été téléchargé sans compte, cookie ni en-tête Authorization : **125 993 259 octets**, SHA-256 `100187b7ce391ab85347629900739605138f60ecbaf1646eef975832fdacab0f`. Son SHA-512 correspond à `latest.yml`. Rapport local : `artifacts/public-release-report.json` ; copie du binaire officiel : `release/0.7.1/github/`.
+
+`scripts/update-download-test.mjs` vérifie le téléchargement natif **0.7.0 → 0.7.1** via `electron-updater`, dans une instance et un cache isolés. Le fichier téléchargé correspond aux métadonnées ; le bouton « Mise à jour prête » et l'installation à la fermeture sont affichés. Les snapshots de paramètres, draft, équipes et statistiques de cette instance restent identiques pendant le téléchargement ; aucune collecte ni erreur renderer. La politique normale d'installation à la fermeture est activée ; son exécution est désactivée uniquement dans le test pour préserver l'installation personnelle. L'installation effective NSIS n'a donc pas été testée. Rapport local : `artifacts/update-download-report.json`.
