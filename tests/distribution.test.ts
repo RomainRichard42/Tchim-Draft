@@ -10,6 +10,7 @@ import { exportDataset } from '../src/collector/export-dataset';
 import { refreshSharedDataset, sha256, type Download } from '../src/main/shared-data';
 import { appUpdates } from '../src/main/updates';
 import type { DatasetManifest } from '../src/shared/dataset';
+import { packGroups } from '../src/shared/pack-groups';
 
 const opened:{storage:Storage;directory:string}[]=[];
 async function fixture(){await mkdir('.test-data',{recursive:true});const directory=await mkdtemp(path.resolve('.test-data','distribution-')),storage=new Storage(path.join(directory,'tchim.sqlite'));opened.push({storage,directory});return{storage,directory};}
@@ -67,6 +68,14 @@ describe('Shared dataset distribution',()=>{
     await refreshSharedDataset(client.storage,client.directory,url,f.fetcher,()=>{});client.storage.removePack(f.manifest.parts[0].id);
     const noChange=vi.fn<Download>(async()=>null);
     expect(await refreshSharedDataset(client.storage,client.directory,url,noChange,()=>{})).toBe(1);expect(noChange).toHaveBeenCalledTimes(1);expect(client.storage.engineInput().stats).toHaveLength(6);
+  });
+  it('groups download fragments by source and patch and removes that whole patch while keeping custom packs',async()=>{
+    const f=await dataset(),client=await fixture(),url='https://github.com/owner/repo/releases/download/dataset/manifest.json';
+    await refreshSharedDataset(client.storage,client.directory,url,f.fetcher,()=>{});
+    const first=client.storage.packs()[0];client.storage.importPack({...first,id:first.id.replace(/-0$/,'-1'),stats:[{...first.stats[0],championId:'Ahri'}]});client.storage.importPack({...first,id:'custom-coach-pack'});
+    const metadata=client.storage.snapshot().data.packs,grouped=packGroups(metadata);expect(grouped.packs).toHaveLength(7);expect(grouped.details).toBe(0);expect(grouped.packs.find(p=>p.id===first.id)!.rows).toBe(2);
+    expect(metadata.find(p=>p.id===first.id)!.rows).toBe(1);
+    client.storage.removePack(first.id);expect(client.storage.packs().some(p=>p.id.startsWith(first.id.slice(0,-1)))).toBe(false);expect(client.storage.packs().some(p=>p.id==='custom-coach-pack')).toBe(true);
   });
 });
 describe('Release download redirects',()=>{

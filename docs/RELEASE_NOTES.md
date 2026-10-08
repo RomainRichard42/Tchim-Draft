@@ -3,3 +3,5 @@ Les statistiques gol.gg et Lolalytics Master+ peuvent désormais être télécha
 Les nouvelles versions de l’application sont vérifiées au lancement et toutes les quatre heures, téléchargées automatiquement, puis installées à la fermeture. Aucun téléchargement de statistiques ne démarre au lancement ou après une mise à jour de l’application.
 
 Les paramètres, équipes OP.GG, sessions et historiques Fearless restent sur votre ordinateur. Les fonctions de draft de la version 0.5.0 sont conservées.
+
+Les packs téléchargés sont regroupés par source et patch dans l’onglet Données. Retirer un patch partagé retire l’ensemble de ses statistiques, matchups et synergies.

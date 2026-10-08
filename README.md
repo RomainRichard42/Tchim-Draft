@@ -100,7 +100,7 @@ Sécurité : renderer sandboxé, `contextIsolation: true`, `nodeIntegration: fal
 npm.cmd run dist:win
 ```
 
-Produit `release/0.6.0/Tchim-Draft-0.6.0-win-x64.exe`, installeur NSIS par utilisateur, et `release/0.6.0/win-unpacked/Tchim Draft.exe`. Le packaging utilise un dossier par version pour permettre la construction pendant qu’une ancienne version est ouverte ; `TCHIM_BUILD_OUTPUT` permet un autre dossier. Icône et métadonnées Windows intégrées. Cette build locale n’est pas signée ; configurer la signature Windows avant distribution publique (`signExecutable` actuellement désactivé).
+Produit `release/0.6.1/Tchim-Draft-0.6.1-win-x64.exe`, installeur NSIS par utilisateur, et `release/0.6.1/win-unpacked/Tchim Draft.exe`. Le packaging utilise un dossier par version pour permettre la construction pendant qu’une ancienne version est ouverte ; `TCHIM_BUILD_OUTPUT` permet un autre dossier. Icône et métadonnées Windows intégrées. Cette build locale n’est pas signée ; configurer la signature Windows avant distribution publique (`signExecutable` actuellement désactivé).
 
 macOS : `npm.cmd run dist:mac` sur une machine macOS. Configuration DMG/ZIP fournie ; ni build macOS, ni signature, ni notarisation validées sous Windows.
 

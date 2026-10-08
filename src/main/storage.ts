@@ -90,7 +90,7 @@ export class Storage {
     this.packCache=undefined;this.merged=undefined;this.packSignature=this.signature();this.dataRevision++;
   }
   removePack(id: string): void {
-    const match=/^lolalytics-(\d+\.\d+)-master_plus$/.exec(id),prefix=match?`lolalytics-${match[1]}-`:undefined;
+    const match=/^lolalytics-(\d+\.\d+)-master_plus$/.exec(id),shared=/^shared-(solo|pro)-(\d+\.\d+)-\d+$/.exec(id),prefix=shared?`shared-${shared[1]}-${shared[2]}-`:match?`lolalytics-${match[1]}-`:undefined;
     if(prefix)this.db.prepare('DELETE FROM packs WHERE id LIKE ?').run(`${prefix}%`);else this.db.prepare('DELETE FROM packs WHERE id = ?').run(id);
     if(this.packCache)this.packCache=this.packCache.filter(p=>prefix?!p.id.startsWith(prefix):p.id!==id);
     this.packSignature=this.signature();this.merged=undefined;this.dataRevision++;
