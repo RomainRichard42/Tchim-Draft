@@ -20,3 +20,11 @@ Captures réelles inspectées : `artifacts/face-desktop-wide.png`, `artifacts/fa
 ## Portée
 
 Les instances de test utilisent des dossiers isolés. Les données personnelles et l’installation existante restent intactes. Aucun nouveau scraping gol.gg, Lolalytics ou OP.GG n’est exécuté pour cette modification d’interface. Les scores restent des indices heuristiques de draft ; la validation ne mesure pas une probabilité de victoire ni l’efficacité en match professionnel.
+
+## Publication et mise à jour
+
+La [release 0.9.0](https://github.com/RomainRichard42/Tchim-Draft/releases/tag/v0.9.0) est publique. Le [workflow Windows](https://github.com/RomainRichard42/Tchim-Draft/actions/runs/37869729472) a réussi sur `b1f9938b53a1d4b4ccf77571acdaf068cbd22f79` : tests, build, packaging et publication de l’installeur, du blockmap et de `latest.yml`.
+
+L’installeur officiel a été téléchargé sans compte, cookie ni Authorization : **126 000 573 octets**, SHA-256 `d4a67c5fc579c8202c67a60f660c0c873c80424ae0d29cad5901ace58ea38cc2`. Son SHA-512 correspond aux métadonnées publiques. Rapport local : `artifacts/public-release-report.json` ; copie officielle : `release/0.9.0/github/`.
+
+`scripts/update-download-test.mjs` confirme le téléchargement natif **0.8.0 → 0.9.0** via `electron-updater`, l’intégrité du fichier et l’affichage de « Mise à jour prête ». Les snapshots de la draft, des équipes, des paramètres et des statistiques restent identiques pendant le téléchargement, sans collecte ni erreur renderer. L’installation à la fermeture est activée par défaut ; son exécution est désactivée uniquement dans le test pour préserver l’installation personnelle. L’installation effective NSIS n’a pas été exécutée. Rapport local : `artifacts/update-download-report.json`.
