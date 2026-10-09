@@ -1,6 +1,6 @@
 import { Worker } from 'node:worker_threads';
 import path from 'node:path';
-import type { EngineInput, Recommendation, SimulationBatch, SimulationRequest, SimulationPin } from '../shared/types';
+import type { EngineInput, Recommendation, SimulationBatch, SimulationRequest, SimulationPin, SimulationTurn, SimulationTurnRequest } from '../shared/types';
 
 /** Separate worker: long explorations never block the live analysis or Electron main thread. */
 export class SimulationService {
@@ -25,7 +25,7 @@ export class SimulationService {
     this.pending.forEach(task=>task.reject(error));this.pending.clear();void worker?.terminate();
   }
   cancel(key:string){if(this.active?.key===key)this.stop();}
-  private run<T>(kind:'generate'|'options',input:EngineInput,revision:string,request:SimulationRequest|{pins:SimulationPin[]},progress?:(completed:number)=>void):Promise<T>{
+  private run<T>(kind:'generate'|'options'|'turn',input:EngineInput,revision:string,request:SimulationRequest|SimulationTurnRequest|{pins:SimulationPin[]},progress?:(completed:number)=>void):Promise<T>{
     if(!this.worker)this.start();
     const id=++this.serial;
     if(kind==='generate')this.active={key:(request as SimulationRequest).id,id};
@@ -40,4 +40,5 @@ export class SimulationService {
     return this.run('generate',input,revision,request,progress);
   }
   options(input:EngineInput,revision:string,pins:SimulationPin[]):Promise<Recommendation[]>{return this.run('options',input,revision,{pins});}
+  turn(input:EngineInput,revision:string,request:SimulationTurnRequest):Promise<SimulationTurn>{return this.run('turn',input,revision,request);}
 }

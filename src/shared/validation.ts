@@ -29,6 +29,7 @@ const simulationContextSchema=z.object({settings:settingsSchema,teams:teamsSchem
 const simulationApproachSchema=z.enum(['varied','balanced','engage','poke','tempo','scaling']);
 export const simulationRequestSchema=z.object({id:z.string().regex(/^[a-zA-Z0-9_-]+$/).max(80),draft:draftSchema,pins:simulationPinsSchema,count:z.number().int().min(1).max(48),seed:z.number().int().min(0).max(2147483647),context:simulationContextSchema.optional(),approach:simulationApproachSchema.optional()}).strict();
 export const simulationOptionsSchema=z.object({draft:draftSchema,pins:simulationPinsSchema,context:simulationContextSchema.optional()}).strict();
+export const simulationTurnSchema=simulationOptionsSchema.extend({approach:simulationApproachSchema.optional()}).strict();
 export const simulationDocumentSchema=z.object({name:z.string().trim().min(1).max(100),draft:draftSchema,pins:simulationPinsSchema,history:z.array(selectionSchema).max(20),context:simulationContextSchema.optional(),approach:simulationApproachSchema.optional()}).strict();
 const dimensions = { patch: patchSchema.refine(p => p !== 'unknown'), source: z.enum(['solo', 'pro']), rank: z.string().min(1).max(50), league: z.string().min(1).max(80), side: z.enum(['blue', 'red', 'all']) };
 const statSchema = z.object({ championId: id, role, ...dimensions, ...counts, pickRate: z.number().min(0).max(1), banRate: z.number().min(0).max(1), baseline: z.number().min(0.1).max(0.9) }).strict().refine(s => s.wins <= s.games, 'Wins exceed games');

@@ -1,3 +1,4 @@
+import { dismissReleaseNotes } from './ui-helpers.mjs';
 import { _electron as electron, expect } from '@playwright/test';
 import { mkdir,writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -20,6 +21,7 @@ try{
  const page=await desktop.firstWindow();page.on('pageerror',e=>errors.push(e.message));
  await desktop.evaluate(({BrowserWindow})=>{BrowserWindow.getAllWindows()[0].webContents.setBackgroundThrottling(false);});
  await expect(page.getByTestId('app')).toBeVisible();
+  await dismissReleaseNotes(page);
  await expect(page.getByTestId('decision-desk')).toBeVisible({timeout:30000});
  const fearless=page.getByTestId('fearless-panel');
  const close=()=>page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();

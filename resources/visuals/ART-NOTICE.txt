@@ -1,0 +1,3 @@
+Champion illustrations are Riot Games game-specific static assets from Data Dragon. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. Tchim Draft is not endorsed by Riot Games.
+Source documentation: https://developer.riotgames.com/docs/lol#data-dragon
+Files are resized and encoded as WebP for offline display. No match statistics are downloaded by this script.

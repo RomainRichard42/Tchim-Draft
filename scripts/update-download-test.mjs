@@ -1,3 +1,4 @@
+import { dismissReleaseNotes } from './ui-helpers.mjs';
 import { _electron as electron,expect } from '@playwright/test';
 import { mkdir,readFile,writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
@@ -20,6 +21,7 @@ try {
   },path.join(root,'update-cache'));
   expect(setup.currentVersion).not.toBe(pkg.version);expect(setup.defaultInstallOnQuit).toBe(true);
   const page=await desktop.firstWindow();page.on('pageerror',e=>errors.push(e.message));await expect(page.getByTestId('app')).toBeVisible();
+  await dismissReleaseNotes(page);
   const before=await page.evaluate(()=>window.draftApi.snapshot());
   const result=await desktop.evaluate(async()=>{
     const updater=process.mainModule.require('electron-updater').autoUpdater,result=await updater.checkForUpdates();

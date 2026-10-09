@@ -10,6 +10,7 @@ import path from 'node:path';
 import { validateDataPack } from '../shared/validate-pack';
 import { mergeDataPacks } from '../shared/packs';
 import type { DatasetManifest } from '../shared/dataset';
+import { compareVersions, releaseNotesStatus } from '../shared/release-notes';
 
 export class Storage {
   private packCache: DataPack[] | undefined;
@@ -51,6 +52,12 @@ export class Storage {
   }
   get<T = string>(key: string): T | undefined { const r = this.db.prepare('SELECT value FROM kv WHERE key = ?').get(key) as { value: string } | undefined; return r ? JSON.parse(r.value) as T : undefined }
   set(key: string, value: unknown): void { this.db.prepare('INSERT OR REPLACE INTO kv VALUES (?, ?)').run(key, JSON.stringify(value)) }
+  releaseNotes(version:string) { return releaseNotesStatus(version,this.get('releaseNotesSeenVersion')); }
+  acknowledgeReleaseNotes(currentVersion:string,requestedVersion:string):void {
+    if(currentVersion!==requestedVersion)throw new Error('Release version mismatch');
+    const seen=this.releaseNotes(currentVersion).lastSeenVersion;
+    if(!seen||compareVersions(currentVersion,seen)>0)this.set('releaseNotesSeenVersion',currentVersion);
+  }
   persist(): void { this.db.transaction(() => { this.set('draft', this.draft); this.set('settings', this.settings); this.set('teams',this.teams) })() }
   champions(): Champion[] { return (this.db.prepare('SELECT json FROM champions ORDER BY id').all() as { json: string }[]).map(r => JSON.parse(r.json)) }
   packs(): DataPack[] {

@@ -1,4 +1,14 @@
 :root { background: #101725; --panel: #192335; --line: #34445d; --text: #f0f4ff; --muted: #b3bfd4; --green: #85e2bc; --blue: #82c4ff; --red: #ff939b; }
+.face-app .face-candidate-art{width:54px;height:64px;flex:0 0 auto;border-radius:7px;border:1px solid #7185a1}
+.face-app .face-candidate-art img{object-position:50% 18%}
+.face-app .team-slot{position:relative;isolation:isolate;overflow:hidden}
+.face-app .team-slot .face-slot-art{position:absolute;inset:0;z-index:-1;pointer-events:none;animation:face-art-enter .35s ease both}
+.face-slot-art img{object-position:65% 28%}
+.face-slot-art:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#122035f5 0%,#122035b0 65%,#12203540)}
+.red .face-slot-art:after{background:linear-gradient(90deg,#2b1f30f5 0%,#2b1f30b0 65%,#2b1f3040)}
+.face-app .team-slot.filled .slot-name strong{text-shadow:0 2px 6px #000}
+@keyframes face-art-enter{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.face-app .team-slot .face-slot-art{animation:none}}
 .face-app { background: #101725; font-size: 15px; }
 .face-app .app-header { background: #131c2b; gap: 14px; padding: 0 18px; }
 .face-brand { font-size: 17px; letter-spacing: 1px; white-space: nowrap; }

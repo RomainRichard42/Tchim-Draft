@@ -5,6 +5,7 @@ import manifest from './package.json' with { type: 'json' };
 export default defineConfig({
   root: 'src/renderer',
   base: './',
+  publicDir: '../../resources/visuals',
   plugins: [react()],
   define: { __APP_VERSION__: JSON.stringify(manifest.version) },
   build: { outDir: '../../dist/renderer', emptyOutDir: true },

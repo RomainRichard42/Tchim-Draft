@@ -1,5 +1,6 @@
 import { useEffect,useRef,useState,type ReactNode } from 'react';
 import { Search,X } from 'lucide-react';
+import { motion } from 'motion/react';
 import type { Champion,Recommendation } from '../shared/types';
 import type { Labels } from './i18n';
 
@@ -12,8 +13,8 @@ export function RecommendationList({list,champions,t,isPick,step,pending,complet
   return <div className="recommendation-browser">
     {isPick&&!complete&&<div className="recommendation-search"><Search size={16}/><input aria-label={t.searchPicks} placeholder={t.searchPicks} value={query} onChange={e=>setQuery(e.target.value)}/>{query&&<button className="icon-button" onClick={()=>setQuery('')} aria-label={t.clearSearch}><X size={14}/></button>}</div>}
     {!complete&&<div className="recommendation-count"><span>{rows.length} {isPick?t.pickOptions:t.banOptionsCount}</span><small>{isPick?t.scrollPicks:t.sortedByScore}</small></div>}
-    <div ref={scroll} className={`recommendations recommendation-scroll ${pending?'updating':''}`} role="region" aria-label={isPick?t.pickOptions:t.banOptionsCount} aria-busy={pending} tabIndex={0} data-testid="recommendation-scroll">
+    <motion.div layoutScroll ref={scroll} className={`recommendations recommendation-scroll ${pending?'updating':''}`} role="region" aria-label={isPick?t.pickOptions:t.banOptionsCount} aria-busy={pending} tabIndex={0} data-testid="recommendation-scroll">
       {rows.map(({rec,index})=>render(rec,index))}{!pending&&rows.length===0&&<p className="empty-state">{complete?t.draftCompleteHelp:query?t.noSearchResults:t.noPicks}</p>}
-    </div>
+    </motion.div>
   </div>;
 }

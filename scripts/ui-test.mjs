@@ -1,8 +1,10 @@
+import { dismissReleaseNotes } from './ui-helpers.mjs';
 import { _electron as electron, expect } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 await mkdir('artifacts', { recursive: true });
-const env = { ...process.env, TCHIM_DATA_DIR: path.resolve(`.test-data/ui-${Date.now()}`), TCHIM_OFFLINE: '1', TCHIM_TEST_HEADLESS: '1' };
+// Native Windows z-order checks require windows to be created visible.
+const env = { ...process.env, TCHIM_DATA_DIR: path.resolve(`.test-data/ui-${Date.now()}`), TCHIM_OFFLINE: '1', TCHIM_TEST_HEADLESS: '', TCHIM_DISABLE_APP_UPDATES: '1' };
 delete env.ELECTRON_RUN_AS_NODE;
 const executablePath = process.env.TCHIM_TEST_EXECUTABLE;
 const desktop = await electron.launch({ args: executablePath ? [] : ['.'], ...(executablePath ? { executablePath } : {}), env, timeout: 30000 });
@@ -18,6 +20,7 @@ try {
   await desktop.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.setBackgroundThrottling(false));
   page.on('pageerror', e => errors.push(e.message));
   await expect(page.getByTestId('app')).toBeVisible();
+  await dismissReleaseNotes(page);
   await expect(page.getByRole('heading', { name: /À nous de bannir/ })).toBeVisible();
   await expect(page.locator('.recommendation')).toHaveCount(5, { timeout: 30000 });
   await expect(page.getByTestId('face-pool')).toContainText('Non renseigné');
@@ -48,6 +51,7 @@ try {
   await page.evaluate(id => window.draftApi.loadSession(id), saved.sessions[0].id);
   expect((await page.evaluate(() => window.draftApi.snapshot())).draft.history.length).toBe(9);
   await page.getByRole('button', { name: 'Simulations', exact: true }).click();
+  await page.getByTestId('simulation-workshop-mode').click();
   await page.getByRole('button',{name:'Explorer les suites',exact:true}).click();
   await expect(page.getByTestId('simulation-branch')).toHaveCount(12, { timeout: 30000 });
   const a = await page.evaluate(() => window.draftApi.analyze());

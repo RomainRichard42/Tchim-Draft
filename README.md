@@ -1,6 +1,6 @@
 # Tchim Draft
 
-[Télécharger l’installeur Windows](https://github.com/RomainRichard42/Tchim-Draft/releases/latest). Après installation : **Données → Actualiser**, avec **GitHub : données déjà collectées**. Aucun compte GitHub n’est nécessaire. Les versions de l’application se téléchargent automatiquement et s’installent à la fermeture ; les statistiques restent actualisées sur clic. [Publier l’app et les données](docs/GITHUB.md).
+[Télécharger l’installeur Windows](https://github.com/RomainRichard42/Tchim-Draft/releases/latest). Après installation : **Données → Actualiser**, avec **GitHub : données déjà collectées**. Aucun compte GitHub n’est nécessaire. Les versions de l’application se téléchargent automatiquement et s’installent à la fermeture ; les statistiques restent actualisées sur clic. [Publier l’app et les données](docs/GITHUB.md). Les nouveautés s’affichent une fois après installation d’une nouvelle version et restent accessibles dans **Paramètres → Nouveautés et historique**. Le développement et les builds restent locaux jusqu’à une demande explicite de publication.
 
 Application **desktop Electron Windows** d’assistance à la draft League of Legends, entièrement manuelle. React + TypeScript pour l’interface, Electron pour les fenêtres/IPC, SQLite `better-sqlite3` pour les données locales et worker Node pour l’analyse. Aucun serveur n’est nécessaire pour drafter. Next.js n’apporterait ici ni SSR utile ni simplification du packaging.
 
@@ -27,7 +27,11 @@ Node >= 22.12 est requis. Le projet est verrouillé par `package-lock.json`. `np
 1. Choisir Compétitif ou Solo/Duo, patch, ligue et côté. Le rôle personnel concerne uniquement la Solo Queue.
 2. Saisir chaque ban/pick dans l’ordre affiché en haut, avec le détail accessible via **Ordre de draft**, via le bouton principal, une proposition ou un emplacement actif. Attribuer un rôle libre à chaque pick. Les bans peuvent être vides.
 3. Faire défiler tous les picks éligibles, classés par score, ou rechercher un champion. Les filtres de rôle et pools restent appliqués. La jauge compare les deux équipes à chaque pick et annulation, y compris dans l’overlay. Inspecter « Pourquoi ce choix ? » pour la fiabilité, les facteurs et les poids propres au rôle. En compétitif, le support évalue notre duo contre leur duo, la réponse à leur composition et le plan allié ; les autres rôles distinguent le vis-à-vis des autres ennemis. Tant que le vis-à-vis est inconnu, les réponses disponibles, bans, Fearless et pools adverses influencent la lecture du blind ; les tops dépendants de leur développement reçoivent un coût qualitatif explicite. Un double pick compétitif propose trois paires et une réponse adverse ; un clic sur la paire inscrit ses deux champions.
-4. Dans **Simulations**, créez une branche depuis la draft ou une draft libre. Glissez les champions sur les picks/bans, attribuez les rôles et verrouillez vos choix. **Compléter ma branche** termine une draft ; **Explorer les suites** propose jusqu’à 12, 24 ou 48 continuations distinctes. Comparez jusqu’à trois branches, leurs plans et leurs indices, puis sauvegardez ou dupliquez vos variantes dans la bibliothèque locale. Les choix manuels peuvent dépasser les pools connus ; les continuations automatiques respectent les pools OP.GG et le Fearless. Les branches impossibles sont signalées. Les simulations ne remplacent pas votre draft réelle.
+4. Dans **Simulations → Draft guidée**, importez les deux multis OP.GG, confirmez les cinq rôles et les pools de chaque équipe, puis lancez le face à face. Choisissez une proposition et validez-la, ou glissez un champion sur un pick/ban. L’adversaire répond visiblement, un tour à la fois, et les propositions sont recalculées selon vos décisions. **Pause**, **Annuler** et la chronologie permettent de reprendre la main ; **Dérouler la suite** joue les choix restants devant vous. La jauge suit les picks révélés. Sauvegardez pour reprendre une simulation plus tard ; les exceptions manuelles aux pools sont signalées et le Fearless reste respecté.
+
+   La scène centrale montre le choix à examiner ou à confirmer, avec son illustration, son rôle et son indice. Les champions validés rejoignent visuellement leur équipe. Les propositions se réorganisent après chaque analyse ; les flèches comparent leurs scores et places aux dernières propositions du même côté pour le même type de choix. Pendant le recalcul, la liste précédente reste visible et désactivée. Les emplacements disponibles s’éclairent pendant un glisser-déposer. Les plans de jeu s’ouvrent au-dessus de la scène sans déplacer les commandes.
+
+   **Atelier de variantes** conserve la création de branches libres, les verrous futurs et l’exploration de 12, 24 ou 48 drafts. Comparez jusqu’à trois branches, leurs plans et leurs indices. Les simulations sont indépendantes de votre draft réelle ; les scores restent des indices heuristiques, sans probabilité de victoire.
 5. Utiliser Mon pool pour la maîtrise en Solo et Équipes pour importer les deux multis OP.GG. En compétitif, les pools des joueurs peuvent limiter chaque équipe. Un pool restreint doit contenir les rôles nécessaires.
 5. Sauvegarder/charger une session ou l’exporter/importer en JSON. La draft courante et les paramètres se sauvegardent aussi automatiquement. Revenir sur une ancienne étape retire la suite pour permettre une nouvelle saisie.
 6. Ouvrir l’overlay, le déplacer par sa barre et ajuster son opacité dans Paramètres. Position et taille sont mémorisées. Les recommandations et étapes se synchronisent avec la fenêtre principale.
@@ -75,6 +79,12 @@ La **jauge d’avantage de draft** note les picks révélés de chaque équipe s
 
 Les recommandations et la jauge ont un **score de draft**, pas une probabilité de victoire. Les scénarios affichent un indice de composition ; une probabilité nécessiterait un modèle entraîné et calibré sur des données autorisées. Le scoring bayésien, les filtres, la pondération des sources et les limites sont détaillés dans [docs/DATA.md](docs/DATA.md), avec la comparaison des architectures de collecte, les droits des fournisseurs et la trajectoire ML V2/V3.
 
+## Illustrations et animations
+
+Les 173 champions du catalogue possèdent une illustration large et une carte verticale officielles Data Dragon. Les 346 fichiers WebP (~13,3 Mo) sont inclus dans le renderer packagé ; aucun téléchargement d’illustration n’est effectué au lancement ou lors d’un recalcul. Un portrait remplace une illustration manquante, notamment pour un nouveau champion ajouté avant la prochaine version de l’application. Motion anime les transitions, classements et scores. Le réglage système de réduction des animations est respecté.
+
+Pour préparer explicitement les illustrations manquantes depuis le catalogue local : `node scripts/fetch-champion-art.mjs`. Le script consulte SQLite en lecture seule, utilise un cache local et limite la collecte à trois requêtes simultanées. Il ne fait partie ni du lancement ni du build, et ne collecte aucune statistique. Les sources et empreintes figurent dans resources/visuals/art-manifest.json ; la mention Riot accompagne les fichiers. Vérification : `node scripts/verify-champion-art.mjs --packaged`.
+
 ## Architecture
 
 ```text
@@ -101,7 +111,7 @@ Sécurité : renderer sandboxé, `contextIsolation: true`, `nodeIntegration: fal
 npm.cmd run dist:win
 ```
 
-Produit `release/0.10.0/Tchim-Draft-0.10.0-win-x64.exe`, installeur NSIS par utilisateur, et `release/0.10.0/win-unpacked/Tchim Draft.exe`. Le packaging utilise un dossier par version pour permettre la construction pendant qu’une ancienne version est ouverte ; `TCHIM_BUILD_OUTPUT` permet un autre dossier. Icône et métadonnées Windows intégrées. La signature Windows n’est pas configurée (`signExecutable` désactivé) ; elle peut être ajoutée au workflow.
+Produit `release/0.10.3/Tchim-Draft-0.10.3-win-x64.exe`, installeur NSIS par utilisateur, et `release/0.10.3/win-unpacked/Tchim Draft.exe`. Le packaging utilise un dossier par version pour permettre la construction pendant qu’une ancienne version est ouverte ; `TCHIM_BUILD_OUTPUT` permet un autre dossier. Icône et métadonnées Windows intégrées. La signature Windows n’est pas configurée (`signExecutable` désactivé) ; elle peut être ajoutée au workflow.
 
 macOS : `npm.cmd run dist:mac` sur une machine macOS. Configuration DMG/ZIP fournie ; ni build macOS, ni signature, ni notarisation validées sous Windows.
 
@@ -125,7 +135,7 @@ Tests moteur : ordre, unicité, simulations complètes, rôles, duos, pool, liss
 
 Après une collecte CLI, `node scripts/scraped-ui-test.mjs` vérifie les recommandations et l’écran Données avec une copie des vrais packs dans une base isolée. `TCHIM_TEST_EXECUTABLE` permet de cibler l’exécutable packagé ; `TCHIM_TEST_SOURCE_REFRESH=1` vérifie aussi une collecte sur clic avec deux pages sources retirées du cache ; une actualisation complète du patch actif peut être longue. `node scripts/manual-refresh-test.mjs` vérifie le démarrage sans collecte, le bouton, la réutilisation du catalogue/icônes et la persistance après relancement, sans appel réel aux sites.
 
-Résultats vérifiés de cette livraison : [docs/VALIDATION-0.5.0.md](docs/VALIDATION-0.5.0.md). Les rapports précédents conservent l’état des versions 0.2.0, 0.3.0, 0.3.1, 0.4.0 et 0.4.1.
+Résultats de la version locale actuelle : [docs/VALIDATION-0.10.3.md](docs/VALIDATION-0.10.3.md). Les rapports précédents conservent l’état des livraisons antérieures.
 
 Sur certains environnements Windows AppContainer, Electron peut signaler que le runtime téléchargé n’a pas les droits de lecture pour `ALL APPLICATION PACKAGES`. Son diagnostic indique alors une commande `icacls` ciblant le dossier du runtime. Ne pas désactiver le sandbox Chromium pour contourner cela. Ce cas concerne l’environnement d’exécution de développement ; l’application conserve son sandbox.
 

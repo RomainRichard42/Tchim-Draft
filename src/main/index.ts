@@ -16,7 +16,7 @@ import type { Analysis, Draft, EngineInput } from '../shared/types';
 import { changeSeries, validateDraft } from '../shared/series';
 import { appUpdates } from './updates';
 import { SimulationService } from './simulations';
-import { simulationRequestSchema, simulationOptionsSchema, simulationDocumentSchema } from '../shared/validation';
+import { simulationRequestSchema, simulationOptionsSchema, simulationDocumentSchema, simulationTurnSchema } from '../shared/validation';
 import { validateSimulation } from '../shared/simulation';
 const simulations=new SimulationService();
 
@@ -92,6 +92,8 @@ async function readJson(file: string, maxBytes=30*1024*1024): Promise<unknown> {
 function handlers() {
   const scouting=new Set<string>();
   bind('draft:snapshot', () => storage.snapshot());
+  bind('app:release-notes',()=>storage.releaseNotes(app.getVersion()));
+  bind('app:acknowledge-release-notes',value=>storage.acknowledgeReleaseNotes(app.getVersion(),z.string().regex(/^\d+\.\d+\.\d+$/).max(40).parse(value)));
   bind('draft:configure', value => {
     const config = configureSchema.parse(value);
     if (config.mode && config.mode !== storage.draft.mode && storage.draft.history.length) throw new Error('Start a new draft before changing mode');
@@ -131,6 +133,12 @@ function handlers() {
     return simulations.options({...input,...request.context,draft:request.draft},revision,request.pins);
   });
   bind('simulation:cancel',value=>simulations.cancel(z.string().max(80).parse(value)));
+  bind('simulation:turn',value=>{
+    const request=simulationTurnSchema.parse(value);
+    validateSimulation(request.draft,request.pins,new Set(storage.champions().map(c=>c.id)));
+    const {input,revision}=simulationInput();
+    return simulations.turn(input,revision,request);
+  });
   bind('simulation:save',value=>{storage.saveSimulation(simulationDocumentSchema.parse(value));notify();return storage.snapshot();});
   bind('simulation:load',value=>storage.simulation(z.number().int().positive().parse(value)));
   bind('simulation:delete',value=>{storage.deleteSimulation(z.number().int().positive().parse(value));notify();return storage.snapshot();});

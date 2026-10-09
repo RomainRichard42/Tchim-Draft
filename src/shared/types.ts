@@ -47,6 +47,12 @@ export interface SimulationBranch { history:Selection[]; steps:SimulationStep[];
 export interface SimulationBatch { branches:SimulationBranch[]; requested:number; attempts:number; elapsedMs:number; generatedAt:string; context:SimulationContext; warnings:string[] }
 export interface SimulationDocument { name:string; draft:Draft; pins:SimulationPin[]; history:Selection[]; context?:SimulationContext; approach?:SimulationApproach|'varied' }
 export interface SimulationProgress { id:string; completed:number; requested:number }
+export interface SimulationTurnRequest { draft:Draft; pins:SimulationPin[]; context?:SimulationContext; approach?:SimulationApproach|'varied' }
+export interface SimulationTurn { options:Recommendation[]; balance:DraftBalance; plans:Analysis['plans']; warnings:string[] }
+export interface ReleaseNoteText { fr:string; en:string }
+export interface ReleaseNoteSection { kind:'new'|'improved'|'fixed'; items:ReleaseNoteText[] }
+export interface ReleaseNote { version:string; title:ReleaseNoteText; summary:ReleaseNoteText; sections:ReleaseNoteSection[] }
+export interface ReleaseNotesStatus { currentVersion:string; lastSeenVersion:string|null; pending:boolean; entries:ReleaseNote[]; history:ReleaseNote[] }
 export interface DesktopApi {
   snapshot(): Promise<Snapshot>;
   configure(patch: Partial<Omit<Draft, 'history'>>): Promise<Snapshot>;
@@ -58,6 +64,7 @@ export interface DesktopApi {
   analyze(): Promise<Analysis>;
   simulate(request:SimulationRequest):Promise<SimulationBatch>;
   simulationOptions(request:{draft:Draft;pins:SimulationPin[];context?:SimulationContext}):Promise<Recommendation[]>;
+  simulationTurn(request:SimulationTurnRequest):Promise<SimulationTurn>;
   cancelSimulation(id:string):Promise<void>;
   saveSimulation(document:SimulationDocument):Promise<Snapshot>;
   loadSimulation(id:number):Promise<SimulationDocument>;
@@ -76,6 +83,8 @@ export interface DesktopApi {
   overlay(): Promise<void>;
   checkUpdate(): Promise<void>;
   installUpdate(): Promise<void>;
+  releaseNotes():Promise<ReleaseNotesStatus>;
+  acknowledgeReleaseNotes(version:string):Promise<void>;
   onChange(callback: (snapshot: Snapshot) => void): () => void;
 }
 declare global { interface Window { draftApi: DesktopApi } }

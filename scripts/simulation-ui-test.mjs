@@ -1,3 +1,4 @@
+import { dismissReleaseNotes } from './ui-helpers.mjs';
 import { _electron as electron, expect } from '@playwright/test';
 import Database from 'better-sqlite3';
 import { mkdir, cp, writeFile, readFile } from 'node:fs/promises';
@@ -5,7 +6,7 @@ import path from 'node:path';
 const real=process.env.TCHIM_TEST_REAL==='1'||process.argv.includes('--real'),root=path.resolve(`.test-data/simulation-${Date.now()}`);
 await mkdir(root,{recursive:true});await mkdir('artifacts',{recursive:true});
 if(real){const source=new Database('data/local/tchim.sqlite',{readonly:true});await source.backup(path.join(root,'tchim.sqlite'));source.close();await cp('data/local/icons',path.join(root,'icons'),{recursive:true});}
-const env={...process.env,TCHIM_DATA_DIR:root,TCHIM_OFFLINE:'1',TCHIM_TEST_HEADLESS:'1'};delete env.ELECTRON_RUN_AS_NODE;
+const env={...process.env,TCHIM_DATA_DIR:root,TCHIM_OFFLINE:'1',TCHIM_TEST_HEADLESS:'',TCHIM_DISABLE_APP_UPDATES:'1'};delete env.ELECTRON_RUN_AS_NODE;
 const version=JSON.parse(await readFile('package.json','utf8')).version;
 const executablePath=process.env.TCHIM_TEST_EXECUTABLE||(process.argv.includes('--packaged')?path.resolve(`release/${version}/win-unpacked/Tchim Draft.exe`):undefined);
 const desktop=await electron.launch({args:executablePath?[]:['.'],...(executablePath?{executablePath}:{}),env,timeout:30000});
@@ -21,6 +22,7 @@ try{
   page.on('console',message=>{if(message.text().startsWith('BENCHMARK_PROGRESS'))console.log(message.text());});
   await desktop.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].webContents.setBackgroundThrottling(false));
   await expect(page.getByTestId('app')).toBeVisible({timeout:30000});
+  await dismissReleaseNotes(page);
   await page.evaluate(async()=>{
     const api=window.draftApi;await api.reset();const snapshot=await api.snapshot();
     await api.settings({...snapshot.settings,language:'fr',poolOnly:false});
@@ -30,6 +32,7 @@ try{
   });
   const live=await page.evaluate(()=>window.draftApi.snapshot());
   await page.getByRole('button',{name:'Simulations',exact:true}).click();
+  await page.getByTestId('simulation-workshop-mode').click();
   await expect(page.getByTestId('simulation-studio')).toBeVisible();
   await page.getByRole('button',{name:'Chronologie',exact:true}).click();
   // Chromium DataTransfer exercises the actual production drag/drop handlers.

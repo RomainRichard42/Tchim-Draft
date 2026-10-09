@@ -1,3 +1,4 @@
+import { dismissReleaseNotes } from './ui-helpers.mjs';
 import { _electron as electron, expect } from '@playwright/test';
 import Database from 'better-sqlite3';
 import { mkdir, cp, writeFile } from 'node:fs/promises';
@@ -24,6 +25,7 @@ try {
   const page = await desktop.firstWindow(); page.on('pageerror', e => errors.push(e.message));
   await desktop.evaluate(({ BrowserWindow }) => { const w = BrowserWindow.getAllWindows()[0]; w.webContents.setBackgroundThrottling(false); w.setContentSize(1672, 941); });
   await expect(page.locator('.desktop-app')).toBeVisible({ timeout: 30000 });
+  await dismissReleaseNotes(page);
   await page.evaluate(async prior => {
     await window.draftApi.reset();
     await window.draftApi.configure({ mode: 'pro', side: 'blue', targetRole: 'TOP', league: 'all', series: { format: 'bo5', games: [{ picks: prior }] } });

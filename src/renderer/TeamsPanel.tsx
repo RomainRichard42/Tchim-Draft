@@ -1,16 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ScoutedTeam, Snapshot, Teams } from '../shared/types';
 import { ROLES } from '../shared/types';
 
-export function TeamsPanel({snapshot,onError}:{snapshot:Snapshot;onError:(error:string)=>void}) {
+export function TeamsPanel({snapshot,onError,combined=false}:{snapshot:Snapshot;onError:(error:string)=>void;combined?:boolean}) {
   const fr=snapshot.settings.language==='fr';
   const [urls,setUrls]=useState({ally:snapshot.teams.ally.url,enemy:snapshot.teams.enemy.url});
-  const [loading,setLoading]=useState<'ally'|'enemy'|null>(null);
+  const previousUrls=useRef({ally:snapshot.teams.ally.url,enemy:snapshot.teams.enemy.url});
+  const [loading,setLoading]=useState<'ally'|'enemy'|'both'|null>(null);
   const [add,setAdd]=useState<Record<string,string>>({});
-  useEffect(()=>setUrls({ally:snapshot.teams.ally.url,enemy:snapshot.teams.enemy.url}),[snapshot.teams.ally.url,snapshot.teams.enemy.url]);
+  useEffect(()=>{
+    const next={ally:snapshot.teams.ally.url,enemy:snapshot.teams.enemy.url},prior=previousUrls.current;
+    setUrls(current=>({ally:next.ally!==prior.ally?next.ally:current.ally,enemy:next.enemy!==prior.enemy?next.enemy:current.enemy}));
+    previousUrls.current=next;
+  },[snapshot.teams.ally.url,snapshot.teams.enemy.url]);
   async function save(key:'ally'|'enemy',team:ScoutedTeam){try{await window.draftApi.teams({...snapshot.teams,[key]:team});}catch(e){onError(String(e));}}
   async function scout(key:'ally'|'enemy') {setLoading(key);onError('');try{await window.draftApi.scout(key,urls[key]);}catch(e){onError(String(e));}finally{setLoading(null);}}
-  return <div className="teams-layout">{(['ally','enemy'] as const).map(key=>{
+  async function scoutBoth(){setLoading('both');onError('');try{await window.draftApi.scout('ally',urls.ally);await window.draftApi.scout('enemy',urls.enemy);}catch(e){onError(String(e));}finally{setLoading(null);}}
+  return <div className="teams-layout">{combined&&<div className="scouting-combined"><button className="primary" disabled={!!loading||!urls.ally.trim()||!urls.enemy.trim()} onClick={()=>void scoutBoth()}>{loading==='both'?(fr?'Import des deux équipes…':'Importing both teams…'):(fr?'Importer les deux équipes':'Import both teams')}</button><span>{fr?'Les profils sont importés un par un ; confirme ensuite les rôles ci-dessous.':'Profiles are imported one at a time; confirm roles below afterwards.'}</span></div>}{(['ally','enemy'] as const).map(key=>{
     const team=snapshot.teams[key];
     const modify=(index:number,patch:Partial<ScoutedTeam['players'][number]>)=>void save(key,{...team,players:team.players.map((p,i)=>i===index?{...p,...patch}:p)});
     return <section className="surface scouting-team" key={key} data-testid={`scouting-${key}`}>

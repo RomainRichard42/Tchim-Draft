@@ -5,14 +5,23 @@ import { ROLES } from '../shared/types';
 import { fearlessUsed, opposite, order, seriesFinished } from '../shared/draft';
 import { validateSimulation } from '../shared/simulation';
 import { Portrait } from './ChampionPortrait';
+import { ChampionArtwork } from './ChampionArtwork';
+import { championDragImage } from './champion-drag';
+import { AnimatedScore } from './AnimatedScore';
 import { GamePlanPanel } from './GamePlanPanel';
 import { DraftBalancePanel } from './DraftBalancePanel';
 import { translations } from './i18n';
 import './simulations.css';
+import { GuidedSimulationPanel } from './GuidedSimulationPanel';
 
 const api=window.draftApi, dragType='application/x-tchim-champion';
 type DragChoice={championId:string|null;role?:Role;from?:number};
 export function SimulationsPanel({snapshot:snap,active}:{snapshot:Snapshot;active:boolean}){
+  const [mode,setMode]=useState<'guided'|'workshop'>('guided'),fr=snap.settings.language==='fr';
+  return <section className="simulation-hub" hidden={!active}><div className="simulation-mode-switch" role="group" aria-label={fr?'Mode de simulation':'Simulation mode'}><button className={mode==='guided'?'active':''} data-testid="simulation-guided-mode" onClick={()=>setMode('guided')}><PlayIcon/>{fr?'Draft guidée':'Guided draft'}</button><button className={mode==='workshop'?'active':''} data-testid="simulation-workshop-mode" onClick={()=>setMode('workshop')}><GitBranch size={15}/>{fr?'Atelier de variantes':'Variations workshop'}</button><span>{mode==='guided'?(fr?'Décide tour par tour face aux deux équipes OP.GG.':'Make decisions turn by turn with both OP.GG teams.'):(fr?'Explore et compare plusieurs drafts complètes.':'Explore and compare several complete drafts.')}</span></div><GuidedSimulationPanel snapshot={snap} active={active&&mode==='guided'}/><SimulationWorkshop snapshot={snap} active={active&&mode==='workshop'}/></section>;
+}
+function PlayIcon(){return <ArrowRight size={15}/>;}
+function SimulationWorkshop({snapshot:snap,active}:{snapshot:Snapshot;active:boolean}){
   const fr=snap.settings.language==='fr',l=(a:string,b:string)=>fr?a:b;
   const [base,setBase]=useState<Draft>(()=>structuredClone(snap.draft)),[pins,setPins]=useState<SimulationPin[]>([]);
   const [context,setContext]=useState<SimulationContext>(),[batch,setBatch]=useState<SimulationBatch>(),[chosen,setChosen]=useState(0);
@@ -24,6 +33,10 @@ export function SimulationsPanel({snapshot:snap,active}:{snapshot:Snapshot;activ
   const [options,setOptions]=useState<Recommendation[]>([]),[optionsLoading,setOptionsLoading]=useState(false),[busy,setBusy]=useState(false),[progress,setProgress]=useState(0),[error,setError]=useState(''),[message,setMessage]=useState('');
   const [compared,setCompared]=useState<number[]>([]),[dragging,setDragging]=useState(false);
   const job=useRef<string|undefined>(undefined),optionsVersion=useRef(0),initialized=useRef(false);
+  const dragCleanup=useRef<()=>void>(undefined);
+  function finishDrag(){dragCleanup.current?.();dragCleanup.current=undefined;setDragging(false);}
+  useEffect(()=>()=>{dragCleanup.current?.();},[]);
+  useEffect(()=>{if(!active)finishDrag();},[active]);
   const sequence=order(base),branch=batch?.branches[chosen],known=useMemo(()=>new Set(snap.champions.map(c=>c.id)),[snap.champions]);
   const byId=useMemo(()=>new Map(snap.champions.map(c=>[c.id,c])),[snap.champions]);
   const find=(id:string|null|undefined)=>id?byId.get(id):undefined;
@@ -37,6 +50,7 @@ export function SimulationsPanel({snapshot:snap,active}:{snapshot:Snapshot;activ
   async function stop(){const id=job.current;job.current=undefined;setBusy(false);if(id)await api.cancelSimulation(id);}
   useEffect(()=>api.onSimulationProgress(p=>{if(p.id===job.current)setProgress(p.completed);}),[]);
   useEffect(()=>()=>{if(job.current)void api.cancelSimulation(job.current);},[]);
+  useEffect(()=>{if(!active&&job.current)void stop();},[active]);
   useEffect(()=>{if(active&&!initialized.current){initialized.current=true;setBase(structuredClone(snap.draft));setTarget(snap.draft.history.length);}},[active]);
   async function generate(amount=count,override?:{draft:Draft;pins:SimulationPin[];context?:SimulationContext;approach?:SimulationApproach|'varied'}){
     const id=crypto.randomUUID();job.current=id;setBusy(true);setJobCount(amount);setError('');setMessage('');setProgress(0);
@@ -88,8 +102,8 @@ export function SimulationsPanel({snapshot:snap,active}:{snapshot:Snapshot;activ
     // Moving a forced pick frees its origin; generated choices are recomputed after a move.
     next.push({index,selection});setConstraints(next);setTarget(index);
   }
-  function drag(event:React.DragEvent,choice:DragChoice){event.dataTransfer.setData(dragType,JSON.stringify(choice));event.dataTransfer.effectAllowed='copyMove';setDragging(true);}
-  function drop(event:React.DragEvent,index:number,role?:Role){event.preventDefault();setDragging(false);try{const raw=JSON.parse(event.dataTransfer.getData(dragType));if(raw&&known.has(raw.championId)&&(!raw.role||ROLES.includes(raw.role))&&(raw.from===undefined||Number.isInteger(raw.from)))place(raw,index,role);}catch{setError(l('Déplacement invalide.','Invalid move.'));}}
+  function drag(event:React.DragEvent,choice:DragChoice){finishDrag();const champion=find(choice.championId);if(!champion){event.preventDefault();return;}event.dataTransfer.setData(dragType,JSON.stringify(choice));event.dataTransfer.effectAllowed='copyMove';dragCleanup.current=championDragImage(event,champion,choice);setDragging(true);}
+  function drop(event:React.DragEvent,index:number,role?:Role){event.preventDefault();finishDrag();try{const raw=JSON.parse(event.dataTransfer.getData(dragType));if(raw&&known.has(raw.championId)&&(!raw.role||ROLES.includes(raw.role))&&(raw.from===undefined||Number.isInteger(raw.from)))place(raw,index,role);}catch{setError(l('Déplacement invalide.','Invalid move.'));}}
   function lock(index:number){const selection=selectionAt(index);if(index<base.history.length||!selection)return;setConstraints(pins.some(p=>p.index===index)?pins.filter(p=>p.index!==index):[...pins,{index,selection}]);}
   function fork(){
     if(!branch)return;
@@ -117,8 +131,8 @@ export function SimulationsPanel({snapshot:snap,active}:{snapshot:Snapshot;activ
     if(!action)return null;
     return <div key={index} className={`sim-slot ${action.side} ${target===index?'selected':''} ${locked?'locked':'automatic'} ${real?'real':''} ${compact?'compact':''}`}
       title={`${action.label} · ${find(selection?.championId)?.name??l('À définir','To choose')}`} data-testid={`sim-step-${index}`} onDragOver={e=>{if(!real&&!busy&&e.dataTransfer.types.includes(dragType))e.preventDefault();}} onDrop={e=>drop(e,index,role)}>
-      <button className="sim-slot-choice" disabled={real||busy} onClick={()=>{setTarget(index);setManualRole(role??selection?.role??availableRoles(index)[0]??'TOP');}} draggable={!!selection?.championId&&!real&&!busy} onDragStart={e=>drag(e,{...selection!,from:index})} onDragEnd={()=>setDragging(false)}>
-        <span className="sim-slot-step">{index+1} · {action.label}{role&&` · ${role}`}</span><span className="sim-slot-champion"><Portrait champion={find(selection?.championId)} size="medium" banned={action.kind==='ban'}/><strong>{selection?find(selection.championId)?.name??l('Ban passé','Skipped ban'):l('Déposer un champion','Drop a champion')}</strong>{selection?.role&&!role&&<small>{selection.role}</small>}</span>
+      <button className="sim-slot-choice" disabled={real||busy} onClick={()=>{setTarget(index);setManualRole(role??selection?.role??availableRoles(index)[0]??'TOP');}} draggable={!!selection?.championId&&!real&&!busy} onDragStart={e=>drag(e,{...selection!,from:index})} onDragEnd={finishDrag}>
+        <span className="sim-slot-step">{index+1} · {action.label}{role&&` · ${role}`}</span><span className="sim-slot-champion">{action.kind==="pick"&&selection?.championId&&<ChampionArtwork champion={find(selection.championId)} className="workshop-slot-art"/>}<Portrait champion={find(selection?.championId)} size="medium" banned={action.kind==='ban'}/><strong>{selection?find(selection.championId)?.name??l('Ban passé','Skipped ban'):l('Déposer un champion','Drop a champion')}</strong>{selection?.role&&!role&&<small>{selection.role}</small>}</span>
       </button>
       <div className="sim-slot-actions">{real?<span title={l('Choix de la draft réelle','Live draft choice')}>LIVE</span>:<><button className="icon-button" aria-label={`${locked?l('Déverrouiller','Unlock'):l('Verrouiller','Lock')} ${action.label}`} disabled={busy||!selection} onClick={()=>lock(index)}>{locked?<LockKeyhole size={14}/>:<UnlockKeyhole size={14}/>}</button>{pins.some(p=>p.index===index)&&<button className="icon-button" aria-label={`${l('Effacer','Clear')} ${action.label}`} disabled={busy} onClick={()=>setConstraints(pins.filter(p=>p.index!==index))}><X size={14}/></button>}</>}</div>
     </div>;
@@ -168,9 +182,9 @@ export function SimulationsPanel({snapshot:snap,active}:{snapshot:Snapshot;activ
       {targetAction?.kind==='ban'&&<button disabled={busy||target<base.history.length} onClick={()=>place({championId:null})}>{l('Passer ce ban','Skip this ban')}</button>}
       <div className="sim-search"><Search size={16}/><input aria-label={l('Rechercher un champion pour la simulation','Search simulation champions')} placeholder={l('Rechercher un champion…','Search champions…')} value={query} onChange={e=>setQuery(e.target.value)}/></div><div className="sim-role-filters">{(['ALL',...ROLES] as const).map(role=><button key={role} className={roleFilter===role?'active':''} onClick={()=>setRoleFilter(role)}>{role==='ALL'?l('Tous','All'):role==='JUNGLE'?'JGL':role==='SUPPORT'?'SUP':role}</button>)}</div>
       <div className="sim-section-title"><Sparkles size={15}/>{l('Options du moteur','Engine options')}{optionsLoading&&<LoaderCircle size={14} className="spin"/>}</div>
-      <div className="sim-options">{options.filter(r=>!disabled.has(r.championId)&&find(r.championId)?.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())&&(roleFilter==='ALL'||r.role===roleFilter)).slice(0,12).map(r=><button key={`${r.championId}:${r.role}`} disabled={busy||target<base.history.length} title={r.summary??r.reasons[0]} draggable={!busy} onDragStart={e=>drag(e,r)} onDragEnd={()=>setDragging(false)} onClick={()=>place(r)}><GripVertical size={13}/><Portrait champion={find(r.championId)} size="tiny"/><span><strong>{find(r.championId)?.name}</strong><small>{r.role} · {r.games?`${r.games} ${l('parties','games')}`:l('qualitatif','qualitative')}</small></span><b>{r.score.toFixed(1)}</b></button>)}</div>
+      <div className="sim-options">{options.filter(r=>!disabled.has(r.championId)&&find(r.championId)?.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())&&(roleFilter==='ALL'||r.role===roleFilter)).slice(0,12).map(r=><button key={`${r.championId}:${r.role}`} disabled={busy||target<base.history.length} title={r.summary??r.reasons[0]} draggable={!busy} onDragStart={e=>drag(e,r)} onDragEnd={finishDrag} onClick={()=>place(r)}><GripVertical size={13}/><Portrait champion={find(r.championId)} size="tiny"/><span><strong>{find(r.championId)?.name}</strong><small>{r.role} · {r.games?`${r.games} ${l('parties','games')}`:l('qualitatif','qualitative')}</small></span><b><AnimatedScore value={r.score}/></b></button>)}</div>
       {!optionsLoading&&!options.length&&<p>{l('Catalogue manuel disponible. Remplis les étapes précédentes pour obtenir des scores à cette étape.','Manual catalogue available. Fill earlier steps to see scores for this step.')}</p>}
-      <details open className="sim-catalogue"><summary>{l('Catalogue manuel','Manual catalogue')} · {catalogue.length}</summary><p>{l('Les choix manuels peuvent dépasser les pools connus.','Manual choices may override known pools.')}</p><div>{catalogue.map(c=><button key={c.id} data-testid={`sim-champion-${c.id}`} draggable={!busy} disabled={busy||target<base.history.length||!targetAction} title={c.roles.join(' / ')} onDragStart={e=>drag(e,{championId:c.id,role:c.roles[0]})} onDragEnd={()=>setDragging(false)} onClick={()=>place({championId:c.id})}><Portrait champion={c} size="tiny"/><span>{c.name}</span></button>)}</div></details>
+      <details open className="sim-catalogue"><summary>{l('Catalogue manuel','Manual catalogue')} · {catalogue.length}</summary><p>{l('Les choix manuels peuvent dépasser les pools connus.','Manual choices may override known pools.')}</p><div>{catalogue.map(c=><button key={c.id} data-testid={`sim-champion-${c.id}`} draggable={!busy} disabled={busy||target<base.history.length||!targetAction} title={c.roles.join(' / ')} onDragStart={e=>drag(e,{championId:c.id,role:c.roles[0]})} onDragEnd={finishDrag} onClick={()=>place({championId:c.id})}><Portrait champion={c} size="tiny"/><span>{c.name}</span></button>)}</div></details>
       {lastStep&&<details className="sim-reasons"><summary>{l('Pourquoi ce choix ?','Why this choice?')}</summary>{lastStep.reasons.map(reason=><p key={reason}>{reason}</p>)}</details>}
     </aside></div>
   </section>;

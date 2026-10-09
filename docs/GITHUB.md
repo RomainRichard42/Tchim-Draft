@@ -12,7 +12,7 @@ Les anciennes versions sans flux de publication, notamment 0.5.0, doivent instal
 
 ## Collecter et publier les statistiques
 
-À exécuter chez l’éditeur, avec GitHub CLI connecté et des données collectées à distribuer :
+À exécuter chez l’éditeur uniquement quand la publication des statistiques est demandée explicitement, avec GitHub CLI connecté et des données collectées à distribuer :
 
 ```powershell
 npm.cmd run build
@@ -30,17 +30,17 @@ Le client vérifie HTTPS, redirections GitHub autorisées, tailles, SHA-256, sch
 
 ## Publier une nouvelle version de l’app
 
-Modifier le code et `docs/RELEASE_NOTES.md`, puis :
+Le développement, les tests et les builds restent **locaux** jusqu’à une demande explicite de l’utilisateur. Une demande de correction ou de fonctionnalité n’autorise pas un push, un tag distant, une release ou une publication de données. Cette règle figure dans `AGENTS.md`.
 
-```powershell
-npm.cmd test
-git add .
-git commit -m "Improve draft assistant"
-npm.cmd version patch
-git push origin main --follow-tags
-```
+Avant de préparer une version : mettre à jour `package.json`, `package-lock.json`, `docs/RELEASE_NOTES.md` et l’entrée FR/EN dans `src/shared/release-notes.ts`. Les notes doivent expliquer les nouveautés avec des mots compréhensibles sans programmation. Tester et construire localement avec `npm.cmd test` et `npm.cmd run dist:win`.
 
-Le tag `vX.Y.Z` déclenche `.github/workflows/release.yml` : installation des dépendances, tests, compilation, installeur Windows, puis publication de l’exécutable, de son `.blockmap` et de `latest.yml`. La Release reste un brouillon tant que les trois fichiers ne sont pas téléversés. Un push de code sans tag ne diffuse pas une nouvelle version aux utilisateurs. Un changement du numéro de version est nécessaire pour que les installations existantes détectent une mise à jour.
+**Uniquement lorsque la publication est demandée**, enregistrer les fichiers concernés, créer le tag `vX.Y.Z`, puis pousser le commit et le tag. Ne pas utiliser `git add .`, qui pourrait inclure des fichiers sans rapport avec la version.
+
+Un push de code ou de tag ne déclenche plus le workflow de release. Après le push autorisé, aller dans **GitHub → Actions → Publish Windows app → Run workflow**, et saisir la version exacte (exemple : `0.10.1`). L’équivalent CLI est `gh workflow run release.yml --repo RomainRichard42/Tchim-Draft --ref main -f version=0.10.1`. Ce déclenchement de publication nécessite lui aussi la demande explicite de publication de l’utilisateur.
+
+Le workflow manuel vérifie que le tag existe et correspond à la version du programme, installe les dépendances, teste, compile et construit l’installeur Windows. Il publie ensuite l’exécutable, son `.blockmap` et `latest.yml`. La Release reste un brouillon tant que les trois fichiers ne sont pas téléversés. Seule une release publiée devient disponible pour la mise à jour automatique des amis.
+
+Le workflow de release est manuel : les prochains pushes de code ou de tags ne publieront pas une version destinée aux utilisateurs. Chaque publication nécessite la demande explicite de l’utilisateur et le déclenchement du workflow pour la version validée.
 
 `resources/distribution.json` est l’unique configuration du dépôt et du tag de données. Aucun jeton GitHub n’est embarqué dans l’app. Le workflow utilise son `GITHUB_TOKEN` temporaire et l’éditeur utilise sa propre connexion GitHub CLI. Ne pas publier `data/local`, SQLite, `.env`, les autorisations du collecteur ou `node_modules` ; ils sont ignorés par Git.
 

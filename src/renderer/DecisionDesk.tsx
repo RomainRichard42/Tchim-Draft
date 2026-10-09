@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
+import { motion } from 'motion/react';
+import { ChampionArtwork } from './ChampionArtwork';
+import { AnimatedScore } from './AnimatedScore';
 import { AlertTriangle, Check, CircleHelp } from 'lucide-react';
 import type { Champion, Recommendation } from '../shared/types';
-import { Portrait } from './ChampionPortrait';
 import { RecommendationList } from './RecommendationList';
 import { translations } from './i18n';
 
@@ -24,16 +26,16 @@ export function DecisionDesk({ list, focused, champions, language, isBan, disabl
       const active = focused?.championId === rec.championId && focused.role === rec.role;
       const warning = rec.lowSample ? (fr ? `Échantillon insuffisant · ${rec.games} parties` : `Insufficient sample · ${rec.games} games`)
         : rec.blind ? (rec.blind.coverage < .5 ? (fr ? 'Blind peu documenté' : 'Limited blind data') : rec.blind.score < 47 ? (fr ? 'Blind exposé' : 'Exposed blind') : (fr ? 'Vis-à-vis encore inconnu' : 'Opposing role still unknown')) : null;
-      return <article key={`${rec.championId}:${rec.role}`} className={`recommendation face-candidate ${active ? 'selected' : ''}`} data-champion={rec.championId}>
+      return <motion.article layout={index<60?"position":false} transition={{duration:.24}} key={`${rec.championId}:${rec.role}`} className={`recommendation face-candidate ${active ? 'selected' : ''}`} data-champion={rec.championId}>
         <button className="face-candidate-preview" onClick={() => preview(rec)} disabled={disabled} aria-label={`${fr ? 'Comparer' : 'Compare'} ${champions.get(rec.championId)?.name ?? rec.championId} · ${rec.role}`} aria-pressed={active}>
-          <span className="rec-position">{String(index + 1).padStart(2, '0')}</span><Portrait champion={champions.get(rec.championId)} size="medium"/>
+          <span className="rec-position">{String(index + 1).padStart(2, '0')}</span><ChampionArtwork champion={champions.get(rec.championId)} kind="card" className="face-candidate-art"/>
           <span className="face-candidate-name"><strong>{champions.get(rec.championId)?.name ?? rec.championId}</strong><span className="role-tag">{rec.role}</span></span>
-          <span className="rec-score"><strong>{rec.score.toFixed(1)}</strong><span>/100</span></span>
+          <span className="rec-score"><strong><AnimatedScore value={rec.score}/></strong><span>/100</span></span>
         </button>
         <div className="face-candidate-caption"><span className={warning ? 'face-warning' : 'face-candidate-status'}>{warning ? <AlertTriangle size={16}/> : active ? <Check size={16}/> : null}{warning ?? (index === 0 ? (fr ? 'Recommandé par le moteur' : 'Engine recommendation') : active ? (fr ? 'Option affichée' : 'Previewed option') : (fr ? 'Autre option' : 'Another option'))}</span>
           <div className="rec-meta"><button disabled={disabled} onClick={() => { preview(rec); inspect(rec); }} aria-label={`${t.why} ${champions.get(rec.championId)?.name}`}><CircleHelp size={17}/><span>{fr ? 'Pourquoi' : 'Why'}</span></button>{index < 3 && <kbd>Ctrl+{index + 1}</kbd>}</div>
         </div>
-      </article>;
+      </motion.article>;
     }}/>
   </div>;
 }

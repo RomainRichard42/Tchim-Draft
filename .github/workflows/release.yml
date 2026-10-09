@@ -1,26 +1,39 @@
 name: Publish Windows app
 on:
-  push:
-    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version validée à publier (exemple : 0.10.1). Le tag vVERSION doit déjà exister.'
+        required: true
+        type: string
 permissions:
   contents: write
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ inputs.version }}
   cancel-in-progress: false
 jobs:
   windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ format('refs/tags/v{0}', inputs.version) }}
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
       - name: Check tag and package version
         shell: pwsh
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
         run: |
+          if ($env:REQUESTED_VERSION -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid release version' }
           $version = (Get-Content package.json | ConvertFrom-Json).version
-          if ($env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag and package version differ' }
+          if ($env:REQUESTED_VERSION -ne $version) { throw 'Requested version and package version differ' }
+          $tagCommit = git rev-parse "v$version^{commit}"
+          if ($LASTEXITCODE -ne 0) { throw 'Release tag is missing' }
+          $headCommit = git rev-parse HEAD
+          if ($tagCommit -ne $headCommit) { throw 'Checkout and release tag differ' }
       - run: npm ci
       - run: npm test
       - run: npm run dist:win

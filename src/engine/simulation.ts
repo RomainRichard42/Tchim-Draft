@@ -1,8 +1,31 @@
-import type { EngineInput, Recommendation, SimulationApproach, SimulationBatch, SimulationBranch, SimulationPin, SimulationRequest, SimulationStep } from '../shared/types';
+import type { EngineInput, Recommendation, SimulationApproach, SimulationBatch, SimulationBranch, SimulationPin, SimulationRequest, SimulationStep, SimulationTurn, SimulationTurnRequest } from '../shared/types';
 import { opposite, order, picks } from '../shared/draft';
 import { validateSimulation } from '../shared/simulation';
 import { banCandidates, draftBalance, rankCandidates } from './index';
 import { gamePlan } from './gameplan';
+import { guidedContext, guidedRosterIssues } from '../shared/guided-simulation';
+
+/** One real turn, not a precomputed completed draft. Recompute after every coach decision. */
+export function simulationTurn(input:EngineInput,request:SimulationTurnRequest):SimulationTurn {
+  const context=request.context??{settings:input.settings,teams:input.teams};
+  const issues=guidedRosterIssues(context.teams,context.settings.language);
+  if(issues.length)throw new Error(issues.join('\n'));
+  const state={...input,...guidedContext(context.settings,context.teams!),draft:request.draft};
+  validateSimulation(state.draft,request.pins,new Set(input.champions.map(c=>c.id)));
+  let options=simulationOptions(state,request.pins);
+  const action=order(state.draft)[state.draft.history.length];
+  if(action?.kind==='pick'&&action.side===state.draft.side&&request.approach&&request.approach!=='varied'&&request.approach!=='balanced'){
+    const style=request.approach;
+    const affinity=(r:Recommendation)=>{const traits=input.champions.find(c=>c.id===r.championId)?.traits;return !traits?0:(style==='engage'?(traits.engage+traits.frontline)/2:style==='poke'?traits.poke:style==='tempo'?traits.early:traits.scaling)/3*4;};
+    options=options.sort((a,b)=>(b.score+affinity(b))-(a.score+affinity(a)));
+  }
+  const members=(side:EngineInput['draft']['side'])=>picks(state.draft,side),allies=members(state.draft.side),enemies=members(opposite(state.draft.side));
+  const champs=(list:typeof allies)=>list.flatMap(p=>input.champions.find(c=>c.id===p.championId)??[]),ally=champs(allies),enemy=champs(enemies);
+  const fr=state.settings.language==='fr',warnings:string[]=[];
+  if(!input.stats.length)warnings.push(fr?'Sans statistiques : propositions fondées sur les profils et pools connus.':'No statistics: suggestions use profiles and known pools.');
+  if(input.demo)warnings.push(fr?'DONNÉES FICTIVES : démonstration uniquement.':'SYNTHETIC DATA: demonstration only.');
+  return {options,balance:draftBalance(state),plans:{ally:gamePlan(ally,allies.map(p=>p.role),enemy,enemies.map(p=>p.role),state.settings.language),enemy:gamePlan(enemy,enemies.map(p=>p.role),ally,allies.map(p=>p.role),state.settings.language)},warnings};
+}
 
 export function simulationOptions(input:EngineInput,pins:SimulationPin[]):Recommendation[] {
   const index=input.draft.history.length, sequence=order(input.draft), action=sequence[index];

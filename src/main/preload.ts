@@ -11,6 +11,7 @@ const api: DesktopApi = {
   analyze: () => ipcRenderer.invoke('draft:analyze'),
   simulate:request=>ipcRenderer.invoke('simulation:generate',request),
   simulationOptions:request=>ipcRenderer.invoke('simulation:options',request),
+  simulationTurn:request=>ipcRenderer.invoke('simulation:turn',request),
   cancelSimulation:id=>ipcRenderer.invoke('simulation:cancel',id),
   saveSimulation:document=>ipcRenderer.invoke('simulation:save',document),
   loadSimulation:id=>ipcRenderer.invoke('simulation:load',id),
@@ -29,6 +30,8 @@ const api: DesktopApi = {
   overlay: () => ipcRenderer.invoke('draft:overlay'),
   checkUpdate: () => ipcRenderer.invoke('draft:check-update'),
   installUpdate: () => ipcRenderer.invoke('draft:install-update'),
+  releaseNotes:()=>ipcRenderer.invoke('app:release-notes'),
+  acknowledgeReleaseNotes:version=>ipcRenderer.invoke('app:acknowledge-release-notes',version),
   onChange: callback => { const listener = (_event: unknown, value: Parameters<typeof callback>[0]) => callback(value); ipcRenderer.on('draft:changed', listener); return () => ipcRenderer.removeListener('draft:changed', listener) }
 };
 contextBridge.exposeInMainWorld('draftApi', api);

@@ -1,5 +1,6 @@
 import type { DraftBalance,Side } from '../shared/types';
 import type { Labels } from './i18n';
+import { AnimatedScore } from './AnimatedScore';
 
 export function DraftBalancePanel({balance,side,t,compact=false,pending=false,face=false}:{balance:DraftBalance|undefined;side:Side;t:Labels;compact?:boolean;pending?:boolean;face?:boolean}){
   if(!balance)return null;
@@ -9,8 +10,8 @@ export function DraftBalancePanel({balance,side,t,compact=false,pending=false,fa
   const position=50+relative/2;
   const describe=revealed?`${t.balanceTitle} : ${leader}. ${revealed}/10 ${t.revealedPicks}. ${t.balanceNote}`:t.balanceWaiting;
   return <section className={`draft-balance ${side} ${compact?'compact-balance':''} ${face?'face-balance':''} ${pending?'pending':''}`} data-testid="draft-balance" aria-label={t.balanceTitle}>
-    <div className="balance-heading"><span>{t.balanceTitle}</span><strong className={Math.abs(relative)<3?'even':relative>0?'ours':'theirs'}>{face ? `${relative>0?'+':''}${relative.toFixed(1)}` : revealed?leader:t.balanceWaiting}</strong></div>
-    <div className="balance-team-labels"><span>{t.ally} · {side==='blue'?t.blue:t.red}<b>{ours.score.toFixed(1)}<small>/100</small></b></span><span>{t.enemy} · {side==='blue'?t.red:t.blue}<b>{theirs.score.toFixed(1)}<small>/100</small></b></span></div>
+    <div className="balance-heading"><span>{t.balanceTitle}</span><strong className={Math.abs(relative)<3?'even':relative>0?'ours':'theirs'}>{face ? <AnimatedScore value={relative} signed/> : revealed?leader:t.balanceWaiting}</strong></div>
+    <div className="balance-team-labels"><span>{t.ally} · {side==='blue'?t.blue:t.red}<b><AnimatedScore value={ours.score}/><small>/100</small></b></span><span>{t.enemy} · {side==='blue'?t.red:t.blue}<b><AnimatedScore value={theirs.score}/><small>/100</small></b></span></div>
     <div className="balance-track" role="meter" aria-label={t.balanceTitle} aria-valuemin={-100} aria-valuemax={100} aria-valuenow={relative} aria-valuetext={describe}>
       <span className="balance-fill ours-fill" style={{width:`${position}%`}}/><span className="balance-midpoint"/><span className="balance-marker" style={{left:`${position}%`}}/>
     </div>
