@@ -1,5 +1,5 @@
 import type { Analysis, Champion, Composition, Draft, DraftBalance, Duo, EngineInput, PairStat, Prediction, Recommendation, Role, Scenario, Side, Stat, Weights } from '../shared/types';
-import { fearlessUsed, freeRoles, opposite, order, picks, used } from '../shared/draft';
+import { fearlessUsed, freeRoles, opposite, order, picks, used, PRO_ORDER } from '../shared/draft';
 import { clamp, patchDistance, posterior, softmax, wilson } from './math';
 import { latestPatches } from '../shared/patches';
 import { damageShare, teamplay } from './teamplay';
@@ -36,7 +36,7 @@ function prepare(input: EngineInput): Prepared {
     if (game.draftOrderKnown === false) continue;
     const age = data.windows.pro.indexOf(game.patch);
     if (age < 0 || (game.league !== input.draft.league && input.draft.league !== 'all')) continue;
-    const weight = Math.pow(input.settings.oldPatchDecay, age), seq = order({ ...input.draft, mode: 'pro' });
+    const weight = Math.pow(input.settings.oldPatchDecay, age), seq = PRO_ORDER;
     game.history.forEach((s, i) => {
       if (!s.championId || seq[i].kind !== 'pick') return;
       const key = `${s.championId}|${s.role}|${seq[i].side}`, current = data.historical.get(key) ?? { early: 0, total: 0 };
@@ -114,7 +114,7 @@ function pairRows(input: EngineInput, candidate: Champion, role: Role, target: {
       wins: kind === 'matchup' ? p.games - p.wins : p.wins, baseline: kind === 'matchup' ? 1 - p.baseline : p.baseline,
       side: kind === 'matchup' && p.side !== 'all' ? opposite(p.side) : p.side }));
 }
-function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AUTO' = 'AUTO', usePool = true, useFamiliarity = true, candidateId?:string): Recommendation[] {
+export function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AUTO' = 'AUTO', usePool = true, useFamiliarity = true, candidateId?:string): Recommendation[] {
   const availableRoles = freeRoles(input.draft, side), locked = new Set([...used(input.draft),...fearlessUsed(input.draft)]), allies = picks(input.draft, side), enemies = picks(input.draft, opposite(side));
   const allyTeam = team(input, side), before = composition(allyTeam,'fr',allies.map(a=>a.role)), enemyTeam = team(input, opposite(side));
   const pickIndex = allies.length, early = pickIndex < 2, last = pickIndex === 4;
@@ -256,7 +256,7 @@ function predict(input: EngineInput, side: Side): Prediction[] {
 function append(input: EngineInput, rec: Recommendation | Prediction): EngineInput {
   return { ...input, draft: { ...input.draft, targetRole: 'AUTO', history: [...input.draft.history, { championId: rec.championId, role: rec.role }] } };
 }
-function banCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AUTO' = 'AUTO'): Recommendation[] {
+export function banCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AUTO' = 'AUTO'): Recommendation[] {
   // Bans target opponent options; the user's playable pool must never restrict them.
   const enemy = opposite(side);
   const scout=input.teams?.[enemy===input.draft.side?'ally':'enemy'];

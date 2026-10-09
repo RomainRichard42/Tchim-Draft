@@ -13,7 +13,7 @@ header[6] = 0; header[7] = 0; header.writeUInt16LE(1, 10); header.writeUInt16LE(
 header.writeUInt32LE(png.length, 14); header.writeUInt32LE(22, 18);
 await writeFile('resources/icon.ico', Buffer.concat([header, png]));
 await Promise.all([
-  build({ entryPoints: ['src/main/index.ts', 'src/main/worker.ts', 'src/main/preload.ts'],
+  build({ entryPoints: ['src/main/index.ts', 'src/main/worker.ts', 'src/main/simulation-worker.ts', 'src/main/preload.ts'],
     bundle: true, platform: 'node', format: 'cjs', target: 'node22', outdir: 'dist/main',
     outExtension: { '.js': '.cjs' }, external: ['electron', 'better-sqlite3', 'electron-updater'], sourcemap: true }),
   viteBuild(),

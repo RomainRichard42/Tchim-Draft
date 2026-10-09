@@ -27,7 +27,7 @@ try {
   await expect(page.getByRole('textbox', { name: /multi OP.GG/ })).toHaveCount(2);
   await page.getByRole('button', { name: 'Draft', exact: true }).click();
   await page.getByRole('button', { name: 'Ban', exact: true }).click();
-  await page.getByPlaceholder('Rechercher un champion…').fill('Ahri');
+  await page.getByRole('dialog').getByPlaceholder('Rechercher un champion…').fill('Ahri');
   await page.locator('.champion-option', { hasText: 'Ahri' }).click();
   await page.getByRole('button', { name: 'Valider', exact: true }).click();
   await expect.poll(async () => (await page.evaluate(() => window.draftApi.snapshot())).draft.history.length).toBe(1);
@@ -48,7 +48,8 @@ try {
   await page.evaluate(id => window.draftApi.loadSession(id), saved.sessions[0].id);
   expect((await page.evaluate(() => window.draftApi.snapshot())).draft.history.length).toBe(9);
   await page.getByRole('button', { name: 'Simulations', exact: true }).click();
-  await expect(page.locator('.scenario-card')).toHaveCount(3, { timeout: 30000 });
+  await page.getByRole('button',{name:'Explorer les suites',exact:true}).click();
+  await expect(page.getByTestId('simulation-branch')).toHaveCount(12, { timeout: 30000 });
   const a = await page.evaluate(() => window.draftApi.analyze());
   expect(a.scenarios.every(s => s.history.length === 20 && s.winProbability === null)).toBe(true);
   await page.getByRole('button', { name: 'Mon pool', exact: true }).click();

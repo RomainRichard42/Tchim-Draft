@@ -24,6 +24,12 @@ export const settingsSchema = z.object({ language: z.enum(['fr', 'en']), weights
   feedUrl: z.string().max(1000).refine(v => !v || (() => { try { const u = new URL(v); return u.protocol === 'https:' && !u.username && !u.password } catch { return false } })(), 'HTTPS URL required'),
   oldPatchDecay: z.number().min(0).max(1), scrapingEnabled: z.boolean().default(true), dataSource: z.enum(['shared','scrape']).default('shared'), banScoutingWeight: weight.default(35), banImpactWeight: weight.default(40) }).strict();
 const counts = { games: z.number().int().min(1).max(1e9), wins: z.number().int().min(0).max(1e9), countMethod: z.enum(['reported', 'rounded_rate']).optional(), reportedWinRate: z.number().min(0).max(1).optional() };
+export const simulationPinsSchema=z.array(z.object({index:z.number().int().min(0).max(19),selection:selectionSchema}).strict()).max(20);
+const simulationContextSchema=z.object({settings:settingsSchema,teams:teamsSchema.optional()}).strict();
+const simulationApproachSchema=z.enum(['varied','balanced','engage','poke','tempo','scaling']);
+export const simulationRequestSchema=z.object({id:z.string().regex(/^[a-zA-Z0-9_-]+$/).max(80),draft:draftSchema,pins:simulationPinsSchema,count:z.number().int().min(1).max(48),seed:z.number().int().min(0).max(2147483647),context:simulationContextSchema.optional(),approach:simulationApproachSchema.optional()}).strict();
+export const simulationOptionsSchema=z.object({draft:draftSchema,pins:simulationPinsSchema,context:simulationContextSchema.optional()}).strict();
+export const simulationDocumentSchema=z.object({name:z.string().trim().min(1).max(100),draft:draftSchema,pins:simulationPinsSchema,history:z.array(selectionSchema).max(20),context:simulationContextSchema.optional(),approach:simulationApproachSchema.optional()}).strict();
 const dimensions = { patch: patchSchema.refine(p => p !== 'unknown'), source: z.enum(['solo', 'pro']), rank: z.string().min(1).max(50), league: z.string().min(1).max(80), side: z.enum(['blue', 'red', 'all']) };
 const statSchema = z.object({ championId: id, role, ...dimensions, ...counts, pickRate: z.number().min(0).max(1), banRate: z.number().min(0).max(1), baseline: z.number().min(0.1).max(0.9) }).strict().refine(s => s.wins <= s.games, 'Wins exceed games');
 const pairSchema = z.object({ championId: id, otherId: id, role, otherRole: role, kind: z.enum(['synergy', 'matchup']), ...dimensions, ...counts, baseline: z.number().min(0.1).max(0.9) }).strict()

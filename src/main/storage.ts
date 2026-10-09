@@ -1,8 +1,10 @@
 import Database from 'better-sqlite3';
-import type { Champion, DataPack, DataStatus, Draft, EngineInput, Settings, Snapshot, Teams } from '../shared/types';
+import type { Champion, DataPack, DataStatus, Draft, EngineInput, Settings, Snapshot, Teams, SimulationDocument } from '../shared/types';
 import { SEED_CHAMPIONS, DEFAULT_SETTINGS } from '../shared/champions';
 import { newDraft } from '../shared/draft';
-import { draftSchema, settingsSchema, teamsSchema } from '../shared/validation';
+import { draftSchema, settingsSchema, teamsSchema, simulationDocumentSchema } from '../shared/validation';
+import { validateSimulation } from '../shared/simulation';
+import { validateDraft } from '../shared/series';
 import { latestPatches } from '../shared/patches';
 import path from 'node:path';
 import { validateDataPack } from '../shared/validate-pack';
@@ -33,6 +35,7 @@ export class Storage {
       CREATE TABLE IF NOT EXISTS champions (id TEXT PRIMARY KEY, json TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS packs (id TEXT PRIMARY KEY, raw TEXT NOT NULL, imported_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS sessions (id INTEGER PRIMARY KEY, name TEXT NOT NULL, saved_at TEXT NOT NULL, json TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS simulations (id INTEGER PRIMARY KEY, name TEXT NOT NULL, saved_at TEXT NOT NULL, json TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS logs (id INTEGER PRIMARY KEY, at TEXT NOT NULL, level TEXT NOT NULL, message TEXT NOT NULL);
       PRAGMA user_version = 1;`);
     const insert = this.db.prepare('INSERT OR IGNORE INTO champions VALUES (?, ?)');
@@ -113,8 +116,28 @@ export class Storage {
       leagues: [...new Set(['all', 'LCK', 'LPL', 'LEC', 'LCS', 'WORLDS', ...stats.map(s => s.league),...packs.flatMap(p=>p.games.map(g=>g.league))])],
       coverage: (['solo','pro'] as const).map(source=>{const rows=stats.filter(s=>s.source===source),patches=latestPatches(rows.map(s=>s.patch));return {source,patches,stats:rows.filter(r=>patches.includes(r.patch)).length,pairs:input.pairs.filter(r=>r.source===source&&patches.includes(r.patch)).length,games:source==='pro'?(input.games??[]).filter(g=>patches.includes(g.patch)).length:0};}) };
     return { draft: this.draft, settings: this.settings, teams: this.teams, champions: this.champions(), data,
-      sessions: this.db.prepare('SELECT id, name, saved_at AS savedAt FROM sessions ORDER BY id DESC LIMIT 50').all() as Snapshot['sessions'], update: this.update };
+      sessions: this.db.prepare('SELECT id, name, saved_at AS savedAt FROM sessions ORDER BY id DESC LIMIT 50').all() as Snapshot['sessions'],
+      simulations:this.db.prepare('SELECT id,name,saved_at AS savedAt FROM simulations ORDER BY id DESC LIMIT 200').all() as Snapshot['simulations'], update: this.update };
   }
+  validateSimulationDocument(raw:unknown):SimulationDocument {
+    const document=simulationDocumentSchema.parse(raw),known=new Set(this.champions().map(c=>c.id));
+    validateSimulation(document.draft,document.pins,known);
+    validateDraft({...document.draft,history:document.history},known);
+    if(document.history.length<document.draft.history.length||document.draft.history.some((s,i)=>JSON.stringify(s)!==JSON.stringify(document.history[i])))throw new Error('Simulation prefix mismatch');
+    if(document.pins.some(p=>p.index<document.history.length&&(p.selection.championId!==document.history[p.index].championId||p.selection.role!==document.history[p.index].role)))throw new Error('Simulation lock mismatch');
+    return document;
+  }
+  saveSimulation(raw:unknown):void {
+    const document=this.validateSimulationDocument(raw);
+    if((this.db.prepare('SELECT COUNT(*) AS n FROM simulations').get() as {n:number}).n>=200)throw new Error('200 simulations sauvegardées : supprimez une ancienne branche / Saved simulation limit reached');
+    this.db.prepare('INSERT INTO simulations(name,saved_at,json) VALUES(?,?,?)').run(document.name,new Date().toISOString(),JSON.stringify(document));
+  }
+  simulation(id:number):SimulationDocument {
+    const row=this.db.prepare('SELECT json FROM simulations WHERE id=?').get(id) as {json:string}|undefined;
+    if(!row)throw new Error('Simulation introuvable / Simulation not found');
+    return this.validateSimulationDocument(JSON.parse(row.json));
+  }
+  deleteSimulation(id:number):void {this.db.prepare('DELETE FROM simulations WHERE id=?').run(id);}
   saveSession(name: string): void { this.db.prepare('INSERT INTO sessions (name,saved_at,json) VALUES (?,?,?)').run(name, new Date().toISOString(), JSON.stringify(this.draft)) }
   session(id: number): Draft { const row = this.db.prepare('SELECT json FROM sessions WHERE id = ?').get(id) as { json: string } | undefined; if (!row) throw new Error('Session not found'); return draftSchema.parse(JSON.parse(row.json)) }
   log(level: string, message: string): void {

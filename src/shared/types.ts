@@ -22,7 +22,7 @@ export interface PlayerChampion { championId: string; games: number; wins: numbe
 export interface ScoutedPlayer { riotId: string; role: Role | 'AUTO'; pool: PlayerChampion[]; status: 'loaded' | 'manual' | 'unavailable'; message: string }
 export interface ScoutedTeam { url: string; region: string; players: ScoutedPlayer[]; poolOnly: boolean; fetchedAt?: string; message: string }
 export interface Teams { ally: ScoutedTeam; enemy: ScoutedTeam }
-export interface Snapshot { draft: Draft; settings: Settings; teams: Teams; champions: Champion[]; data: DataStatus; sessions: { id: number; name: string; savedAt: string }[]; update: string }
+export interface Snapshot { draft: Draft; settings: Settings; teams: Teams; champions: Champion[]; data: DataStatus; sessions: { id: number; name: string; savedAt: string }[]; simulations: {id:number;name:string;savedAt:string}[]; update: string }
 export interface BanScouting { riotId: string; games: number; wins: number; share: number; winrate: number | null; score: number; confidence: number; appliedWeight: number; declared: boolean }
 export interface BanImpact { replacement: {championId:string;role:Role}|null; alternatives: number; enemyLoss: number; ownLoss: number; net: number; poolExhausted: boolean }
 export interface ContextPart { key: 'lane' | 'opposition' | 'synergy' | 'plan' | 'bot'; label: string; score: number; baseWeight: number; weight: number; coverage: number }
@@ -38,6 +38,15 @@ export interface Scenario { title: string; history: Selection[]; advantage: numb
 export interface DraftBalance { value: number; blue: {score:number;count:number}; red: {score:number;count:number}; revealed: number; complete: boolean }
 export interface Analysis { picks: Recommendation[]; bans: Recommendation[]; enemies: Prediction[]; duos: Duo[]; scenarios: Scenario[]; ally: Composition; enemy: Composition; plans: {ally:GamePlan;enemy:GamePlan}; balance: DraftBalance; warnings: string[]; next: Action | null }
 export interface EngineInput { draft: Draft; settings: Settings; teams?: Teams; champions: Champion[]; stats: Stat[]; pairs: PairStat[]; games?: HistoricalGame[]; demo: boolean }
+export interface SimulationPin { index:number; selection:Selection }
+export interface SimulationContext { settings:Settings; teams?:Teams }
+export type SimulationApproach='balanced'|'engage'|'poke'|'tempo'|'scaling';
+export interface SimulationRequest { id:string; draft:Draft; pins:SimulationPin[]; count:number; seed:number; context?:SimulationContext; approach?:SimulationApproach|'varied' }
+export interface SimulationStep { index:number; selection:Selection; automatic:boolean; score:number|null; reasons:string[] }
+export interface SimulationBranch { history:Selection[]; steps:SimulationStep[]; status:'complete'|'blocked'; blockedAt?:number; warnings:string[]; balance:DraftBalance; plans:Analysis['plans']; approach:SimulationApproach }
+export interface SimulationBatch { branches:SimulationBranch[]; requested:number; attempts:number; elapsedMs:number; generatedAt:string; context:SimulationContext; warnings:string[] }
+export interface SimulationDocument { name:string; draft:Draft; pins:SimulationPin[]; history:Selection[]; context?:SimulationContext; approach?:SimulationApproach|'varied' }
+export interface SimulationProgress { id:string; completed:number; requested:number }
 export interface DesktopApi {
   snapshot(): Promise<Snapshot>;
   configure(patch: Partial<Omit<Draft, 'history'>>): Promise<Snapshot>;
@@ -47,6 +56,13 @@ export interface DesktopApi {
   series(command: 'next' | 'previous' | 'reset', winner?: Side): Promise<Snapshot>;
   settings(value: Settings): Promise<Snapshot>;
   analyze(): Promise<Analysis>;
+  simulate(request:SimulationRequest):Promise<SimulationBatch>;
+  simulationOptions(request:{draft:Draft;pins:SimulationPin[];context?:SimulationContext}):Promise<Recommendation[]>;
+  cancelSimulation(id:string):Promise<void>;
+  saveSimulation(document:SimulationDocument):Promise<Snapshot>;
+  loadSimulation(id:number):Promise<SimulationDocument>;
+  deleteSimulation(id:number):Promise<Snapshot>;
+  onSimulationProgress(callback:(progress:SimulationProgress)=>void):()=>void;
   scout(team: 'ally' | 'enemy', url: string): Promise<Snapshot>;
   teams(value: Teams): Promise<Snapshot>;
   refresh(): Promise<void>;

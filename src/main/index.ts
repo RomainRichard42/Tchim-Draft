@@ -15,6 +15,10 @@ import { freeRoles, newDraft, order, used } from '../shared/draft';
 import type { Analysis, Draft, EngineInput } from '../shared/types';
 import { changeSeries, validateDraft } from '../shared/series';
 import { appUpdates } from './updates';
+import { SimulationService } from './simulations';
+import { simulationRequestSchema, simulationOptionsSchema, simulationDocumentSchema } from '../shared/validation';
+import { validateSimulation } from '../shared/simulation';
+const simulations=new SimulationService();
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'tchim', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } }]);
 app.setName('Tchim Draft');
@@ -111,6 +115,25 @@ function handlers() {
   });
   bind('draft:settings', value => { storage.settings = settingsSchema.parse(value); if (overlayWindow) overlayWindow.setOpacity(storage.settings.overlayOpacity); return changed() });
   bind('draft:analyze', () => runAnalysis());
+  const simulationInput=()=>{const input=storage.engineInput();return {input,revision:`${storage.dataRevision}|${storage.get('staticVersion')}`};};
+  bind('simulation:generate',value=>{
+    const request=simulationRequestSchema.parse(value);
+    validateSimulation(request.draft,request.pins,new Set(storage.champions().map(c=>c.id)));
+    const {input,revision}=simulationInput();
+    return simulations.generate(input,revision,request,completed=>{
+      for(const window of [mainWindow,overlayWindow])if(window&&!window.isDestroyed())window.webContents.send('simulation:progress',{id:request.id,completed,requested:request.count});
+    });
+  });
+  bind('simulation:options',value=>{
+    const request=simulationOptionsSchema.parse(value);
+    validateSimulation(request.draft,request.pins,new Set(storage.champions().map(c=>c.id)));
+    const {input,revision}=simulationInput();
+    return simulations.options({...input,...request.context,draft:request.draft},revision,request.pins);
+  });
+  bind('simulation:cancel',value=>simulations.cancel(z.string().max(80).parse(value)));
+  bind('simulation:save',value=>{storage.saveSimulation(simulationDocumentSchema.parse(value));notify();return storage.snapshot();});
+  bind('simulation:load',value=>storage.simulation(z.number().int().positive().parse(value)));
+  bind('simulation:delete',value=>{storage.deleteSimulation(z.number().int().positive().parse(value));notify();return storage.snapshot();});
   bind('draft:teams', value => {const teams=teamsSchema.parse(value),known=new Set(storage.champions().map(c=>c.id));if(Object.values(teams).some(t=>t.players.some(p=>p.pool.some(c=>!known.has(c.championId)))))throw new Error('Unknown champion in player pool');storage.teams=teams;return changed()});
   bind('draft:scout', async value => {
     const {team,url}=z.object({team:z.enum(['ally','enemy']),url:z.string().max(2000)}).strict().parse(value);
@@ -178,4 +201,4 @@ else {
   }).catch(error => { console.error(error); dialog.showErrorBox('Tchim Draft', String(error)); app.exit(1) });
 }
 app.on('window-all-closed', () => app.quit());
-app.on('will-quit', () => { globalShortcut.unregisterAll(); if (worker) void worker.terminate(); storage?.close() });
+app.on('will-quit', () => { globalShortcut.unregisterAll(); if (worker) void worker.terminate(); simulations.stop(); storage?.close() });

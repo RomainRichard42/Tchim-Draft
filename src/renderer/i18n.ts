@@ -35,7 +35,7 @@ const fr = {
   overlayShortcut: 'Ouvrir / fermer l’overlay', undoShortcut: 'Annuler la dernière action', searchShortcut: 'Ouvrir le sélecteur',
   apply: 'Appliquer', appUpdates: 'Mises à jour de l’application', check: 'Vérifier', install: 'Installer et redémarrer',
   noFeed: 'Flux de publication à configurer lors du packaging.', development: 'Version de développement', upToDate: 'Application à jour',
-  simulationTitle: 'Explorez la suite.', simulationBody: 'Trois choix initiaux, puis une continuation complète selon les réponses les mieux classées.',
+  simulationTitle: 'Explorez la suite.', simulationBody: 'Créez vos branches, imposez des picks ou bans, puis explorez les réponses des deux équipes.',
   noProbability: 'Le modèle V1 n’est pas calibré : aucun pourcentage de victoire affiché.', advantage: 'Indice de composition', trace: 'Voir les 20 étapes',
   simulationEmpty: 'Terminez ou recommencez la draft pour explorer de nouveaux scénarios.',
   name: 'Nom de la session', back: 'Revenir à cette étape', rewind: 'Les choix à partir de cette étape seront retirés. Vous pourrez les saisir à nouveau.',
