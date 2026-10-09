@@ -58,7 +58,7 @@ try {
     await window.draftApi.settings({ ...snapshot.settings, language: 'en' });
   });
   await expect(page.getByTestId('recommendation-scroll').locator('.recommendation')).toHaveCount(after.picks.length, { timeout: 30000 });
-  await expect(page.getByTestId('recommendation-scroll').locator('.rec-meta button').first()).toHaveText(/Why this choice/);
+  await expect(page.getByTestId('recommendation-scroll').locator('.rec-meta button').first()).toHaveText(/Why/);
   await expect(page.getByTestId('recommendation-scroll')).toHaveAttribute('aria-busy', 'false', { timeout: 30000 });
   await page.getByTestId('recommendation-scroll').locator('.rec-meta button').first().click();
   await expect(detail).toContainText('Our duo against their duo'); await expect(detail).toContainText('Answer to their composition');

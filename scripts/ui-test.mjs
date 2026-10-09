@@ -18,9 +18,9 @@ try {
   await desktop.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.setBackgroundThrottling(false));
   page.on('pageerror', e => errors.push(e.message));
   await expect(page.getByTestId('app')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'À nous de bannir' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /À nous de bannir/ })).toBeVisible();
   await expect(page.locator('.recommendation')).toHaveCount(5, { timeout: 30000 });
-  await expect(page.getByTestId('focus-featured')).toContainText('Non renseigné');
+  await expect(page.getByTestId('face-pool')).toContainText('Non renseigné');
   expect(await page.evaluate(() => typeof window.require)).toBe('undefined');
   expect(await page.evaluate(() => typeof window.process)).toBe('undefined');
   await page.getByRole('button', { name: 'Importer OP.GG', exact: true }).click();
@@ -30,16 +30,16 @@ try {
   await page.getByPlaceholder('Rechercher un champion…').fill('Ahri');
   await page.locator('.champion-option', { hasText: 'Ahri' }).click();
   await page.getByRole('button', { name: 'Valider', exact: true }).click();
-  await expect(page.locator('.timeline-track .done')).toHaveCount(1);
+  await expect.poll(async () => (await page.evaluate(() => window.draftApi.snapshot())).draft.history.length).toBe(1);
   expect((await page.evaluate(() => window.draftApi.snapshot())).draft.history[0].championId).toBe('Ahri');
   await page.getByRole('button', { name: 'Annuler la dernière action', exact: true }).click();
-  await expect(page.locator('.timeline-track .done')).toHaveCount(0);
+  await expect.poll(async () => (await page.evaluate(() => window.draftApi.snapshot())).draft.history.length).toBe(0);
   // Real manual tournament transition, then joint recommendations.
   await page.evaluate(async () => { for (let i = 0; i < 6; i++) await window.draftApi.select(null); await window.draftApi.select('Orianna', 'MID'); await window.draftApi.configure({ side: 'red' }) });
   await expect(page.locator('.duo-row')).toHaveCount(3, { timeout: 30000 });
   await page.locator('.focus-duos > summary').click();
   await page.locator('.duo-row button').first().click();
-  await expect(page.locator('.timeline-track .done')).toHaveCount(9);
+  await expect.poll(async () => (await page.evaluate(() => window.draftApi.snapshot())).draft.history.length).toBe(9);
   const state = await page.evaluate(() => window.draftApi.snapshot());
   expect(state.draft.history.slice(7, 9).map(s => s.role)[0]).not.toBe(state.draft.history.slice(7, 9).map(s => s.role)[1]);
   await page.evaluate(() => window.draftApi.saveSession('UI test tournament'));

@@ -22,6 +22,8 @@ try{
  await expect(page.getByTestId('app')).toBeVisible();
  await expect(page.getByTestId('decision-desk')).toBeVisible({timeout:30000});
  const fearless=page.getByTestId('fearless-panel');
+ const close=()=>page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ const openSeries=async()=>{if(await page.getByRole('dialog').count()===0)await page.locator('.face-series-button').click();};
  await page.getByRole('combobox',{name:'Format Fearless'}).selectOption('bo3');
  await page.evaluate(async()=>{await window.draftApi.select('Zed');for(let i=1;i<6;i++)await window.draftApi.select(null);});
  await page.evaluate(async roster=>{
@@ -40,21 +42,25 @@ try{
  const blocked=new Set(archived.draft.series.games[0].picks);
  for(const r of [...available.picks,...available.bans,...available.enemies])expect(blocked.has(r.championId)).toBe(false);
  const rejected=await page.evaluate(async()=>{try{await window.draftApi.select('Jinx');return false;}catch{return true;}});expect(rejected).toBe(true);
+ await close();
  await page.getByRole('button',{name:'Ban',exact:true}).click();
  await page.getByPlaceholder('Rechercher un champion…').fill('Jinx');await expect(page.locator('.champion-option')).toHaveCount(0);
  await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
  await page.evaluate(async()=>{await window.draftApi.select('Zed');await window.draftApi.undo();});
+ await openSeries();
  await fearless.getByRole('button',{name:'Rouvrir la précédente'}).click();
- await expect(page.locator('.timeline-track .done')).toHaveCount(20);
+ expect((await page.evaluate(()=>window.draftApi.snapshot())).draft.history).toHaveLength(20);
  expect((await page.evaluate(()=>window.draftApi.snapshot())).draft.series.games).toHaveLength(0);
  await expect(fearless.getByRole('button',{name:'Archiver et continuer'})).toBeEnabled({timeout:30000});
  await fearless.getByRole('button',{name:'Archiver et continuer'}).click();
  await expect(page.getByTestId('decision-desk')).toBeVisible({timeout:30000});
+ await close();
  await page.locator('.recommendations .rec-meta button').first().click();
  await expect(page.getByTestId('ban-impact-detail')).toBeVisible();
  await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
  await page.keyboard.press('Control+1');await expect(page.getByRole('dialog')).toBeVisible();
  await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ await openSeries();
  await fearless.getByRole('button',{name:'Saisir les 10 picks d’une manche précédente'}).click();
  const prior=['Ahri','Aatrox','Alistar','Anivia','Annie','Aphelios','Azir','Bard','Blitzcrank','Brand'];
  for(const id of prior){await fearless.getByRole('textbox',{name:'Rechercher dans l’historique Fearless'}).fill(id);await fearless.locator('.fearless-choices').getByRole('button',{name:id,exact:true}).click();}
@@ -68,12 +74,15 @@ try{
  await page.evaluate(id=>window.draftApi.loadSession(id),sessions.sessions.find(s=>s.name==='Coach Fearless regression').id);
  await expect(fearless).toContainText('20 champions indisponibles');
  await page.evaluate(async()=>{await window.draftApi.series('reset');for(let i=0;i<6;i++)await window.draftApi.select(null);await window.draftApi.select('Jinx','ADC');await window.draftApi.select('Vi','JUNGLE');await window.draftApi.select('Akali','MID');});
+ await close();
+ await page.getByRole('button',{name:'Plans des équipes',exact:true}).click();
  await expect(page.getByTestId('game-plan')).toHaveCount(2,{timeout:30000});
  await expect(page.locator('.game-plan').first()).toContainText('PLAN DE JEU');
  await expect(page.getByTestId('draft-balance')).toContainText('3/10 picks révélés',{timeout:30000});
  await expect(page.getByTestId('recommendation-scroll')).toHaveAttribute('aria-busy','false',{timeout:30000});
  await desktop.evaluate(({BrowserWindow})=>{BrowserWindow.getAllWindows()[0].setContentSize(1480,940);});
  await capture('coach-plan');
+ await close();
  const newWindow=desktop.waitForEvent('window');await page.getByRole('button',{name:'Overlay',exact:true}).click();const overlay=await newWindow;
  await expect(overlay.getByTestId('draft-balance')).toBeVisible({timeout:30000});
  await page.evaluate(()=>window.draftApi.overlay());
@@ -90,17 +99,26 @@ try{
  await page.evaluate(async()=>{await window.draftApi.importPack();for(let i=0;i<6;i++)await window.draftApi.select(null);});
  const region=page.getByTestId('recommendation-scroll');
  await expect(region.locator('.recommendation')).toHaveCount(1,{timeout:30000});await expect(region).toContainText('Échantillon insuffisant · 2 parties');
- await expect(region).toContainText('Fiabilité 0%');report.sample=(await page.evaluate(()=>window.draftApi.analyze())).picks[0];
+ await expect(page.getByTestId('face-explanation')).toContainText('Fiabilité 0%');await expect(page.getByTestId('face-pool')).toContainText('Coach#EUW');report.sample=(await page.evaluate(()=>window.draftApi.analyze())).picks[0];
  expect(report.sample.factors.winrate).toBe(50);expect(report.sample.factors.meta).toBe(35);expect(report.sample.winrate).toBeNull();
  await capture('coach-small-sample');
+ await desktop.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1120,760));
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));
+ const small=await page.evaluate(()=>{const last=document.querySelector('[data-testid="focus-team-ally"] .team-slot:last-child').getBoundingClientRect(),bans=document.querySelector('[data-testid="focus-team-ally"] .ban-area').getBoundingClientRect(),footer=document.querySelector('.face-bottom').getBoundingClientRect();return {lastBottom:last.bottom,banTop:bans.y,footerBottom:footer.bottom,height:innerHeight};});
+ expect(small.banTop).toBeGreaterThanOrEqual(small.lastBottom);expect(small.footerBottom).toBeLessThanOrEqual(small.height);report.smallSampleLayout=small;
+ await capture('coach-small-sample-minimum');
+ await desktop.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setContentSize(1480,940));
  await page.evaluate(async()=>{const s=await window.draftApi.snapshot();await window.draftApi.settings({...s.settings,language:'en'});});
- await expect(region).toContainText('Insufficient sample');await expect(page.getByTestId('game-plan').first()).toContainText('GAME PLAN');
+ await expect(region).toContainText('Insufficient sample');
+ await page.getByRole('button',{name:'Team plans',exact:true}).click();
+ await expect(page.getByTestId('game-plan').first()).toContainText('GAME PLAN');await close();
  await page.evaluate(async previous=>{const s=await window.draftApi.snapshot();await window.draftApi.settings({...s.settings,language:'fr'});await window.draftApi.configure({series:{format:'bo5',games:[{picks:previous}]}});},Object.values(roster).flat().map(p=>p[0]));
+ await openSeries();
  await expect(fearless).toContainText('Manche 2/5');
  await desktop.close();
  closed=true;
  const reopened=await electron.launch({args:executablePath?[]:['.'],...(executablePath?{executablePath}:{}),env,timeout:30000});
- try{const p=await reopened.firstWindow();await expect(p.getByTestId('fearless-panel')).toContainText('Manche 2/5',{timeout:30000});const s=await p.evaluate(()=>window.draftApi.snapshot());expect(s.draft.series.games[0].picks).toHaveLength(10);report.persisted=true;}finally{await reopened.close();}
+ try{const p=await reopened.firstWindow();await expect(p.locator('.face-series-button')).toBeVisible({timeout:30000});await p.locator('.face-series-button').click();await expect(p.getByTestId('fearless-panel')).toContainText('Manche 2/5',{timeout:30000});const s=await p.evaluate(()=>window.draftApi.snapshot());expect(s.draft.series.games[0].picks).toHaveLength(10);report.persisted=true;}finally{await reopened.close();}
  expect(errors).toEqual([]);report.errors=errors;await writeFile('artifacts/coach-ui-report.json',JSON.stringify(report,null,2));
  console.log('COACH_UI_OK Fearless archive/reopen/manual history/session/restart, blocked IPC + picker, plans, ban impact, shortcuts, low samples, FR/EN, overlay');
 }finally{if(!closed)await desktop.close();}
