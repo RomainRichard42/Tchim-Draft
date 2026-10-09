@@ -1,12 +1,15 @@
 import type { GamePlan } from '../shared/types';
+import { Target } from 'lucide-react';
 
-export function GamePlanPanel({plan,language}:{plan:GamePlan;language:'fr'|'en'}) {
+export function GamePlanPanel({plan,language,focus=false}:{plan:GamePlan;language:'fr'|'en';focus?:boolean}) {
   const fr=language==='fr';
   const labels={lanes:fr?'Présence en lane':'Lane presence',objectives:fr?'Accès aux objectifs':'Objective access',teamfight:'Teamfight',sideLane:fr?'Side lanes':'Side lanes',execution:fr?'Simplicité d’exécution':'Execution simplicity'};
-  return <section className="game-plan" data-testid="game-plan">
+  const priorities=[...new Set([...plan.needs.slice(0,1),...plan.conditions])].slice(0,3);
+  return <section className={`game-plan ${focus?'focus-context-card focus-plan':''}`} data-testid="game-plan">
+    {focus&&<h2><Target size={20}/>{fr?'Notre plan':'Our plan'}</h2>}
     <div className="section-label">{fr?'PLAN DE JEU':'GAME PLAN'}<span>{plan.partial?(fr?'EN CONSTRUCTION':'IN PROGRESS'):(fr?'5 PICKS':'5 PICKS')}</span></div>
-    <h3>{plan.title}</h3><p>{plan.conditions[0]??plan.timing}</p>
-    {plan.needs[0]&&<p className="plan-need"><strong>{fr?'À compléter : ':'Next need: '}</strong>{plan.needs[0]}</p>}
+    <h3>{plan.title}</h3>{focus?<ol className="focus-plan-priorities">{priorities.map((line,i)=><li key={line}><span>{i+1}</span><p>{line}</p></li>)}</ol>:<p>{plan.conditions[0]??plan.timing}</p>}
+    {!focus&&plan.needs[0]&&<p className="plan-need"><strong>{fr?'À compléter : ':'Next need: '}</strong>{plan.needs[0]}</p>}
     {plan.risks[0]&&<p className="plan-risk"><strong>{fr?'Risque : ':'Risk: '}</strong>{plan.risks[0]}</p>}
     <details><summary>{fr?'Timings et points à vérifier':'Timings and review points'}</summary>
       <p>{plan.timing}</p><div className="plan-axes">{(Object.keys(labels) as (keyof typeof labels)[]).map(key=><div key={key}><span>{labels[key]}</span><meter min={0} max={100} value={plan.axes[key]}/><b>{plan.axes[key]}</b></div>)}</div>

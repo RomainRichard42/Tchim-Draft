@@ -9,9 +9,16 @@ const executablePath=process.env.TCHIM_TEST_EXECUTABLE;
 const desktop=await electron.launch({args:executablePath?[]:['.'],...(executablePath?{executablePath}:{}),env,timeout:30000});
 const errors=[],report={};
 let closed=false;
+const capture=async name=>{
+ await desktop.evaluate(async({BrowserWindow})=>{await BrowserWindow.getAllWindows()[0].capturePage(undefined,{stayHidden:true,stayAwake:true});});
+ const page=await desktop.firstWindow();await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ const png=await desktop.evaluate(async({BrowserWindow})=>(await BrowserWindow.getAllWindows()[0].capturePage(undefined,{stayHidden:true,stayAwake:true})).toPNG().toString('base64'));
+ await writeFile(`artifacts/${name}.png`,Buffer.from(png,'base64'));
+};
 const roster={blue:[['Jinx','ADC'],['Lulu','SUPPORT'],['Orianna','MID'],['Ornn','TOP'],['Sejuani','JUNGLE']],red:[['Vi','JUNGLE'],['Akali','MID'],['Ashe','ADC'],['Nautilus','SUPPORT'],['Gwen','TOP']]};
 try{
  const page=await desktop.firstWindow();page.on('pageerror',e=>errors.push(e.message));
+ await desktop.evaluate(({BrowserWindow})=>{BrowserWindow.getAllWindows()[0].webContents.setBackgroundThrottling(false);});
  await expect(page.getByTestId('app')).toBeVisible();
  await expect(page.getByTestId('decision-desk')).toBeVisible({timeout:30000});
  const fearless=page.getByTestId('fearless-panel');
@@ -65,8 +72,8 @@ try{
  await expect(page.locator('.game-plan').first()).toContainText('PLAN DE JEU');
  await expect(page.getByTestId('draft-balance')).toContainText('3/10 picks révélés',{timeout:30000});
  await expect(page.getByTestId('recommendation-scroll')).toHaveAttribute('aria-busy','false',{timeout:30000});
- await desktop.evaluate(({BrowserWindow})=>{const w=BrowserWindow.getAllWindows()[0];w.setSize(1480,1000);w.showInactive();});
- await page.screenshot({path:'artifacts/coach-plan.png',fullPage:true});
+ await desktop.evaluate(({BrowserWindow})=>{BrowserWindow.getAllWindows()[0].setContentSize(1480,940);});
+ await capture('coach-plan');
  const newWindow=desktop.waitForEvent('window');await page.getByRole('button',{name:'Overlay',exact:true}).click();const overlay=await newWindow;
  await expect(overlay.getByTestId('draft-balance')).toBeVisible({timeout:30000});
  await page.evaluate(()=>window.draftApi.overlay());
@@ -85,7 +92,7 @@ try{
  await expect(region.locator('.recommendation')).toHaveCount(1,{timeout:30000});await expect(region).toContainText('Échantillon insuffisant · 2 parties');
  await expect(region).toContainText('Fiabilité 0%');report.sample=(await page.evaluate(()=>window.draftApi.analyze())).picks[0];
  expect(report.sample.factors.winrate).toBe(50);expect(report.sample.factors.meta).toBe(35);expect(report.sample.winrate).toBeNull();
- await page.screenshot({path:'artifacts/coach-small-sample.png',fullPage:true});
+ await capture('coach-small-sample');
  await page.evaluate(async()=>{const s=await window.draftApi.snapshot();await window.draftApi.settings({...s.settings,language:'en'});});
  await expect(region).toContainText('Insufficient sample');await expect(page.getByTestId('game-plan').first()).toContainText('GAME PLAN');
  await page.evaluate(async previous=>{const s=await window.draftApi.snapshot();await window.draftApi.settings({...s.settings,language:'fr'});await window.draftApi.configure({series:{format:'bo5',games:[{picks:previous}]}});},Object.values(roster).flat().map(p=>p[0]));

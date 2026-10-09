@@ -31,7 +31,7 @@ Node >= 22.12 est requis. Le projet est verrouillé par `package-lock.json`. `np
 5. Sauvegarder/charger une session ou l’exporter/importer en JSON. La draft courante et les paramètres se sauvegardent aussi automatiquement. Revenir sur une ancienne étape retire la suite pour permettre une nouvelle saisie.
 6. Ouvrir l’overlay, le déplacer par sa barre et ajuster son opacité dans Paramètres. Position et taille sont mémorisées. Les recommandations et étapes se synchronisent avec la fenêtre principale.
 7. En compétition, activer **Fearless BO3 ou BO5**. Après dix picks, choisir éventuellement le résultat et cliquer **Archiver et continuer** : les picks des deux équipes deviennent indisponibles ; les bans ordinaires redeviennent disponibles. Les victoires sont suivies par équipe même si son côté change. On peut saisir les dix picks d’une manche précédente pour rejoindre une série en cours, rouvrir la dernière manche ou démarrer une nouvelle série. Les transitions sont sauvegardées dans Sessions ; les exports incluent l’historique Fearless.
-8. Utiliser les trois choix rapides au-dessus de la liste, avec `Ctrl+1/2/3` pour ouvrir la validation. Consulter le **plan de jeu** de chaque équipe : condition de victoire, timings, besoins et risques, puis les axes détaillés. Ces lectures sont qualitatives et dépendent des profils connus.
+8. Dans le design **Focus**, comparer la carte principale et ses deux alternatives. Cliquer sur une alternative ou sur le nom d’un champion dans la liste affiche son aperçu sans modifier la draft. **Valider** prépare le champion affiché ; confirmer ensuite son rôle dans la fenêtre de sélection. `Ctrl+1/2/3` prépare les options rapides. À droite, consulter notre **plan de jeu**, les réponses adverses encore disponibles et le Fearless. Les compositions détaillées, le plan adverse et les sources sont dépliables. **Gérer la série** contient l’historique manuel et les transitions Fearless ; l’archivage apparaît automatiquement à la fin de la draft. Ces lectures sont qualitatives et dépendent des profils connus.
 
 Raccourcis : `Ctrl+K` choisir, `Ctrl+Z` annuler (hors saisie de texte), `Ctrl+1/2/3` préparer une option rapide, `Ctrl+Shift+D` ouvrir/fermer l’overlay. Thème sombre et textes FR/EN. L’overlay interactif est conçu pour rester à côté du client, pas pour être injecté dans League.
 
@@ -100,7 +100,7 @@ Sécurité : renderer sandboxé, `contextIsolation: true`, `nodeIntegration: fal
 npm.cmd run dist:win
 ```
 
-Produit `release/0.7.1/Tchim-Draft-0.7.1-win-x64.exe`, installeur NSIS par utilisateur, et `release/0.7.1/win-unpacked/Tchim Draft.exe`. Le packaging utilise un dossier par version pour permettre la construction pendant qu’une ancienne version est ouverte ; `TCHIM_BUILD_OUTPUT` permet un autre dossier. Icône et métadonnées Windows intégrées. La signature Windows n’est pas configurée (`signExecutable` désactivé) ; elle peut être ajoutée au workflow.
+Produit `release/0.8.0/Tchim-Draft-0.8.0-win-x64.exe`, installeur NSIS par utilisateur, et `release/0.8.0/win-unpacked/Tchim Draft.exe`. Le packaging utilise un dossier par version pour permettre la construction pendant qu’une ancienne version est ouverte ; `TCHIM_BUILD_OUTPUT` permet un autre dossier. Icône et métadonnées Windows intégrées. La signature Windows n’est pas configurée (`signExecutable` désactivé) ; elle peut être ajoutée au workflow.
 
 macOS : `npm.cmd run dist:mac` sur une machine macOS. Configuration DMG/ZIP fournie ; ni build macOS, ni signature, ni notarisation validées sous Windows.
 

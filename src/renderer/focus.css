@@ -1,0 +1,245 @@
+:root {
+  color-scheme: dark;
+  font-family: "Segoe UI Variable", "Segoe UI", Inter, Arial, sans-serif;
+  background: #171820;
+  --green: #80dfbd;
+  --text: #ececf6;
+  --muted: #a0a1b7;
+  --line: #383a4c;
+  --panel: #22232e;
+  --blue: #7ac6ff;
+  --red: #ff818f;
+  --lavender: #b2a0ff;
+}
+button.primary { background: var(--green); border-color: var(--green); color: #142a25; }
+button.primary:hover:not(:disabled) { background: #a0efcf; border-color: #a0efcf; }
+button:hover:not(:disabled) { background: #313345; border-color: #74718f; }
+button, input, select { color: var(--text); }
+button, input, select, .surface, .modal, .scenario-card, .pool-card { border-color: var(--line); }
+.surface, .modal, .scenario-card, .pool-card { background: #22232e; }
+.modal { box-shadow: 0 24px 100px #0008; }
+.role-context-detail { background: #1d1f2b; border-color: #47415f; }
+.focus-row-name { padding: 0; border: 0; background: none; color: inherit; text-align: left; font-size: inherit; }
+.focus-row-name:hover:not(:disabled) { background: transparent; color: var(--lavender); }
+.focus-app { display: block; font-size: 14px; background: #171820; }
+.focus-app .main-shell { width: 100%; margin: 0; min-height: 100vh; }
+.focus-app.is-draft, .focus-app.is-draft .main-shell { height: 100vh; min-height: 0; overflow: hidden; }
+.focus-app .app-header { height: 58px; min-height: 58px; padding: 0 16px; gap: 16px; background: #1a1b25; }
+.focus-nav { display: flex; align-items: stretch; gap: 4px; height: 100%; min-width: 0; }
+.focus-nav button { position: relative; gap: 9px; padding: 0 14px; font-size: 14px; border: 0; border-radius: 9px 9px 0 0; background: transparent; color: #bfc0d3; }
+.focus-nav button.active { color: #e7dfff; background: #2b2840; }
+.focus-nav button.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: #aa92ff; border-radius: 3px; }
+.focus-app .header-right { gap: 9px; flex-shrink: 0; }
+.focus-app .header-right button { font-size: 13px; padding: 8px 12px; border-radius: 8px; background: transparent; }
+.focus-app .header-right .focus-opgg { border-color: #57546e; }
+.focus-app main { width: 100%; max-width: none; }
+.focus-app main.draft-page { min-height: 0; padding: 12px 16px 0; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+.focus-app .page-heading h1 { font-size: 30px; }
+.focus-app .page-heading p { color: var(--muted); font-size: 14px; }
+.focus-app .focus-toolbar { display: flex; align-items: center; flex-wrap: wrap; flex: 0 0 auto; gap: 10px 16px; padding-bottom: 10px; border-bottom: 1px solid #2e3040; }
+.focus-app .draft-filters { display: flex; align-items: center; flex: 1 1 610px; min-width: 0; gap: 12px; margin: 0; padding: 0; border: 0; background: none; font-size: 12px; }
+.focus-app .draft-filters label { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #b4b4ca; }
+.focus-app .draft-filters select { max-width: 110px; padding: 6px 3px; font-size: 12px; color: #ddddee; border: 0; background: transparent; }
+.focus-app .draft-filters .mode-switch { padding: 0; background: none; border: 0; }
+.focus-app .mode-switch button { padding: 7px 9px; font-size: 11px; }
+.focus-app .mode-switch button.active { background: #2c2a40; color: var(--lavender); }
+.focus-app .draft-timeline { flex: 1 1 560px; min-width: 0; margin: 0; }
+.focus-app .timeline-track { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 4px; }
+.focus-app .timeline-track button { height: 28px; min-height: 0; padding: 0; border-radius: 50%; background: #252733; border: 1px solid #383b4e; }
+.focus-app .timeline-track button small { font-size: 11px; font-weight: 600; }
+.focus-app .timeline-track .blue.pick { color: var(--blue); }
+.focus-app .timeline-track .red.pick { color: var(--red); }
+.focus-app .timeline-track button.done { background: #2d3040; }
+.focus-app .timeline-track button:disabled { opacity: .65; }
+.focus-app .timeline-track button.current { background: #a78bef; color: #191426; border-color: #c3aaff; box-shadow: 0 0 0 3px #8d6dda30; }
+.focus-app .focus-workspace { display: grid; grid-template-columns: minmax(240px, .95fr) minmax(410px, 1.45fr) minmax(280px, 1fr); gap: 16px; flex: 1 1 0; min-height: 0; align-items: stretch; }
+.focus-teams { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #5c5675 transparent; }
+.focus-app .team-panel { flex: 0 0 auto; min-width: 0; align-self: stretch; border-radius: 15px; border: 1px solid var(--line); border-left: 4px solid var(--blue); background: #20222d; padding: 13px 14px 12px; }
+.focus-app .team-panel.red { border-left-color: var(--red); background: #22212c; }
+.focus-app .team-header { border: 0; padding: 0; gap: 9px; margin-bottom: 11px; display: flex; align-items: center; color: var(--blue); }
+.focus-app .team-panel.red .team-header { color: var(--red); }
+.focus-app .team-header h2 { font-size: 17px; color: inherit; }
+.focus-app .team-counter { margin-left: auto; font-size: 15px; color: #b8b9cd; }
+.focus-app .team-counter small { font-size: 10px; }
+.focus-app .team-slots { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; }
+.focus-app .team-slot { display: flex; flex-direction: column; gap: 6px; min-width: 0; min-height: 0; padding: 0; background: none; border: 0; border-radius: 8px; }
+.focus-app .team-slot:disabled { opacity: 1; }
+.focus-app .team-slot:hover:not(:disabled) { background: #2c2d3c; }
+.focus-app .slot-role { width: auto; min-width: 0; font-size: 10px; font-weight: 600; color: #c5c5d7; }
+.focus-app .team-slot .portrait { width: clamp(32px, 4.2vw, 64px); height: auto; aspect-ratio: 1; max-width: 100%; border-radius: 8px; border: 1px solid #606076; background: #1a1c26; font-size: 20px; }
+.focus-app .team-slot.eligible .portrait { border-color: #9390b4; }
+.focus-app .slot-name { min-width: 0; width: 100%; }
+.focus-app .slot-name strong { display: block; font-size: 11px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.focus-app .ban-area { padding: 0; margin-top: 13px; border: 0; }
+.focus-app .ban-area .section-label { font-size: 11px; letter-spacing: 0; margin-bottom: 8px; color: #c5c6da; }
+.focus-app .ban-row { display: flex; gap: 8px; }
+.focus-app .ban-slot { flex: 0 0 auto; width: clamp(29px, 3.3vw, 47px); height: auto; aspect-ratio: 1; border-radius: 7px; border: 1px solid #5d6077; background: #1c1e29; padding: 0; }
+.focus-app .ban-slot .portrait { width: 100%; max-width: none; height: 100%; border: 0; border-radius: 6px; font-size: 17px; }
+.focus-app .ban-slot.active { border-color: #b19aff; box-shadow: 0 0 0 2px #aa92ff25; }
+.focus-app .ban-slot .no-ban { font-size: 18px; }
+.focus-app .focus-teams .draft-balance { position: static; display: flex; flex-direction: column; margin: 0; padding: 13px 14px; background: #20222e; border: 1px solid var(--line); border-radius: 14px; z-index: auto; }
+.focus-app .balance-heading { margin-bottom: 9px; font-size: 12px; gap: 6px; }
+.focus-app .balance-team-labels { order: 2; font-size: 11px; margin: 8px 0 0; }
+.focus-app .balance-team-labels b { font-size: 17px; margin-top: 3px; }
+.focus-app .balance-team-labels small { font-size: 11px; }
+.focus-app .balance-track { order: 1; height: 8px; }
+.focus-app .balance-caption { order: 3; font-size: 10px; gap: 3px; flex-wrap: wrap; margin-top: 7px; }
+.focus-app .balance-caption small { font-size: 9px; }
+.focus-app .recommendation-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.focus-app main.draft-page .recommendation-panel > .recommendation-heading { display: flex; flex: 0 0 auto; align-items: center; margin: 0; gap: 10px; }
+.focus-app .recommendation-heading .turn-guide { flex: 1; border: 0; padding: 0; margin: 0; background: none; display: block; }
+.focus-app .recommendation-heading h2 { font-size: clamp(23px, 1.9vw, 31px); letter-spacing: -.7px; color: #f1eefe; }
+.focus-app .recommendation-heading .turn-guide small { display: block; font-size: 12px; margin-top: 5px; color: var(--blue); }
+.focus-app .recommendation-heading .enemy-turn small { color: var(--red); }
+.focus-app .recommendation-heading > button { font-size: 11px; padding: 8px 9px; white-space: nowrap; }
+.focus-app .focus-decision { display: flex; flex-direction: column; gap: 10px; flex: 0 0 auto; margin: 0; }
+.focus-featured { background: #232330; border: 1px solid #a28bdd; padding: 13px; border-radius: 15px; }
+.focus-featured-main { display: flex; align-items: flex-start; gap: 15px; }
+.portrait.featured { width: clamp(72px, 7.5vw, 120px); height: auto; aspect-ratio: 1; flex: 0 0 auto; border-radius: 10px; border: 1px solid #767184; }
+.focus-featured-body { flex: 1; min-width: 0; }
+.focus-featured-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.focus-featured-heading h3 { font-size: clamp(22px, 1.8vw, 29px); font-weight: 650; line-height: 1.15; overflow-wrap: anywhere; }
+.focus-role { color: #b9b7d0; font-size: 11px; display: block; margin-top: 5px; }
+.focus-featured-score { color: var(--lavender); font-size: clamp(26px, 2.2vw, 36px); white-space: nowrap; line-height: 1.1; }
+.focus-featured-score small { font-size: 14px; font-weight: 400; margin-left: 5px; }
+.focus-featured-body > p { color: #d0cfdf; font-size: 13px; line-height: 1.5; margin-top: 9px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.focus-featured-meta { display: flex; justify-content: space-between; gap: 8px; font-size: 10px; color: #a7a5bc; margin-top: 8px; align-items: center; }
+.focus-featured-meta kbd { white-space: nowrap; padding: 2px 5px; font-size: 9px; }
+.focus-factors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 11px; }
+.focus-factors > div { display: flex; align-items: center; gap: 8px; background: #2c2c3c; border-radius: 8px; padding: 8px 9px; color: var(--lavender); }
+.focus-factors span { font-size: 11px; color: #dcdaed; }
+.focus-factors b { display: block; color: #aaa7c3; font-size: 10px; font-weight: 500; margin-top: 2px; }
+.focus-risk { display: flex; align-items: center; gap: 9px; margin-top: 10px; padding: 8px 10px; border-radius: 8px; background: #393123; border: 1px solid #6d5536; color: #ebc282; font-size: 11px; line-height: 1.4; }
+.focus-risk svg { flex-shrink: 0; }
+.focus-alternatives { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.focus-alternative { display: flex; align-items: center; justify-content: flex-start; min-width: 0; padding: 9px; border-radius: 11px; background: #242633; border-color: #48485e; text-align: left; gap: 9px; }
+.focus-alternative > span:nth-child(2) { flex: 1; min-width: 0; }
+.focus-alternative strong { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.focus-alternative small { display: block; margin-top: 5px; color: #aaa8c1; font-size: 10px; }
+.focus-alternative .portrait { width: 41px; height: 41px; border-radius: 7px; flex-shrink: 0; }
+.focus-alternative-score { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.focus-alternative-score b { color: var(--lavender); font-size: 21px; }
+.focus-alternative-score kbd { font-size: 8px; padding: 2px 4px; white-space: nowrap; }
+.focus-app .rec-toolbar { display: flex; flex: 0 0 auto; margin: 0; padding: 0; align-items: center; justify-content: space-between; font-size: 12px; color: #b6b4cb; }
+.focus-app .rec-toolbar > span { display: flex; gap: 7px; align-items: center; }
+.focus-app .rec-toolbar select { padding: 6px 9px; font-size: 11px; max-width: 190px; background: #20222f; }
+.focus-app .recommendation-browser { display: flex; flex-direction: column; flex: 1 1 0; min-height: 95px; overflow: hidden; }
+.focus-app .recommendation-search { flex: 0 0 auto; background: #1c1e2a; border-color: #43455b; margin-bottom: 5px; }
+.focus-app .recommendation-search input { font-size: 12px; padding: 8px 0; }
+.focus-app .recommendation-count { margin: 0 0 5px; font-size: 10px; color: #a8a6bf; }
+.focus-app .recommendation-count small { font-size: 9px; }
+.focus-app .recommendation-scroll { max-height: none; min-height: 0; flex: 1 1 0; padding-right: 5px; scrollbar-color: #686078 #1c1e29; }
+.focus-app .recommendation-scroll .recommendation { min-height: 68px; border: 0; border-top: 1px solid #323547; border-radius: 4px; padding: 7px 3px; margin: 0; background: #20222e; gap: 8px; }
+.focus-app .recommendation-scroll .recommendation.best { background: #282637; }
+.focus-app .recommendation .rec-position { font-size: 10px; min-width: 19px; color: #b3adcc; }
+.focus-app .recommendation .portrait.medium { width: 34px; height: 34px; border-radius: 6px; }
+.focus-app .recommendation .rec-name { font-size: 13px; gap: 5px; }
+.focus-app .recommendation .role-tag { font-size: 8px; padding: 1px 4px; }
+.focus-app .recommendation .rec-body > p { margin: 3px 0; font-size: 10px; color: #b4b2c8; -webkit-line-clamp: 1; }
+.focus-app .recommendation .rec-meta { margin: 2px 0; font-size: 8px; gap: 5px; }
+.focus-app .recommendation .rec-meta button { color: #c0acf3; font-size: 9px; }
+.focus-app .recommendation .rec-evidence { font-size: 8px; margin: 2px 0 0; gap: 6px; }
+.focus-app .recommendation .rec-score { min-width: 40px; }
+.focus-app .recommendation .rec-score strong { color: #c8b8fc; font-size: 20px; }
+.focus-app .recommendation .pick-button { padding: 6px; margin: 0; background: #2b293e; border-color: #56506e; color: #c8b8fc; }
+.focus-app .recommendation .pick-button span { display: none; }
+.focus-context { min-width: 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 3px; scrollbar-width: thin; scrollbar-color: #655d78 transparent; }
+.focus-app .focus-context-card { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 15px; padding: 13px 15px; margin: 0; background: #22232f; }
+.focus-context-card h2 { display: flex; align-items: center; gap: 9px; color: #e2ddf6; font-size: 17px; line-height: 1.3; margin: 0 0 10px; }
+.focus-context-card h2 svg { color: var(--blue); flex-shrink: 0; }
+.focus-context-card > p { font-size: 12px; }
+.focus-plan .section-label { font-size: 8px; margin: 0; color: #9e9ab4; letter-spacing: .5px; }
+.focus-plan h3 { font-size: 12px; color: #b6b1cb; margin: 5px 0 8px; }
+.focus-plan-priorities { display: flex; flex-direction: column; gap: 7px; padding: 0; margin: 0; list-style: none; }
+.focus-plan-priorities li { display: flex; align-items: flex-start; gap: 10px; padding: 8px; background: #2a2c3b; border-radius: 9px; }
+.focus-plan-priorities li > span { display: flex; justify-content: center; align-items: center; width: 25px; height: 25px; flex: 0 0 auto; background: #4b426f; color: #e3d7ff; border-radius: 50%; font-size: 13px; }
+.focus-plan-priorities li p { font-size: 12px; line-height: 1.4; margin: 1px 0 0; color: #dbd6ec; }
+.focus-plan .plan-risk { font-size: 11px; margin: 8px 0; color: #edbe82; }
+.focus-context summary { font-size: 11px; color: #bdb3d7; cursor: pointer; padding: 6px 0; line-height: 1.4; }
+.focus-plan details > p { margin-top: 8px; font-size: 12px; }
+.focus-response { display: flex; gap: 11px; align-items: center; padding: 9px; background: #2a2b3a; border-radius: 10px; margin-top: 8px; }
+.focus-response .portrait { width: 45px; height: 45px; flex-shrink: 0; border-radius: 8px; }
+.focus-response strong { font-size: 14px; }
+.focus-response p { font-size: 11px; margin-top: 3px; color: #b6b2cc; }
+.focus-response small { display: block; margin-top: 4px; font-size: 10px; color: #aaa5c0; }
+.focus-context-note { display: block; margin-top: 9px; font-size: 9px; line-height: 1.4; color: #aaa4bf; }
+.focus-app .fearless-header { display: block; }
+.focus-app .fearless-header > span { display: block; font-size: 10px; color: #a6a0bb; }
+.focus-app .fearless-header h2 { margin-bottom: 5px; }
+.focus-app .fearless-panel h2 small { font-size: 10px; color: #a19bb3; margin-left: auto; }
+.focus-fearless-used { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 11px; }
+.focus-fearless-used > span { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 42px; }
+.focus-fearless-used .portrait { width: 40px; height: 40px; border-radius: 6px; filter: grayscale(1); opacity: .7; }
+.focus-fearless-used small { max-width: 44px; font-size: 8px; color: #aaa4bf; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.focus-fearless-used p { font-size: 11px; line-height: 1.5; }
+.fearless-controls { margin-top: 8px; }
+.focus-app .fearless-controls .button-row { flex-wrap: wrap; justify-content: flex-start; gap: 5px; }
+.focus-app .fearless-controls button, .focus-app .fearless-controls select { font-size: 11px; padding: 6px 8px; max-width: 100%; }
+.focus-app .fearless-controls select { width: 100%; }
+.focus-app .fearless-history { border-top: 1px solid #3a364b; margin-top: 10px; padding-top: 5px; }
+.focus-app .fearless-game { flex-direction: column; gap: 6px; font-size: 11px; }
+.focus-app .fearless-editor .fearless-choices { max-height: 180px; overflow-y: auto; }
+.focus-app .focus-enemy-analysis, .focus-app .focus-sources { border: 1px solid #393649; border-radius: 9px; padding: 4px 12px; flex: 0 0 auto; }
+.focus-sources summary { display: flex; align-items: center; gap: 6px; font-size: 9px; }
+.focus-sources p { color: #a59fb8; font-size: 10px; line-height: 1.6; margin-top: 8px; }
+.focus-app .composition-card { margin: 10px 0; }
+.focus-app .focus-duos { flex: 0 0 auto; margin: 0; padding: 5px 10px; background: #272939; border-color: #54506e; max-height: 190px; overflow: auto; }
+.focus-duos summary { cursor: pointer; display: flex; align-items: center; gap: 7px; color: #cac1e9; font-size: 11px; padding: 4px 0; }
+.focus-app .duo-row { margin-top: 8px; }
+.focus-app .data-notice { flex: 0 0 auto; padding: 8px; gap: 8px; margin: 0; }
+.focus-app .data-notice strong, .focus-app .data-notice button { font-size: 10px; }
+.focus-app .focus-bottom { flex: 0 0 auto; margin: 0 -16px; padding: 10px 16px; gap: 12px; min-height: 64px; background: #1b1c26; border-top: 1px solid #3c3c51; }
+.focus-bottom .button-row button { font-size: 13px; padding: 9px 13px; background: transparent; }
+.focus-current-choice { display: flex; align-items: center; flex: 1; min-width: 0; gap: 10px; padding: 0 20px; border-left: 1px solid #3c3c51; border-right: 1px solid #3c3c51; }
+.focus-current-choice .portrait { width: 35px; height: 35px; border-radius: 7px; }
+.focus-current-choice strong { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.focus-current-choice small { color: #a8a3bd; font-size: 11px; font-weight: 400; }
+.focus-current-choice > b { margin-left: auto; font-size: 23px; color: var(--lavender); white-space: nowrap; }
+.focus-current-choice > b small { margin-left: 4px; }
+.focus-confirm { min-width: 190px; width: 25%; max-width: 350px; font-size: 15px; height: 43px; border-radius: 8px; }
+.focus-manual { width: 37px; flex: 0 0 auto; }
+.focus-app.is-draft .app-footer { display: none; }
+.focus-app .app-footer { font-size: 10px; color: #9993ae; }
+.focus-app .error-banner { margin: 0; padding: 8px 12px; flex: 0 0 auto; }
+@media (max-width: 1300px) {
+  .focus-nav button { padding: 0 10px; font-size: 12px; gap: 6px; }
+  .focus-app .header-right button { padding: 7px 9px; font-size: 12px; }
+  .focus-app .focus-workspace { gap: 12px; }
+  .focus-featured-main { gap: 10px; }
+  .focus-featured { padding: 10px; }
+  .focus-featured-body > p { font-size: 12px; }
+  .focus-app .recommendation-heading > button { width: 31px; padding: 7px; font-size: 0; gap: 0; }
+  .focus-alternative .portrait { width: 31px; height: 31px; }
+  .focus-alternative strong { font-size: 12px; }
+  .focus-alternative small { font-size: 9px; }
+  .focus-alternative-score b { font-size: 18px; }
+  .focus-context-card h2 { font-size: 15px; }
+  .focus-current-choice { padding: 0 12px; }
+}
+@media (max-height: 840px) {
+  .focus-app .app-header { height: 50px; min-height: 50px; }
+  .focus-app main.draft-page { padding-top: 8px; gap: 8px; }
+  .focus-app .focus-toolbar { padding-bottom: 6px; gap: 6px 12px; }
+  .focus-app .focus-teams, .focus-context { gap: 8px; }
+  .focus-app .team-panel { padding: 10px 11px; }
+  .focus-app .team-header { margin-bottom: 8px; }
+  .focus-app .team-slot .portrait { max-width: 46px; }
+  .focus-app .ban-slot { max-width: 35px; }
+  .focus-app .ban-area { margin-top: 9px; }
+  .focus-app .recommendation-panel { gap: 7px; }
+  .focus-app .recommendation-heading h2 { font-size: 24px; }
+  .focus-app .focus-decision { gap: 7px; }
+  .focus-featured { padding: 10px; }
+  .portrait.featured { width: 76px; }
+  .focus-featured-body > p { margin-top: 6px; font-size: 12px; }
+  .focus-featured-meta { margin-top: 5px; font-size: 9px; }
+  .focus-factors { margin-top: 8px; }
+  .focus-factors > div { padding: 6px 8px; }
+  .focus-risk { padding: 6px 9px; margin-top: 7px; font-size: 10px; }
+  .focus-alternative { padding: 7px; }
+  .focus-app .focus-context-card { padding: 11px 12px; }
+  .focus-plan-priorities li { padding: 6px; }
+  .focus-plan-priorities li p { font-size: 11px; }
+  .focus-app .focus-bottom { min-height: 57px; padding-top: 7px; padding-bottom: 7px; }
+}
+@media (prefers-reduced-motion: reduce) { .focus-app * { transition: none !important; } }

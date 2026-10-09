@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, globalShortcut, ipcMain, net, protocol, screen, session } from 'electron';
+import { app, BrowserWindow, dialog, globalShortcut, ipcMain, nativeTheme, net, protocol, screen, session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { Worker } from 'node:worker_threads';
 import path from 'node:path';
@@ -18,6 +18,7 @@ import { appUpdates } from './updates';
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'tchim', privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } }]);
 app.setName('Tchim Draft');
+nativeTheme.themeSource = 'dark';
 if (process.env.TCHIM_DATA_DIR) app.setPath('userData', path.resolve(process.env.TCHIM_DATA_DIR));
 let storage: Storage, mainWindow: BrowserWindow | null = null, overlayWindow: BrowserWindow | null = null, worker: Worker;
 let analysisCache: { key: string; result: Promise<Analysis> } | null = null;
