@@ -1,11 +1,13 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
+import { ImageOff, Plus } from 'lucide-react';
 import type { Champion } from '../shared/types';
 
 export function Portrait({ champion, size = '', banned = false }: { champion?: Champion; size?: string; banned?: boolean }) {
-  const [failed, setFailed] = useState(false);
-  useEffect(() => setFailed(false), [champion?.icon]);
-  return <span className={`portrait ${size} ${banned ? 'banned' : ''}`} style={{ '--portrait-hue': `${(champion?.key ?? 4) * 37 % 360}deg` } as CSSProperties}>
-    {champion?.icon && !failed ? <img src={champion.icon} alt={champion.name} onError={() => setFailed(true)}/> : <span>{champion ? champion.name.slice(0, 2).toUpperCase() : '+'}</span>}
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => setAttempt(0), [champion?.id, champion?.icon]);
+  const sources = champion ? [...(champion.icon ? [champion.icon] : []), `./icons/${champion.id}.png`, `./art/card/${champion.id}.webp`] : [];
+  return <span className={`portrait ${size} ${banned ? 'banned' : ''} ${champion ? '' : 'empty'}`}>
+    {sources[attempt] ? <img draggable={false} src={sources[attempt]} alt={champion!.name} onError={() => setAttempt(i => i + 1)}/> : champion ? <ImageOff aria-label={champion.name}/> : <Plus aria-hidden="true"/>}
     {banned && champion && <span className="ban-slash"/>}
   </span>;
 }

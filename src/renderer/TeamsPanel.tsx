@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ScoutedTeam, Snapshot, Teams } from '../shared/types';
 import { ROLES } from '../shared/types';
+import { ArrowRight, Check, ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { Portrait } from './ChampionPortrait';
 
-export function TeamsPanel({snapshot,onError,combined=false}:{snapshot:Snapshot;onError:(error:string)=>void;combined?:boolean}) {
+export function TeamsPanel({snapshot,onError,combined=false,onReady}:{snapshot:Snapshot;onError:(error:string)=>void;combined?:boolean;onReady?:()=>void}) {
   const fr=snapshot.settings.language==='fr';
   const [urls,setUrls]=useState({ally:snapshot.teams.ally.url,enemy:snapshot.teams.enemy.url});
   const previousUrls=useRef({ally:snapshot.teams.ally.url,enemy:snapshot.teams.enemy.url});
   const [loading,setLoading]=useState<'ally'|'enemy'|'both'|null>(null);
   const [add,setAdd]=useState<Record<string,string>>({});
+  const [expanded,setExpanded]=useState<Set<string>>(new Set());
   useEffect(()=>{
     const next={ally:snapshot.teams.ally.url,enemy:snapshot.teams.enemy.url},prior=previousUrls.current;
     setUrls(current=>({ally:next.ally!==prior.ally?next.ally:current.ally,enemy:next.enemy!==prior.enemy?next.enemy:current.enemy}));
@@ -25,13 +28,16 @@ export function TeamsPanel({snapshot,onError,combined=false}:{snapshot:Snapshot;
       <div className="button-row"><button className="primary" disabled={!!loading||!urls[key].trim()} onClick={()=>void scout(key)}>{loading===key?(fr?'Import en cours…':'Importing…'):(fr?'Importer les joueurs et leurs pools':'Import players and pools')}</button>{team.players.length>0&&<button disabled={!!loading} onClick={()=>void save(key,{url:'',region:'euw',players:[],poolOnly:false,message:''})}>{fr?'Effacer':'Clear'}</button>}</div>
       <p className="muted small-text">{team.message}</p>
       {team.players.length>0&&<label className="toggle"><input type="checkbox" disabled={!!loading} checked={team.poolOnly} onChange={e=>void save(key,{...team,poolOnly:e.target.checked})}/><span/>{fr?'Limiter les propositions aux pools renseignés':'Limit suggestions to recorded pools'}</label>}
-      {team.players.map((p,i)=>{const token=`${key}-${i}`;return <article className="scouting-player" key={p.riotId}>
+      {team.players.map((p,i)=>{const token=`${key}-${i}`,open=expanded.has(token);return <article className={`scouting-player ${open?'expanded':''}`} key={p.riotId}>
         <div className="section-heading"><strong>{p.riotId}</strong><select aria-label={`${p.riotId} role`} disabled={!!loading} value={p.role} onChange={e=>modify(i,{role:e.target.value as typeof p.role})}><option value="AUTO">{fr?'Rôle à confirmer':'Confirm lane'}</option>{ROLES.map(role=><option key={role} disabled={team.players.some((other,j)=>j!==i&&other.role===role)}>{role}</option>)}</select></div>
-        <small className="muted">{p.message}</small>
-        <div className="scouting-pool">{p.pool.map(c=>{const champ=snapshot.champions.find(ch=>ch.id===c.championId);return <span className="scouting-chip" key={`${c.championId}-${c.role??''}`} title={c.games?`${c.wins}/${c.games} wins · ${c.role??p.role}`:'Manuel / Manual'}>{champ?.icon&&<img src={champ.icon} alt=""/>}<span>{champ?.name??c.championId}<small>{c.games?`${c.games} ${fr?'parties':'games'}`:(fr?'déclaré':'declared')}</small></span><button disabled={!!loading} aria-label={`Remove ${p.riotId} ${c.championId}`} onClick={()=>modify(i,{pool:p.pool.filter(row=>row!==c),status:'manual'})}>×</button></span>;})}</div>
+        <span className="player-state" title={p.message}>{p.status==='loaded'?<Check size={16}/>:null}{p.status==='loaded'?(fr?'Chargé':'Loaded'):p.status==='manual'?(fr?'Déclaré':'Declared'):(fr?'À compléter':'Incomplete')}</span>
+        <div className="scouting-pool">{p.pool.map((c,index)=>{const champ=snapshot.champions.find(ch=>ch.id===c.championId);return <span className="scouting-chip" hidden={!open&&index>=3} key={`${c.championId}-${c.role??''}`} title={c.games?`${c.wins}/${c.games} wins · ${c.role??p.role}`:'Manuel / Manual'}><Portrait champion={champ} size="scouting"/><span>{champ?.name??c.championId}<small>{c.games?`${c.games} ${fr?'parties':'games'}`:(fr?'déclaré':'declared')}</small></span>{open&&<button disabled={!!loading} aria-label={`Remove ${p.riotId} ${c.championId}`} onClick={()=>modify(i,{pool:p.pool.filter(row=>row!==c),status:'manual'})}>×</button>}</span>;})}{!open&&<button className="pool-expand-plus" aria-label={`${fr?'Compléter le pool de':'Complete pool for'} ${p.riotId}`} onClick={()=>setExpanded(current=>new Set([...current,token]))}><Plus size={20}/></button>}</div>
+        <button className="player-expand" aria-expanded={open} onClick={()=>setExpanded(current=>{const next=new Set(current);if(next.has(token))next.delete(token);else next.add(token);return next;})}>{open?(fr?'Réduire':'Collapse'):(fr?'Développer':'Expand')}{open?<ChevronUp size={17}/>:<ChevronDown size={17}/>}</button>
+        <div className="player-details" hidden={!open}><p className="page-note">{p.message}</p>
         <div className="manual-pool-entry"><input className="text-input" list="scouting-champions" disabled={!!loading} aria-label={`${p.riotId} champion`} placeholder={fr?'Ajouter un champion maîtrisé…':'Add a playable champion…'} value={add[token]??''} onChange={e=>setAdd({...add,[token]:e.target.value})}/><button disabled={!!loading||!add[token]} onClick={()=>{const name=add[token].trim(),c=snapshot.champions.find(c=>c.name.toLowerCase()===name.toLowerCase()||c.id.toLowerCase()===name.toLowerCase());if(!c){onError(fr?'Champion inconnu.':'Unknown champion.');return;}if(!p.pool.some(ch=>ch.championId===c.id))modify(i,{pool:[...p.pool,{championId:c.id,games:0,wins:0,...(p.role==='AUTO'?{}:{role:p.role})}],status:'manual'});setAdd({...add,[token]:''});}}>+</button></div>
+        </div>
       </article>;})}
       {!team.players.length&&<p className="empty-state">{fr?'Collez le multi de cette équipe. Les deux équipes influencent les picks, les bans et les réponses adverses.':'Paste this team’s multi link. Both rosters affect picks, bans and enemy replies.'}</p>}
     </section>;
-  })}<datalist id="scouting-champions">{snapshot.champions.map(c=><option key={c.id} value={c.name}/>)}</datalist></div>;
+  })}{onReady&&<div className="teams-ready"><span>{fr?'Vérifie les rôles et les deux pools avant de drafter.':'Check both rosters and roles before drafting.'}</span><button className="primary" disabled={!!loading} onClick={onReady}>{fr?'Préparer la draft':'Prepare draft'}<ArrowRight size={18}/></button></div>}<datalist id="scouting-champions">{snapshot.champions.map(c=><option key={c.id} value={c.name}/>)}</datalist></div>;
 }

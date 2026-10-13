@@ -1,0 +1,329 @@
+/* The poster treatment is local to the desktop shell; overlay and simulations keep their own layout. */
+.constructivist-app { --paper:#efe4cd; --ink:#252525; --vermillion:#d94832; --electric:#1758f4; --small:14px; --medium:28px; --large:100px; }
+.constructivist-app .main-shell { display:grid; grid-template-columns:136px minmax(0,1fr); grid-template-rows:64px minmax(0,1fr) auto; width:100%; margin:0; height:100vh; overflow:hidden; }
+.constructivist-app .draft-sidebar { grid-row:1 / -1; display:flex; flex-direction:column; background:var(--ink); color:var(--paper); border-right:2px solid var(--paper); min-height:0; }
+.constructivist-app .sidebar-brand { padding:18px 14px 25px; font-family:Impact,'Arial Narrow',sans-serif; font-size:24px; line-height:1.15; }
+.constructivist-app .sidebar-brand>span { display:block; font:900 38px/1 'Arial',sans-serif; color:var(--electric); margin-bottom:14px; }
+.constructivist-app .focus-nav { display:flex; flex-direction:column; height:auto; gap:8px; }
+.constructivist-app .focus-nav button { border:0; border-radius:0; color:var(--paper); padding:17px 12px; gap:10px; min-height:60px; background:transparent; font-size:14px; justify-content:flex-start; }
+.constructivist-app .focus-nav button.active { background:var(--paper); color:var(--electric); clip-path:polygon(0 13%,100% 0,100% 87%,0 100%); }
+.constructivist-app .focus-nav button.active:after { display:none; }
+.constructivist-app .sidebar-version { margin-top:auto; padding:18px; font-size:14px; }
+.constructivist-app .app-header { grid-column:2; min-height:64px; height:64px; background:var(--paper); color:var(--ink); padding:0 18px; gap:14px; border-bottom:3px solid var(--ink); }
+.constructivist-app .app-header h1 { margin:0; font:var(--medium)/1.1 Impact,'Arial Narrow',sans-serif; text-transform:uppercase; white-space:nowrap; }
+.constructivist-app .app-header .source-badge { font-size:14px; background:var(--ink); color:var(--paper); border:0; border-radius:0; padding:6px 10px; }
+.constructivist-app .header-right { margin-left:auto; gap:8px; }
+.constructivist-app .header-right button { border:1px solid var(--ink); color:var(--ink); border-radius:0; padding:8px 12px; background:transparent; font-size:14px; }
+.constructivist-app main { grid-column:2; min-width:0; min-height:0; overflow:auto; height:100%; margin:0; max-width:none; }
+.constructivist-app .app-footer { grid-column:2; font-size:14px; }
+.constructivist-app main.draft-page { --text:var(--ink); --muted:#53514b; --line:#b9b1a0; --panel:var(--paper); --blue:var(--electric); --red:var(--vermillion); --green:var(--electric); display:flex; flex-direction:column; padding:10px 14px 0; gap:10px; background-color:var(--paper); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.035'/%3E%3C/svg%3E"); color:var(--ink); overflow:auto; }
+.constructivist-app main.draft-page * { box-shadow:none; text-shadow:none; backdrop-filter:none; }
+.constructivist-app main.draft-page :is(button,input,select,p,span,b,strong,small,label,summary,kbd) { font-size:var(--small); }
+.constructivist-app main.draft-page h2,.constructivist-app main.draft-page h3 { font-family:Impact,'Arial Narrow',sans-serif; font-size:var(--medium); font-weight:400; line-height:1.15; letter-spacing:0; margin:0; }
+.constructivist-app main.draft-page button { border-radius:0; background:transparent; color:inherit; border-color:#b9b1a0; }
+.constructivist-app main.draft-page button:hover:not(:disabled) { background:#ded4be; border-color:var(--ink); }
+.constructivist-app main.draft-page button:focus-visible,.constructivist-app .draft-sidebar button:focus-visible { outline:3px solid var(--electric); outline-offset:2px; }
+.constructivist-app main.draft-page button:disabled { opacity:.65; }
+.constructivist-app main.draft-page .primary { background:var(--electric); color:white; border-color:var(--electric); }
+.constructivist-app.is-draft .face-toolbar { gap:8px; padding:0; border:0; flex-wrap:wrap; }
+.constructivist-app.is-draft .draft-filters { gap:14px; flex-wrap:wrap; min-width:0; }
+.constructivist-app.is-draft .draft-filters label { color:var(--ink); }
+.constructivist-app.is-draft .draft-filters select { color:var(--ink); background:transparent; max-width:110px; border-bottom:1px solid var(--ink); }
+.constructivist-app.is-draft .mode-switch button { padding:6px 10px; }
+.constructivist-app.is-draft .mode-switch button.active { background:var(--ink); color:var(--paper); }
+.constructivist-app.is-draft .face-series-button { background:var(--ink)!important; color:var(--paper)!important; padding:7px 10px; white-space:nowrap; }
+.constructivist-app.is-draft .draft-board { display:grid; grid-template-columns:minmax(0,1fr) minmax(290px,.95fr) minmax(0,1fr); gap:14px; flex:0 0 auto; }
+.constructivist-app.is-draft .face-team { background:transparent; border:0; border-radius:0; overflow:visible; min-width:0; display:flex; flex-direction:column; }
+.constructivist-app.is-draft .team-header { background:var(--electric); color:white; padding:12px 14px 8px; border:0; min-height:50px; }
+.constructivist-app.is-draft .face-team.red .team-header { background:var(--vermillion); }
+.constructivist-app.is-draft .team-header h2 { color:white; text-transform:uppercase; flex:1; }
+.constructivist-app.is-draft .team-counter { color:white; font-weight:700; }
+.constructivist-app.is-draft .team-slots { display:grid; flex:0 0 auto; grid-template-rows:none; grid-template-columns:repeat(5,minmax(0,1fr)); gap:7px; padding:0 14px 12px; background:var(--electric); clip-path:polygon(0 0,100% 0,94% 100%,0 100%); }
+.constructivist-app.is-draft .face-team.red .team-slots { background:var(--vermillion); clip-path:polygon(0 0,100% 0,100% 100%,6% 100%); }
+.constructivist-app.is-draft .team-slots .team-slot { display:flex; flex-direction:column; min-width:0; gap:4px; padding:3px 0; height:auto; min-height:0; border:0; background:transparent; color:white; overflow:visible; }
+.constructivist-app.is-draft .team-slot:disabled { opacity:1!important; }
+.constructivist-app.is-draft .team-slot .slot-role { min-width:0; color:white; padding:0; margin:0; order:0; }
+.constructivist-app.is-draft .team-slot .slot-name { min-width:0; margin:0; width:100%; order:2; text-align:center; }
+.constructivist-app.is-draft .team-slot .slot-name strong { color:white; text-shadow:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; font-size:var(--small); }
+.constructivist-app.is-draft .team-slot.eligible .champion-silhouette { border:2px dashed white; }
+.champion-silhouette { display:block; color:#252525; width:56px; height:56px; flex-shrink:0; border:1px solid currentColor; }
+.champion-silhouette .silhouette-paper { fill:#1758f4; }
+.champion-silhouette.red .silhouette-paper { fill:#d94832; }
+.champion-silhouette .silhouette-ink { fill:#252525; }
+.champion-silhouette .silhouette-cut { fill:#1758f4; }
+.champion-silhouette.red .silhouette-cut { fill:#d94832; }
+.champion-silhouette .silhouette-outline { stroke:#1758f4; }
+.champion-silhouette.red .silhouette-outline { stroke:#d94832; }
+.champion-silhouette.banned :is(.silhouette-paper,.silhouette-cut) { fill:#aaa79f; }
+.champion-silhouette.banned .silhouette-outline { stroke:#aaa79f; }
+.champion-silhouette .ban-strike { stroke:#d94832; }
+.champion-silhouette.empty { color:white; }
+.constructivist-app.is-draft .team-slot .champion-silhouette { width:clamp(42px,4.3vw,80px); height:clamp(42px,4.3vw,80px); border-color:white; order:1; }
+.constructivist-app.is-draft .ban-area { margin:0; padding:8px 12px 0; border:0; background:none; }
+.constructivist-app.is-draft .ban-area .section-label { margin:0 0 5px; color:var(--ink); }
+.constructivist-app.is-draft .ban-row { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:7px; }
+.constructivist-app.is-draft .ban-slot { flex-direction:column; min-width:0; height:auto; padding:0; border:0; position:relative; }
+.constructivist-app.is-draft .ban-slot .champion-silhouette { width:42px; height:42px; color:var(--ink); }
+.constructivist-app.is-draft .ban-name { width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:14px!important; }
+.constructivist-app.is-draft .no-ban { display:none; }
+.constructivist-app.is-draft .face-status { display:flex; flex-direction:column; gap:8px; text-align:center; min-width:0; min-height:0; padding:10px 0 0; justify-content:space-between; }
+.constructivist-app.is-draft .face-status .turn-guide { width:100%; }
+.constructivist-app.is-draft .face-status h2 { color:var(--ink); text-transform:uppercase; }
+.constructivist-app.is-draft .face-status h2>span { color:var(--ink); }
+.constructivist-app.is-draft .face-status p { color:var(--ink); margin:6px 0 0; }
+.constructivist-app.is-draft .face-balance { display:block; width:100%; padding:0; margin:0; background:none; border:0; }
+.constructivist-app.is-draft .face-balance .balance-heading { display:flex; flex-direction:row; justify-content:center; align-items:center; gap:12px; border:1px solid #888276; padding:7px 12px; margin:0 8px 7px; }
+.constructivist-app.is-draft .face-balance .balance-heading strong { font:var(--medium)/1 Impact,'Arial Narrow',sans-serif; color:var(--ink); }
+.constructivist-app.is-draft .face-balance .balance-team-labels { display:none; }
+.constructivist-app.is-draft .face-balance .balance-track { position:absolute; width:1px; height:1px; clip-path:inset(50%); overflow:hidden; }
+.constructivist-app.is-draft .face-balance .balance-caption { display:block; color:var(--ink); margin:0; text-align:center; }
+.constructivist-app.is-draft .face-balance .balance-caption small { display:none; }
+.constructivist-app.is-draft .draft-timeline { margin:0; width:100%; flex:0 0 auto; }
+.constructivist-app.is-draft .timeline-row { display:flex; align-items:center; gap:6px; margin:5px 0; }
+.constructivist-app.is-draft .timeline-row>span { width:45px; font-weight:700; text-align:left; font-size:14px!important; }
+.constructivist-app.is-draft .timeline-track { flex:1; display:flex; gap:4px; justify-content:space-between; }
+.constructivist-app.is-draft .timeline-track button { width:clamp(21px,2.15vw,38px); height:clamp(21px,2.15vw,38px); min-height:0; padding:0; border:1px dashed var(--ink); border-radius:50%; background:transparent; color:var(--ink); }
+.constructivist-app.is-draft .timeline-track button.done { background:#c9c5bb; border-style:solid; }
+.constructivist-app.is-draft .timeline-track button.current { background:var(--ink); color:white; border:1px solid var(--ink); }
+.constructivist-app.is-draft .timeline-track button:disabled { opacity:1; }
+.constructivist-app.is-draft .face-workspace { display:grid; grid-template-columns:minmax(170px,.75fr) minmax(430px,1.9fr) minmax(200px,.9fr); gap:10px; flex:1 1 auto; min-height:330px; align-items:stretch; overflow:hidden; }
+.constructivist-app.is-draft .draft-assessment,.constructivist-app.is-draft .face-options { border:2px solid var(--ink); border-radius:0; background:transparent; padding:12px; min-width:0; min-height:0; overflow:auto; }
+.constructivist-app.is-draft .draft-assessment { display:flex; flex-direction:column; gap:10px; }
+.constructivist-app.is-draft .draft-assessment h2 { text-transform:uppercase; }
+.constructivist-app.is-draft .draft-assessment p { margin:0; line-height:1.4; }
+.constructivist-app.is-draft .plan-title { font-weight:700; }
+.constructivist-app.is-draft .assessment-note { color:#53514b; }
+.constructivist-app.is-draft .damage-split { display:flex; justify-content:space-between; gap:16px; background:var(--ink); color:var(--paper); padding:12px; clip-path:polygon(0 0,100% 0,96% 100%,0 100%); }
+.constructivist-app.is-draft .damage-split span { display:flex; flex-direction:column; gap:4px; }
+.constructivist-app.is-draft .damage-split strong { font:var(--medium)/1 Impact,'Arial Narrow',sans-serif; }
+.constructivist-app.is-draft .composition-axes { display:flex; flex-direction:column; gap:12px; margin:6px 0; }
+.constructivist-app.is-draft .composition-axes>div,.constructivist-app.is-draft .hero-gauges>div { display:grid; grid-template-columns:90px minmax(24px,1fr) 25px; align-items:center; gap:6px; }
+.draft-gauge { display:block; height:10px; background:#c3bfb5; min-width:0; border:0; }
+.draft-gauge>span { display:block; height:100%; background:#252525; }
+.constructivist-app.is-draft .power-columns { display:flex; justify-content:space-around; align-items:end; gap:20px; }
+.constructivist-app.is-draft .power-columns>div { display:flex; flex-direction:column; align-items:center; gap:4px; width:45%; }
+.constructivist-app.is-draft .power-column { height:64px; width:100%; display:flex; align-items:flex-end; border-bottom:1px solid var(--ink); }
+.constructivist-app.is-draft .power-column>span { background:var(--ink); width:100%; }
+.constructivist-app.is-draft .plan-need { border-top:1px solid #b9b1a0; padding-top:10px; }
+.constructivist-app.is-draft .assessment-details { background:var(--ink)!important; color:var(--paper)!important; margin-top:auto; padding:9px 10px; width:100%; justify-content:space-between; white-space:normal; text-align:left; }
+.constructivist-app.is-draft .face-options { display:flex; flex-direction:column; padding:0 10px 10px; overflow:hidden; }
+.constructivist-app.is-draft .face-options-heading { padding:10px 0; flex:0 0 auto; margin:0; border:0; align-items:center; gap:10px; }
+.constructivist-app.is-draft .face-options-heading h2 { text-transform:uppercase; }
+.constructivist-app.is-draft .face-options-heading select { background:transparent; color:var(--ink); border:1px solid var(--ink); padding:5px; max-width:150px; }
+.constructivist-app.is-draft .face-decisions { display:flex; flex-direction:column; gap:8px; min-height:0; flex:1; margin:0; }
+.constructivist-app.is-draft .draft-hero { display:grid; grid-template-columns:24px minmax(84px,.7fr) minmax(105px,.8fr) minmax(140px,1fr); gap:8px; padding:10px; border:2px solid var(--electric); background:var(--paper); position:relative; flex:0 0 auto; min-height:205px; }
+.constructivist-app.is-draft .draft-hero.red { border-color:var(--vermillion); }
+.constructivist-app.is-draft .hero-rank { background:var(--ink); color:var(--paper); height:40px; font-weight:700; display:flex; align-items:center; justify-content:center; clip-path:polygon(0 0,100% 0,100% 85%,50% 100%,0 85%); }
+.constructivist-app.is-draft .hero-portrait { width:100%; height:100%; max-height:200px; align-self:stretch; object-fit:cover; border:0; }
+.constructivist-app.is-draft .hero-identity { display:flex; flex-direction:column; align-items:flex-start; min-width:0; gap:4px; }
+.constructivist-app.is-draft .hero-identity h3 { word-break:normal; overflow-wrap:anywhere; }
+.constructivist-app.is-draft .fixed-role { background:#77746c; color:white; padding:4px 6px; font-size:14px!important; }
+.constructivist-app.is-draft .hero-score { font:var(--large)/.95 Impact,'Arial Narrow',sans-serif!important; letter-spacing:-2px; margin-top:auto; }
+.constructivist-app.is-draft .hero-identity>span:last-child { font-size:14px!important; }
+.constructivist-app.is-draft .hero-reasons { display:flex; flex-direction:column; gap:8px; padding-bottom:40px; min-width:0; }
+.constructivist-app.is-draft .hero-gauges { display:flex; flex-direction:column; gap:6px; }
+.constructivist-app.is-draft .hero-gauges>div { grid-template-columns:65px minmax(22px,1fr) 25px; }
+.constructivist-app.is-draft .hero-gauges :is(span,b) { font-size:14px!important; }
+.constructivist-app.is-draft .hero-summary { margin:0; line-height:1.35; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.constructivist-app.is-draft .hero-details { padding:0; border:0; gap:5px; justify-content:flex-start; font-size:14px!important; text-align:left; margin-top:auto; }
+.constructivist-app.is-draft .hero-prepare { position:absolute; right:-2px; bottom:-2px; max-width:60%; border:0; padding:9px 12px 9px 25px; clip-path:polygon(5% 0,100% 0,100% 100%,0 100%); font-weight:700; white-space:normal; font-size:var(--small); }
+.constructivist-app.is-draft .draft-hero.red .hero-prepare { background:var(--vermillion); }
+.constructivist-app.is-draft .sample-warning { display:flex; align-items:center; gap:4px; margin:0; color:#a82f20; font-size:14px!important; line-height:1.3; }
+.constructivist-app.is-draft .recommendation-browser { display:flex; flex-direction:column; min-height:0; flex:1; gap:5px; }
+.constructivist-app.is-draft .recommendation-search { padding:0 9px; background:transparent; border:1px solid #b9b1a0; border-radius:0; height:32px; min-height:32px; color:var(--ink); margin:0; }
+.constructivist-app.is-draft .recommendation-search input { color:var(--ink); font-size:var(--small); padding:5px 0; }
+.constructivist-app.is-draft .recommendation-count { color:#53514b; font-size:14px; display:flex; justify-content:space-between; gap:8px; margin:0; }
+.constructivist-app.is-draft .recommendation-count :is(span,small) { font-size:14px; }
+.constructivist-app.is-draft .recommendation-scroll { display:flex; flex-direction:column; gap:0; min-height:65px; flex:1; overflow:auto; padding:0 3px 0 0; scrollbar-color:#53514b transparent; }
+.constructivist-app.is-draft .face-candidate { padding:0; margin:0; background:transparent; border:0; border-bottom:1px solid #b9b1a0; border-radius:0; display:block; flex:0 0 auto; min-height:60px; }
+.constructivist-app.is-draft .face-candidate.selected { background:#ded4be; outline:1px solid var(--ink); outline-offset:-1px; }
+.constructivist-app.is-draft .face-candidate-preview { display:grid; grid-template-columns:24px 42px minmax(95px,1fr) 62px minmax(70px,1.05fr); align-items:center; gap:8px; padding:7px 0; width:100%; border:0; text-align:left; border-radius:0; color:var(--ink); }
+.constructivist-app.is-draft .face-candidate-preview .champion-silhouette { width:42px; height:42px; }
+.constructivist-app.is-draft .face-candidate-name { display:flex; flex-direction:column; gap:2px; min-width:0; }
+.constructivist-app.is-draft .face-candidate-name strong { font:var(--medium)/1 Impact,'Arial Narrow',sans-serif; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.constructivist-app.is-draft .face-candidate-name>span { font-size:14px; }
+.constructivist-app.is-draft .rec-position { color:var(--ink); font-weight:700; min-width:0; }
+.constructivist-app.is-draft .face-candidate .rec-score { border:0; padding:0; text-align:center; color:var(--ink); min-width:0; }
+.constructivist-app.is-draft .face-candidate .rec-score strong { font:var(--medium)/1 Impact,'Arial Narrow',sans-serif; color:var(--ink); }
+.constructivist-app.is-draft .compact-reason { color:#53514b; border-left:1px solid #b9b1a0; padding-left:8px; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-size:14px!important; }
+.constructivist-app.is-draft .return-best { padding:4px 0; font-size:14px!important; border:0; justify-content:flex-start; }
+.constructivist-app.is-draft .enemy-response-list>div { display:grid; grid-template-columns:42px minmax(60px,1fr) 45px; gap:7px; align-items:center; padding:10px 0; border-bottom:1px solid #b9b1a0; }
+.constructivist-app.is-draft .enemy-response-list .champion-silhouette { width:42px; height:42px; grid-row:span 2; }
+.constructivist-app.is-draft .enemy-response-list>div>span { display:flex; flex-direction:column; min-width:0; }
+.constructivist-app.is-draft .enemy-response-list strong { font:var(--medium)/1 Impact,'Arial Narrow',sans-serif; overflow:hidden; text-overflow:ellipsis; }
+.constructivist-app.is-draft .enemy-response-list>div>span>span { font-size:14px; }
+.constructivist-app.is-draft .enemy-response-list .draft-gauge { grid-column:2 / -1; width:100%; }
+.constructivist-app.is-draft .draft-threat { display:flex; align-items:flex-start; gap:8px; background:var(--vermillion); color:white; padding:10px; margin-top:10px; }
+.constructivist-app.is-draft .draft-threat svg { flex-shrink:0; }
+.constructivist-app.is-draft .draft-threat p { margin-top:4px; }
+.constructivist-app.is-draft .face-duos { flex:0 0 auto; margin:6px 0 0; max-height:120px; overflow:auto; border:1px solid #b9b1a0; border-radius:0; background:transparent; color:var(--ink); padding:6px; }
+.constructivist-app.is-draft .face-duos summary { color:var(--ink); }
+.constructivist-app.is-draft .face-duos :is(p,strong,small,b) { color:var(--ink); }
+.constructivist-app.is-draft .face-bottom { margin:0 -14px; padding:9px 14px; flex:0 0 auto; background:var(--ink); border:0; min-height:46px; justify-content:space-between; gap:8px; position:sticky; bottom:0; z-index:2; }
+.constructivist-app.is-draft .face-bottom button { color:var(--paper)!important; border:1px solid #7b7870; font-size:14px!important; padding:6px 8px; }
+.constructivist-app.is-draft .face-bottom .button-row { gap:6px; }
+.constructivist-app.is-draft .face-bottom .manual-choice { margin-left:auto; }
+/* Dialogs stay legible and use flat paper surfaces, including older detail components. */
+.constructivist-app .modal-backdrop { backdrop-filter:none; background:#252525b8; }
+.constructivist-app .modal { background:var(--paper); color:var(--ink); border:2px solid var(--ink); border-radius:0; box-shadow:none; }
+.constructivist-app .modal :is(p,span,small,label,strong,b,button,input,select,summary,li,kbd,div) { font-size:14px; color:inherit; text-shadow:none; box-shadow:none; }
+.constructivist-app .modal h2,.constructivist-app .modal h3 { color:var(--ink); font:var(--medium)/1.2 Impact,'Arial Narrow',sans-serif; }
+.constructivist-app .modal :is(button,input,select,.picker-search,.champion-option,.role-context-detail,.composition-card,.face-criterion,.game-plan) { background:transparent; border-color:#b9b1a0; border-radius:0; }
+.constructivist-app .modal button.primary,.constructivist-app .modal .champion-option.selected { background:var(--electric); color:white; border-color:var(--electric); }
+.constructivist-app .modal .meter,.constructivist-app .modal .balance-track { background:#c3bfb5; }
+.constructivist-app .modal .meter>span { background:var(--ink); }
+.constructivist-app .modal .face-explanation { background:transparent; padding:10px 0; border:0; }
+.constructivist-app .modal .face-explanation-body { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.constructivist-app .modal .face-explanation-body>.portrait { display:none; }
+.constructivist-app .modal .face-explanation-heading>button { display:none; }
+.constructivist-app .modal .face-explanation :is(.face-criterion strong,.face-criterion h3,.face-criterion p) { color:var(--ink); }
+@media(max-width:1500px) {
+  .constructivist-app { --small:14px; --medium:24px; --large:80px; }
+  .constructivist-app .main-shell { grid-template-columns:112px minmax(0,1fr); }
+  .constructivist-app .focus-nav button { flex-direction:column; gap:6px; padding:12px 5px; }
+  .constructivist-app .draft-board { grid-template-columns:minmax(0,1fr) minmax(285px,.85fr) minmax(0,1fr); gap:8px; }
+  .constructivist-app .team-slots { padding:0 8px 8px; gap:3px; }
+  .constructivist-app .hero-identity h3 { font-size:24px; }
+  .constructivist-app .hero-prepare { padding:8px 10px 8px 20px; }
+}
+@media(max-width:1250px) {
+  .constructivist-app { --medium:20px; --large:68px; }
+  .constructivist-app .main-shell { grid-template-columns:94px minmax(0,1fr); grid-template-rows:56px minmax(0,1fr) auto; }
+  .constructivist-app .app-header { padding:0 12px; gap:8px; height:56px; min-height:56px; }
+  .constructivist-app .app-header .source-badge { padding:5px; }
+  .constructivist-app .sidebar-brand { padding:14px 10px 20px; font-size:20px; }
+  .constructivist-app .sidebar-brand>span { font-size:32px; }
+  .constructivist-app .draft-filters { gap:8px; }
+  .constructivist-app .face-series-button { padding:6px; }
+  .constructivist-app .draft-board { grid-template-columns:minmax(0,1fr) 280px minmax(0,1fr); }
+  .constructivist-app .team-header { padding:9px 8px 5px; min-height:38px; gap:5px; }
+  .constructivist-app .team-header>svg { display:none; }
+  .constructivist-app .team-slot .champion-silhouette { width:38px; height:38px; }
+  .constructivist-app .ban-slot .champion-silhouette { width:32px; height:32px; }
+  .constructivist-app .ban-area { padding:6px 4px 0; }
+  .constructivist-app .ban-row { gap:3px; }
+  .constructivist-app .face-status { padding:4px 0 0; gap:5px; }
+  .constructivist-app .face-workspace { grid-template-columns:minmax(155px,.75fr) minmax(425px,2fr) minmax(175px,.9fr); gap:7px; min-height:310px; }
+  .constructivist-app .draft-assessment { padding:8px; gap:8px; }
+  .constructivist-app .composition-axes>div { grid-template-columns:70px minmax(16px,1fr) 20px; }
+  .constructivist-app .draft-hero { grid-template-columns:20px 72px minmax(100px,.9fr) minmax(140px,1fr); gap:6px; padding:8px; min-height:176px; }
+  .constructivist-app .hero-identity h3 { font-size:20px; }
+  .constructivist-app .hero-portrait { max-height:160px; }
+  .constructivist-app .hero-summary { -webkit-line-clamp:2; }
+  .constructivist-app .hero-reasons { gap:6px; padding-bottom:35px; }
+  .constructivist-app .face-candidate-preview { grid-template-columns:20px 34px minmax(95px,1fr) 46px minmax(65px,1fr); gap:5px; }
+  .constructivist-app .face-candidate-preview .champion-silhouette { width:34px; height:34px; }
+  .constructivist-app .face-candidate { min-height:49px; }
+  .constructivist-app .enemy-response-list>div { grid-template-columns:34px minmax(50px,1fr) 39px; gap:5px; padding:6px 0; }
+  .constructivist-app .enemy-response-list .champion-silhouette { width:34px; height:34px; }
+  .constructivist-app .face-bottom button { padding:6px; }
+}
+
+.constructivist-app.is-draft .face-team { padding:0; border:0; background:none; }
+.constructivist-app.is-draft .face-team.red { padding:0; border:0; background:none; }
+.constructivist-app.is-draft .team-header { height:auto; margin:0; }
+.constructivist-app.is-draft .face-team .team-slot { background:transparent; color:white; }
+.constructivist-app.is-draft .team-slot.eligible>svg { color:white; }
+.constructivist-app.is-draft .team-slot.filled .slot-name strong { text-shadow:none; }
+.constructivist-app.is-draft .timeline-track button { border-radius:50%; }
+.constructivist-app.is-draft .timeline-track button.current { color:white; }
+.constructivist-app.is-draft .timeline-track button.current:after { display:none; }
+.constructivist-app.is-draft .balance-heading>span { color:var(--ink); }
+.constructivist-app.is-draft .balance-heading strong>span { font:var(--medium)/1 Impact,'Arial Narrow',sans-serif; }
+.constructivist-app.is-draft .recommendation-scroll { height:0; flex:1 1 auto; }
+.constructivist-app.is-draft .face-decisions { flex:1 1 0; }
+.constructivist-app.is-draft .recommendation-browser { flex:1 1 0; }
+.constructivist-app.is-draft .team-slots { min-height:0; grid-template-rows:none; }
+.constructivist-app.is-draft .team-slot .champion-silhouette { color:white; }
+.constructivist-app.is-draft .ban-slot { width:auto; aspect-ratio:auto; border:0; background:transparent; }
+.constructivist-app.is-draft .timeline-track button { width:clamp(21px,2.15vw,38px); flex:0 0 auto; }
+.constructivist-app.is-draft .timeline-track :is(.blue,.red).pick { color:var(--ink); }
+.constructivist-app.is-draft .timeline-track :is(.blue,.red).current { color:white; }
+.constructivist-app.is-draft .recommendation-scroll .face-candidate { min-height:60px; border:0; border-bottom:1px solid #b9b1a0; background:transparent; border-radius:0; }
+.constructivist-app.is-draft .recommendation-count small { color:#53514b; }
+.constructivist-app.is-draft .recommendation-search input::placeholder { color:#53514b; }
+.constructivist-app.is-draft .enemy-response-list>div { padding:8px 0; }
+.constructivist-app.is-draft .enemy-response-list .draft-gauge { display:block; }
+.constructivist-app.is-draft .draft-assessment .assessment-details { flex:0 0 auto; }
+.constructivist-app.is-draft .app-footer { display:none; }
+.constructivist-app.is-draft .face-workspace { margin:0; }
+.constructivist-app.is-draft .hero-portrait { align-self:start; }
+.constructivist-app.is-draft .face-toolbar { display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+.constructivist-app.is-draft .draft-filters { flex:1; margin:0; padding:0; border:0; background:transparent; border-radius:0; }
+.constructivist-app.is-draft .draft-filters .mode-switch { padding:0; border:0; background:transparent; border-radius:0; }
+.constructivist-app.is-draft .face-status .turn-guide { padding:0; margin:0; border:0; background:transparent; display:block; }
+.constructivist-app.is-draft .section-label { font-size:var(--small); letter-spacing:0; color:var(--ink); }
+.constructivist-app.is-draft .composition-summary { gap:8px; }
+.constructivist-app.is-draft .composition-axes { gap:9px; }
+@media(max-width:1250px) {
+  .constructivist-app.is-draft .team-slot .champion-silhouette { width:38px; height:38px; }
+  .constructivist-app.is-draft .team-header { min-height:36px; padding:7px 8px 5px; }
+  .constructivist-app.is-draft .team-slots { padding:0 6px 7px; gap:3px; }
+  .constructivist-app.is-draft .team-slot { padding:3px 0; gap:3px; }
+  .constructivist-app.is-draft .ban-slot .champion-silhouette { width:30px; height:30px; }
+  .constructivist-app.is-draft .ban-area { padding:5px 4px 0; }
+  .constructivist-app.is-draft .draft-hero { grid-template-columns:20px 72px minmax(100px,.9fr) minmax(140px,1fr); min-height:176px; gap:6px; padding:8px; }
+  .constructivist-app.is-draft .hero-portrait { max-height:156px; }
+  .constructivist-app.is-draft .hero-summary { -webkit-line-clamp:2; }
+  .constructivist-app.is-draft .hero-reasons { padding-bottom:35px; }
+  .constructivist-app.is-draft .face-workspace { min-height:310px; }
+  .constructivist-app.is-draft .face-candidate-preview { grid-template-columns:20px 34px minmax(95px,1fr) 46px minmax(65px,1fr); gap:5px; }
+  .constructivist-app.is-draft .face-candidate-preview .champion-silhouette { width:34px; height:34px; }
+  .constructivist-app.is-draft .recommendation-scroll .face-candidate { min-height:49px; }
+  .constructivist-app.is-draft .face-toolbar { flex-wrap:nowrap; }
+  .constructivist-app.is-draft .draft-filters { gap:6px; }
+  .constructivist-app.is-draft .draft-filters label { gap:4px; }
+  .constructivist-app.is-draft .mode-switch button { padding:5px; }
+  .constructivist-app.is-draft .face-toolbar { position:relative; padding-right:55px; }
+  .constructivist-app.is-draft .face-series-button { position:absolute; right:0; width:52px; height:30px; padding:5px; overflow:hidden; font-size:14px; white-space:nowrap; }
+  .constructivist-app.is-draft .face-series-button svg { width:20px; height:20px; }
+  .constructivist-app.is-draft .draft-filters { flex-wrap:nowrap; }
+  .constructivist-app.is-draft .draft-filters label { white-space:nowrap; }
+  .constructivist-app.is-draft .draft-filters select { max-width:80px; }
+  .constructivist-app.is-draft .draft-board { grid-template-columns:minmax(0,1fr) 280px minmax(0,1fr); }
+  .constructivist-app.is-draft .face-status h2 { font-size:20px; }
+  .constructivist-app.is-draft .face-options-heading { padding:6px 0; }
+  .constructivist-app.is-draft .hero-identity h3 { font-size:20px; }
+  .constructivist-app.is-draft .hero-gauges>div { grid-template-columns:65px minmax(22px,1fr) 25px; }
+  .constructivist-app.is-draft .recommendation-count small { display:none; }
+  .constructivist-app.is-draft .hero-summary { font-size:14px; }
+  .constructivist-app.is-draft .face-options { padding:0 8px 8px; }
+
+  .constructivist-app.is-draft .face-status { padding:4px 0 0; gap:5px; }
+  .constructivist-app.is-draft .face-balance .balance-heading { padding:6px; margin:0 0 5px; }
+  .constructivist-app.is-draft .face-bottom { margin-top:0; }
+  .constructivist-app.is-draft .hero-identity { gap:2px; }
+  .constructivist-app.is-draft .hero-gauges { gap:4px; }
+  .constructivist-app.is-draft .hero-gauges :is(span,b) { line-height:1.1; }
+  .constructivist-app.is-draft .hero-summary { line-height:1.25; }
+  .constructivist-app.is-draft .hero-details { line-height:1.1; }
+  .constructivist-app.is-draft .hero-reasons { gap:4px; padding-bottom:32px; }
+  .constructivist-app.is-draft .hero-prepare { min-width:0; padding:7px 9px 7px 18px; }
+  .constructivist-app.is-draft .face-options { gap:4px; }
+  .constructivist-app.is-draft .face-options-heading { min-height:0; padding:4px 0; }
+  .constructivist-app.is-draft .face-decisions { gap:4px; }
+  .constructivist-app.is-draft .recommendation-browser { gap:3px; }
+  .constructivist-app.is-draft .recommendation-count { line-height:1.1; }
+  .constructivist-app.is-draft .draft-assessment .assessment-note { line-height:1.3; }
+  .constructivist-app.is-draft .face-status .turn-guide p { margin:2px 0 0; line-height:1.2; }
+  .constructivist-app.is-draft .face-balance .balance-heading { padding:4px; margin-bottom:3px; }
+  .constructivist-app.is-draft .face-balance .balance-caption { line-height:1.2; }
+  .constructivist-app.is-draft .timeline-row { margin:3px 0; }
+  .constructivist-app.is-draft .team-slot :is(.slot-role,.slot-name strong) { line-height:1.1; }
+  .constructivist-app.is-draft :is(.ban-name,.ban-area .section-label) { line-height:1.15; }
+}
+
+.constructivist-app.is-draft .series-short { display:none; }
+.constructivist-app.is-draft .face-candidate-preview { padding:4px 0; }
+.constructivist-app.is-draft .face-candidate-name>span { line-height:1; }
+.constructivist-app .modal :is(.release-welcome,.release-entry,.release-symbol,.release-footer,.game-plan-panel,.game-plan-card) { background:transparent; color:var(--ink); border-color:#b9b1a0; border-radius:0; }
+.constructivist-app .modal .release-section h4 { color:var(--ink); font-size:14px; }
+.constructivist-app .modal .release-section { background:transparent; border-color:#b9b1a0; border-left-color:var(--electric); border-radius:0; }
+@media(max-width:1250px) {
+  .constructivist-app.is-draft .face-series-button .series-full { display:none; }
+  .constructivist-app.is-draft .face-series-button .series-short { display:block; font-size:14px; }
+  .constructivist-app.is-draft .face-series-button>svg { display:none; }
+  .constructivist-app main.draft-page { gap:6px; padding-top:6px; }
+  .constructivist-app.is-draft .timeline-track { gap:2px; }
+  .constructivist-app.is-draft .timeline-track button { width:20px; height:20px; }
+}

@@ -3,6 +3,33 @@ import type { ReleaseNote, ReleaseNotesStatus } from './types';
 // User-facing copy shipped with the app: plain text, no remote HTML or network dependency.
 export const RELEASE_NOTES:ReleaseNote[]=[
   {
+    version:'0.10.5',
+    title:{fr:'Toute la draft passe au sombre',en:'A dark look for the whole draft assistant'},
+    summary:{fr:'Les six pages partagent la même présentation sombre, avec le retour des vrais portraits des champions.',en:'All six pages share the same dark design, with real champion portraits back in the draft.'},
+    sections:[
+      {kind:'improved',items:[
+        {fr:'Retrouve les icônes des champions dans les équipes, les bans et les propositions. Elles sont incluses dans l’application et restent disponibles hors connexion.',en:'Champion icons return to teams, bans and suggestions. They are bundled with the app and remain available offline.'},
+        {fr:'Choisis Sombre ou Clair dans Paramètres. Ton choix est mémorisé et s’applique aussi aux détails, aux nouveautés et à l’overlay.',en:'Choose Dark or Light in Settings. Your choice is saved and also applies to details, release notes and the overlay.'},
+        {fr:'Dans Équipes, les cinq joueurs de chaque camp sont regroupés. Développe un joueur pour consulter et modifier tout son pool.',en:'In Teams, each side’s five players are grouped together. Expand a player to view and edit their full pool.'},
+        {fr:'Mon pool présente les champions maîtrisés et un récapitulatif calculé depuis tes choix. Données regroupe les trois patchs disponibles, les packs et le journal d’actualisation.',en:'My pool shows your playable champions and an overview calculated from your choices. Data groups the available three-patch coverage, packs and update log.'},
+        {fr:'La simulation et les paramètres reprennent les mêmes couleurs et cadres. Les statistiques continuent de s’actualiser uniquement sur clic.',en:'Simulations and settings use the same colors and frames. Statistics still refresh only when you click.'}
+      ]}
+    ]
+  },
+  {
+    version:'0.10.4',
+    title:{fr:'Le bon choix au premier regard',en:'Your next choice at a glance'},
+    summary:{fr:'La draft adopte une présentation crème, bleu et rouge : les équipes en haut, le choix principal au centre et les plans de jeu à côté.',en:'The draft adopts a cream, blue and red layout: teams at the top, the main choice in the center and game plans alongside it.'},
+    sections:[
+      {kind:'improved',items:[
+        {fr:'Une grande carte met en avant le champion affiché, son score et trois critères. Compare les autres choix dans la liste, puis clique sur Préparer pour confirmer.',en:'A large card highlights the previewed champion, its score and three criteria. Compare other choices in the list, then click Prepare to confirm.'},
+        {fr:'Retrouve l’ordre des bans et des picks en deux lignes. L’étape en cours et le nombre de picks révélés restent visibles.',en:'Follow bans and picks on two rows. The current step and number of revealed picks remain visible.'},
+        {fr:'Consulte le plan de ta composition et les réponses adverses à côté des recommandations. Les échantillons insuffisants et les risques de blind restent signalés.',en:'Review your composition plan and enemy responses alongside recommendations. Insufficient samples and blind-pick risks remain highlighted.'},
+        {fr:'Des silhouettes remplacent les illustrations sur l’écran de draft. Les bans sont grisés et barrés ; les rôles fixes ont un badge dédié.',en:'Silhouettes replace illustrations on the draft screen. Bans are gray and crossed out; fixed roles have a dedicated badge.'}
+      ]}
+    ]
+  },
+  {
     version:'0.10.3',
     title:{fr:'Ta draft prend vie',en:'Your draft comes to life'},
     summary:{fr:'Le choix en cours prend place au centre, entre les deux équipes, avec de grandes illustrations et des transitions plus claires.',en:'The current choice takes center stage between both teams, with large illustrations and clearer transitions.'},

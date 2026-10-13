@@ -50,6 +50,12 @@ describe('statistics, uncertainty, source weighting and dimensions', () => {
     const result = analyze(pickPhase()); expect(result.picks.every(r => r.winrate === null && r.confidence === 0 && r.games === 0)).toBe(true);
     expect(result.scenarios.every(s => s.winProbability === null)).toBe(true);
   });
+  it('exposes supported roles for fixed-role badges without treating two games as a flex', () => {
+    const base = pickPhase(); base.stats = [stat(), stat({ role: 'TOP', games: 2, wins: 2, pickRate: .0001 })];
+    expect(analyze(base).picks.find(r => r.championId === 'Ahri' && r.role === 'MID')?.viableRoles).toEqual(['MID']);
+    base.stats = [stat(), stat({ role: 'TOP' })];
+    expect(analyze(base).picks.find(r => r.championId === 'Ahri' && r.role === 'MID')?.viableRoles).toEqual(expect.arrayContaining(['MID', 'TOP']));
+  });
   it('excludes incompatible rank/side/league while fixing the collection population to Master+', () => {
     const base = pickPhase(); base.stats = [stat({ rank: 'GOLD' }), stat({ side: 'red' }), stat({ league: 'LCK' })];
     expect(analyze(base).picks.every(r=>r.winrate===null)).toBe(true);

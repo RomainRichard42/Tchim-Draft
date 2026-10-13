@@ -22,14 +22,14 @@ try {
   await expect(page.getByTestId('app')).toBeVisible();
   await dismissReleaseNotes(page);
   await expect(page.getByRole('heading', { name: /À nous de bannir/ })).toBeVisible();
-  await expect(page.locator('.recommendation')).toHaveCount(5, { timeout: 30000 });
-  await expect(page.getByTestId('face-pool')).toContainText('Non renseigné');
+  await expect(page.locator('.recommendation')).toHaveCount(4, { timeout: 30000 });
+  await page.locator('.hero-details').click(); await expect(page.getByTestId('face-pool')).toContainText('Non renseigné'); await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
   expect(await page.evaluate(() => typeof window.require)).toBe('undefined');
   expect(await page.evaluate(() => typeof window.process)).toBe('undefined');
   await page.getByRole('button', { name: 'Importer OP.GG', exact: true }).click();
   await expect(page.getByRole('textbox', { name: /multi OP.GG/ })).toHaveCount(2);
   await page.getByRole('button', { name: 'Draft', exact: true }).click();
-  await page.getByRole('button', { name: 'Ban', exact: true }).click();
+  await page.getByRole('button', { name: 'Choisir un champion', exact: true }).click();
   await page.getByRole('dialog').getByPlaceholder('Rechercher un champion…').fill('Ahri');
   await page.locator('.champion-option', { hasText: 'Ahri' }).click();
   await page.getByRole('button', { name: 'Valider', exact: true }).click();
@@ -65,7 +65,7 @@ try {
   expect((await page.evaluate(() => window.draftApi.snapshot())).data.packs[0].demo).toBe(true);
   await page.getByRole('button', { name: 'Paramètres', exact: true }).click();
   await page.getByRole('button', { name: 'English', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Your take on the draft.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Appearance and language' })).toBeVisible();
   await page.getByRole('button', { name: 'Français', exact: true }).click();
   await page.evaluate(async () => { await window.draftApi.reset(); const s = await window.draftApi.snapshot(); await window.draftApi.settings({ ...s.settings, poolOnly: false }); await window.draftApi.configure({ side: 'blue' }) });
   if (process.env.TCHIM_TEST_REFRESH) {
@@ -78,7 +78,7 @@ try {
   }
   await page.evaluate(() => window.draftApi.removePack('synthetic-demo'));
   await page.getByRole('button', { name: 'Draft', exact: true }).click();
-  await expect(page.locator('.recommendation')).toHaveCount(5, { timeout: 30000 });
+  await expect(page.locator('.recommendation')).toHaveCount(4, { timeout: 30000 });
   await capture(page, 'desktop-draft');
   // Native z-order needs a shown owner window on Windows; do not take focus.
   await desktop.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().find(w => !w.webContents.getURL().includes('overlay=1')).showInactive());
@@ -101,6 +101,7 @@ try {
   await page.evaluate(() => window.draftApi.select('Ahri'));
   await expect(overlay.getByRole('heading', { name: /R ban 1/ })).toBeVisible();
   await capture(overlay, 'desktop-overlay', true);
+  const overlayReadability=await overlay.locator('.overlay-app').evaluate(root=>[...root.querySelectorAll('*')].filter(e=>e.getBoundingClientRect().height&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())&&parseFloat(getComputedStyle(e).fontSize)<14).map(e=>({class:e.className,font:getComputedStyle(e).fontSize,text:e.textContent.slice(0,35)})));console.log('OVERLAY_READABILITY',JSON.stringify(overlayReadability));expect(overlayReadability).toEqual([]);
   expect(errors).toEqual([]);
   console.log('DESKTOP_UI_OK manual draft, undo, duo, scenarios, SQLite sessions, pool, demo, FR/EN, overlay sync, isolation, screenshots');
 } finally { await desktop.close() }

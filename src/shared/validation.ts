@@ -18,7 +18,7 @@ const player = z.object({ riotId: z.string().min(1).max(100), role: z.union([rol
 const scoutedTeam = z.object({ url: z.string().max(2000), region: z.string().max(20), players: z.array(player).max(5), poolOnly: z.boolean(), fetchedAt: z.string().datetime().optional(), message: z.string().max(1000) }).strict();
 export const teamsSchema = z.object({ ally: scoutedTeam, enemy: scoutedTeam }).strict().refine(t => Object.values(t).every(team => new Set(team.players.filter(p=>p.role!=='AUTO').map(p=>p.role)).size===team.players.filter(p=>p.role!=='AUTO').length), 'Assign each team role once');
 const weight = z.number().finite().min(0).max(100);
-export const settingsSchema = z.object({ language: z.enum(['fr', 'en']), weights: z.object({ winrate: weight, matchup: weight, synergy: weight,
+export const settingsSchema = z.object({ theme: z.enum(['dark','light']).default('dark'), language: z.enum(['fr', 'en']), weights: z.object({ winrate: weight, matchup: weight, synergy: weight,
   meta: weight, flex: weight, order: weight, composition: weight, mastery: weight }).refine(w => Object.values(w).some(v => v > 0), 'At least one weight must be positive'),
   pool: z.record(id, z.number().min(0).max(5)), poolOnly: z.boolean(), overlayOpacity: z.number().min(0.4).max(1),
   feedUrl: z.string().max(1000).refine(v => !v || (() => { try { const u = new URL(v); return u.protocol === 'https:' && !u.username && !u.password } catch { return false } })(), 'HTTPS URL required'),

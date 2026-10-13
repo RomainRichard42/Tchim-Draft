@@ -1,14 +1,23 @@
-# Tchim Draft 0.10.3 — Ta draft prend vie
+# Tchim Draft 0.10.5 — Toute la draft passe au sombre
 
-- **Le choix au centre.** Examine le champion en grand entre les deux équipes, puis valide ton idée. La réponse adverse apparaît au même endroit.
-- **Des équipes illustrées.** Les picks prennent place avec leurs illustrations, dans la draft manuelle et les simulations.
-- **Un glisser-déposer plus clair.** L’aperçu accompagne le champion et les cases disponibles s’éclairent dans la draft guidée. L’atelier de variantes dispose aussi d’un aperçu de glissement.
-- **Les scores évoluent devant toi.** Les propositions se réorganisent. Les flèches montrent les variations de score et de classement depuis les dernières propositions de la même équipe.
-- **Des illustrations hors connexion.** Elles sont incluses dans l’application, sans téléchargement au lancement.
-- **Une petite fenêtre utilisable.** Les dix picks, les bans et la décision centrale restent visibles. Ouvre les plans de jeu quand tu en as besoin.
-- **Un recalcul visible.** Les propositions précédentes restent à l’écran mais sont désactivées pendant l’analyse.
-- **Des mouvements adaptés.** Les animations suivent le réglage de réduction des mouvements du système.
+- **Une interface plus claire pendant la draft.** Les deux équipes sont regroupées par camp. Le choix principal, son portrait et son score prennent place au centre ; les autres propositions se comparent dans une liste déroulante.
+- **Sombre ou clair, à toi de choisir.** Le thème sombre est actif par défaut. Change-le dans Paramètres : ton choix est mémorisé et s’applique aux six pages, aux détails, aux nouveautés et à l’overlay.
+- **Le retour des vrais champions.** Les portraits s’affichent dans les picks, les bans, les pools et les propositions. Les icônes sont incluses dans l’application et restent disponibles hors connexion.
+- **Les équipes OP.GG plus faciles à lire.** Retrouve les cinq joueurs de chaque équipe et leurs premiers champions. Développe un joueur pour consulter et modifier tout son pool, puis prépare la draft depuis un bouton commun.
+- **Une simulation avec les mêmes repères.** Le champion à examiner apparaît en grand entre les deux camps. Retrouve les bans et les picks sur deux lignes ; les choix imposés, les réponses adverses, la pause et les sauvegardes restent disponibles.
+- **Ton pool et tes données mieux regroupés.** Mon pool affiche la maîtrise que tu déclares et un récapitulatif calculé depuis tes choix. Données rassemble la couverture des trois patchs disponibles, les packs et le journal des actualisations.
+- **Des paramètres plus lisibles.** Les curseurs montrent les poids choisis. Changer de thème ou de langue conserve les réglages en cours sans les appliquer à la draft.
 
-Depuis la dernière version publique (0.10.0), tu disposes aussi de la draft guidée à partir des deux équipes OP.GG : prends tes décisions, regarde les réponses adverses tour après tour, mets en pause et sauvegarde pour reprendre plus tard.
+Les nouveautés s’affichent une fois après la mise à jour et restent consultables dans Paramètres. Les statistiques s’actualisent uniquement quand tu cliques sur Actualiser ; elles ne sont pas collectées au lancement ni après une mise à jour de l’application. Les scores restent des indices de draft, pas des probabilités de victoire.
 
-Les nouveautés s’affichent une fois après une mise à jour et restent consultables dans les paramètres, en français et en anglais. Les scores restent des indices de draft.
+# English — A dark look for the whole draft assistant
+
+- **A clearer draft screen.** Both teams are grouped by side. Your main choice, portrait and score take center stage; compare the other suggestions in a scrolling list.
+- **Choose dark or light.** Dark is the default. Change it in Settings: your choice is saved and applies to all six pages, details, release notes and the overlay.
+- **Real champion portraits return.** Picks, bans, pools and suggestions show champion portraits. Icons are bundled with the app and remain available offline.
+- **Easier OP.GG team scouting.** See each team's five players and their first champions. Expand a player to view and edit their full pool, then prepare the draft from one shared button.
+- **Consistent simulations.** Examine the champion between both teams. Follow bans and picks on two rows; forced choices, enemy responses, pause and saved drafts remain available.
+- **Your pool and data in one place.** My pool shows your declared proficiency and an overview calculated from your choices. Data groups available three-patch coverage, packs and update logs.
+- **Readable settings.** Sliders show your chosen weights. Switching theme or language preserves pending adjustments without applying them to the draft.
+
+Release notes appear once after the update and remain available in Settings. Statistics refresh only when you click Refresh, with no collection at startup or after an app update. Scores remain draft indices, not win probabilities.

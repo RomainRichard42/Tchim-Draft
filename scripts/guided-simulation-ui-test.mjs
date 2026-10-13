@@ -21,7 +21,7 @@ try{
   const externalImages=[];page.on('request',r=>{if(r.resourceType()==='image'&&/^https?:/.test(r.url()))externalImages.push(r.url());});
   await page.evaluate(()=>{window.__championFlights=0;new MutationObserver(changes=>{for(const change of changes)for(const node of change.addedNodes)if(node instanceof Element&&node.matches('[data-testid="champion-flight"]'))window.__championFlights++;}).observe(document.body,{childList:true});});
   await desktop.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].webContents.setBackgroundThrottling(false));
-  await expect(page.getByTestId('app')).toBeVisible();await dismissReleaseNotes(page);
+  await expect(page.getByTestId('app')).toBeVisible({timeout:30000});await dismissReleaseNotes(page);
   await page.evaluate(async()=>{
     const s=await window.draftApi.snapshot(),team={url:'',region:'euw',players:[],message:'',poolOnly:false};
     await window.draftApi.teams({ally:team,enemy:team});await window.draftApi.reset();
@@ -71,6 +71,7 @@ try{
   const data=await page.evaluateHandle(()=>new DataTransfer());
   await page.getByTestId('guided-champion-Ahri').dispatchEvent('dragstart',{dataTransfer:data});
   await expect(page.getByTestId('champion-drag-preview')).toContainText('Ahri');await expect(page.getByTestId('guided-simulation')).toHaveClass(/is-dragging/);
+  await expect(page.getByTestId('champion-drag-preview')).toHaveCSS('box-shadow','none');await expect(page.getByTestId('champion-drag-preview')).toHaveCSS('border-radius','0px');
   await page.getByTestId('guided-slot-blue-MID').dispatchEvent('dragover',{dataTransfer:data});await expect(page.getByTestId('guided-slot-blue-MID')).toHaveClass(/drop-active/);
   await page.getByTestId('guided-slot-blue-MID').dispatchEvent('drop',{dataTransfer:data});await expect(page.getByTestId('champion-drag-preview')).toHaveCount(0);
   await expect(page.getByTestId('guided-simulation')).not.toHaveClass(/is-dragging/);report.nativeDragPreview=true;
@@ -91,6 +92,7 @@ try{
   await expect(page.getByTestId('guided-score-change').first()).toBeVisible();report.scoreChanges=true;
   expect(await page.evaluate(()=>window.__championFlights)).toBeGreaterThanOrEqual(3);report.championFlights=await page.evaluate(()=>window.__championFlights);
   await page.locator('.guided-plans>summary').click();await expect(page.locator('.guided-plans .game-plan')).toHaveCount(2);await capture(page,'guided-game-plans');await page.locator('.guided-plans>summary').click();
+  const readability=await page.getByTestId('guided-simulation').evaluate(root=>{const visible=[...root.querySelectorAll('*')].filter(e=>e.getBoundingClientRect().height&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()));return{small:visible.filter(e=>parseFloat(getComputedStyle(e).fontSize)<14).map(e=>({class:e.className,text:e.textContent.slice(0,45),font:getComputedStyle(e).fontSize})),gradients:visible.filter(e=>getComputedStyle(e).backgroundImage.includes('gradient')).map(e=>e.className)};});console.log('GUIDED_READABILITY',JSON.stringify(readability));expect(readability.small).toEqual([]);expect(readability.gradients).toEqual([]);report.readability=readability;
   await capture(page,'guided-desktop');
   await desktop.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setContentSize(1104,721));await capture(page,'guided-desktop-small');
   const layout=await page.evaluate(()=>({width:innerWidth,height:innerHeight,scroll:document.documentElement.scrollWidth,decisions:document.querySelector('.guided-decisions').getBoundingClientRect().toJSON(),bottom:document.querySelector('.guided-bottom').getBoundingClientRect().toJSON()}));

@@ -3,6 +3,7 @@ export type Role = typeof ROLES[number];
 export type Side = 'blue' | 'red';
 export type Mode = 'solo' | 'pro';
 export type Lang = 'fr' | 'en';
+export type Theme = 'dark' | 'light';
 export type Source = 'solo' | 'pro';
 export interface Traits { ad: number; frontline: number; engage: number; peel: number; poke: number; scaling: number; early: number }
 export interface Champion { id: string; key: number; name: string; roles: Role[]; traits: Traits; tags: string[]; curated: boolean; icon?: string }
@@ -12,7 +13,7 @@ export interface SeriesGame { picks: string[]; history?: Selection[]; winner?: '
 export interface FearlessSeries { format: 'single' | 'bo3' | 'bo5'; games: SeriesGame[] }
 export interface Draft { mode: Mode; side: Side; role: Role; patch: string; rank: string; league: string; history: Selection[]; targetRole: Role | 'AUTO'; series?: FearlessSeries }
 export interface Weights { winrate: number; matchup: number; synergy: number; meta: number; flex: number; order: number; composition: number; mastery: number }
-export interface Settings { language: Lang; weights: Weights; banScoutingWeight: number; banImpactWeight?: number; pool: Record<string, number>; poolOnly: boolean; overlayOpacity: number; feedUrl: string; oldPatchDecay: number; scrapingEnabled: boolean; dataSource?: 'shared' | 'scrape' }
+export interface Settings { theme?: Theme; language: Lang; weights: Weights; banScoutingWeight: number; banImpactWeight?: number; pool: Record<string, number>; poolOnly: boolean; overlayOpacity: number; feedUrl: string; oldPatchDecay: number; scrapingEnabled: boolean; dataSource?: 'shared' | 'scrape' }
 export interface Stat { championId: string; role: Role; patch: string; source: Source; rank: string; league: string; side: Side | 'all'; games: number; wins: number; pickRate: number; banRate: number; baseline: number; countMethod?: 'reported' | 'rounded_rate'; reportedWinRate?: number }
 export interface PairStat { championId: string; otherId: string; role: Role; otherRole: Role; kind: 'synergy' | 'matchup'; patch: string; source: Source; rank: string; league: string; side: Side | 'all'; games: number; wins: number; baseline: number; countMethod?: 'reported' | 'rounded_rate'; reportedWinRate?: number }
 export interface HistoricalGame { id: string; patch: string; league: string; tournament: string; winner: Side; durationSeconds?: number; goldDiff15?: number; objectives?: Record<string, number>; history: Selection[]; draftOrderKnown?: boolean; lineups?: Record<Side, { picks: { championId: string; role: Role }[]; bans: (string | null)[] }> }
@@ -28,7 +29,7 @@ export interface BanImpact { replacement: {championId:string;role:Role}|null; al
 export interface ContextPart { key: 'lane' | 'opposition' | 'synergy' | 'plan' | 'bot'; label: string; score: number; baseWeight: number; weight: number; coverage: number }
 export interface DraftContext { role: Role; score: number; parts: ContextPart[]; partial: boolean }
 export interface BlindAssessment { score: number; statisticalScore: number; uncertaintyPenalty: number; developmentPenalty: number; coverage: number; assessed: number; available: number; threats: {championId:string;loss:number;share:number}[] }
-export interface Recommendation { championId: string; role: Role; score: number; confidence: number; games: number; winrate: number | null; interval: [number, number] | null; factors: Weights; reasons: string[]; summary?: string; responseRisk: number; source: string; banScouting?: BanScouting; banImpact?: BanImpact; lowSample?: boolean; context?: DraftContext; blind?: BlindAssessment }
+export interface Recommendation { viableRoles?: Role[]; championId: string; role: Role; score: number; confidence: number; games: number; winrate: number | null; interval: [number, number] | null; factors: Weights; reasons: string[]; summary?: string; responseRisk: number; source: string; banScouting?: BanScouting; banImpact?: BanImpact; lowSample?: boolean; context?: DraftContext; blind?: BlindAssessment }
 export type PlanKind = 'building' | 'front-to-back' | 'dive' | 'poke' | 'side' | 'mixed';
 export interface GamePlan { kind: PlanKind; title: string; score: number; partial: boolean; profiled: number; axes: { lanes: number; objectives: number; teamfight: number; sideLane: number; execution: number }; timing: string; conditions: string[]; risks: string[]; needs: string[] }
 export interface Composition { count: number; adShare: number; frontline: number; engage: number; peel: number; poke: number; early: number; scaling: number; archetype: string; strengths: string[]; weaknesses: string[]; quality: number }

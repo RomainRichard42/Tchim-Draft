@@ -167,4 +167,4 @@ export const SEED_CHAMPIONS: Champion[] = profiles.trim().split('\n').map((line,
   return { id, key: -(i + 1), name: names[id] ?? id, roles: roles.split(',') as Role[],
     traits: { ad: Number(ad), frontline, engage, peel, poke, scaling, early }, tags: [], curated: true };
 });
-export const DEFAULT_SETTINGS: Settings = { language: 'fr', weights: DEFAULT_WEIGHTS, banScoutingWeight: 35, pool: {}, poolOnly: false, overlayOpacity: 0.94, feedUrl: '', oldPatchDecay: 0.65, scrapingEnabled: true };
+export const DEFAULT_SETTINGS: Settings = { theme: 'dark', language: 'fr', weights: DEFAULT_WEIGHTS, banScoutingWeight: 35, pool: {}, poolOnly: false, overlayOpacity: 0.94, feedUrl: '', oldPatchDecay: 0.65, scrapingEnabled: true };

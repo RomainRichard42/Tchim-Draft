@@ -50,6 +50,7 @@ try{
   await capture(page,'simulations-compare');
   await page.getByRole('button',{name:'Face à face',exact:true}).click();
   await expect(page.locator('.sim-board .sim-slot')).toHaveCount(20);
+  const readability=await page.getByTestId('simulation-studio').evaluate(root=>{const visible=[...root.querySelectorAll('*')].filter(e=>e.getBoundingClientRect().height&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()));return{small:visible.filter(e=>parseFloat(getComputedStyle(e).fontSize)<14).map(e=>({class:e.className,text:e.textContent.slice(0,45),font:getComputedStyle(e).fontSize})),gradients:visible.filter(e=>getComputedStyle(e).backgroundImage.includes('gradient')).map(e=>e.className)};});console.log('WORKSHOP_READABILITY',JSON.stringify(readability));expect(readability.small).toEqual([]);expect(readability.gradients).toEqual([]);report.readability=readability;
   await page.getByRole('textbox',{name:'Nom de la simulation',exact:true}).fill('Worlds · Ahri R5');
   await page.locator('.sim-command-bar').getByRole('button',{name:'Sauvegarder',exact:true}).click();
   await expect(page.locator('.sim-saved')).toContainText('Worlds · Ahri R5');

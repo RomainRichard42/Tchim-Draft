@@ -1,0 +1,365 @@
+/* Shared constructivist palette. No generated mockup or demonstration statistic is used at runtime. */
+:is(.constructivist-app,.constructivist-overlay) {
+  color-scheme:dark; --canvas:#141414; --surface:#202020; --surface-alt:#292929; --text:#eee4d0; --muted:#c0b9aa; --line:#625e55; --track:#44423e;
+  --paper:var(--canvas); --ink:var(--text); --panel:var(--surface); --chrome:#181818; --chrome-text:#eee4d0; --electric:#2e65ff; --vermillion:#d94832;
+  --blue:var(--electric); --red:var(--vermillion); --green:var(--electric); --lavender:var(--text); --gauge:var(--text); --small:14px;
+  background:var(--canvas); color:var(--text); font-family:'Segoe UI',Arial,sans-serif;
+}
+:is(.constructivist-app,.constructivist-overlay)[data-theme=light] {
+  color-scheme:light; --canvas:#efe4cd; --surface:#f3ead8; --surface-alt:#ded4be; --text:#252525; --muted:#53514b; --line:#8b8476; --track:#c3bfb5;
+}
+:is(.constructivist-app,.constructivist-overlay) * { box-shadow:none!important; text-shadow:none!important; backdrop-filter:none!important; }
+/* Native drag previews and moving cards are mounted directly under body. */
+body:has(.constructivist-app) :is(.champion-flight,.champion-native-drag) { box-shadow:none!important; text-shadow:none!important; border-radius:0; border-color:#2e65ff; background:#202020; color:#eee4d0; }
+body:has(.constructivist-app) .champion-flight.red { border-color:#d94832; }
+body:has(.constructivist-app[data-theme=light]) .champion-native-drag { background:#f3ead8; color:#252525; }
+.constructivist-app [hidden],.constructivist-overlay [hidden] { display:none!important; }
+.constructivist-app :is(button,input,select,textarea,p,span,small,label,strong,b,li,summary,time,kbd,td,th) { font-size:var(--small); }
+.constructivist-app :is(h1,h2,h3) { color:var(--text); font:var(--medium)/1.15 Impact,'Arial Narrow',sans-serif; letter-spacing:0; margin:0 0 10px; }
+:is(.constructivist-app,.constructivist-overlay) :is(button,input,select,textarea) { background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:0; }
+:is(.constructivist-app,.constructivist-overlay) button { min-height:30px; }
+:is(.constructivist-app,.constructivist-overlay) button:hover:not(:disabled) { background:var(--surface-alt); border-color:var(--text); }
+:is(.constructivist-app,.constructivist-overlay) :focus-visible { outline:2px solid var(--electric); outline-offset:2px; }
+:is(.constructivist-app,.constructivist-overlay) :is(button.primary,button.active) { background:var(--electric); border-color:var(--electric); color:white; }
+:is(.constructivist-app,.constructivist-overlay) button.primary { clip-path:polygon(12px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 12px); padding:10px 16px; }
+:is(.constructivist-app,.constructivist-overlay) button.primary:hover:not(:disabled) { background:#4576ff; }
+.constructivist-app :is(.surface,.scenario-card,.pool-card,.game-plan,.role-context-detail,.composition-card) { background:var(--surface); border:1px solid var(--line); border-radius:0; color:var(--text); }
+.constructivist-app .surface { padding:16px; margin:0; }
+.constructivist-app :is(.muted,.small-text,.eyebrow,.page-note) { color:var(--muted); font-size:14px; line-height:1.45; }
+.constructivist-app .page-note { display:flex; align-items:flex-start; gap:8px; margin:10px 0; }
+.constructivist-app .page-note svg { flex-shrink:0; margin-top:1px; }
+.constructivist-app :is(input,textarea)::placeholder { color:var(--muted); }
+.constructivist-app .app-header { background:var(--canvas); color:var(--text); border-bottom:1px solid var(--line); }
+.constructivist-app .app-header h1 { margin:0; }
+.constructivist-app .app-header .source-badge { color:var(--text); background:var(--surface); border:1px solid var(--line); }
+.constructivist-app .header-right button { color:var(--text); border-color:var(--line); background:transparent; }
+.constructivist-app .draft-sidebar { background:var(--chrome); color:var(--chrome-text); border-color:var(--line); }
+.constructivist-app .focus-nav button { color:var(--chrome-text); font-size:14px; background:transparent; border:0; }
+.constructivist-app .focus-nav button.active { color:white; background:var(--electric); }
+.constructivist-app .focus-nav button:hover:not(.active) { background:var(--surface-alt); color:var(--chrome-text); }
+.constructivist-app main { padding:12px 16px; background:var(--canvas); color:var(--text); }
+.constructivist-app .page-heading { margin:0 0 14px; padding:0; }
+.constructivist-app .page-heading h1 { display:none; }
+.constructivist-app .page-heading p { margin:0; color:var(--muted); font-size:14px; }
+.constructivist-app .page-heading>.source-badge { display:none; }
+.constructivist-app .app-footer { padding:6px 16px; min-height:30px; color:var(--muted); border-color:var(--line); background:var(--canvas); }
+.constructivist-app .app-footer>span:first-child { font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:85%; }
+.constructivist-app .app-footer>span:last-child { display:none; }
+.constructivist-app.is-simulations .app-footer { display:none; }
+.constructivist-app :is(.section-label,.section-heading) { color:var(--text); font-size:14px; margin:0 0 10px; gap:12px; }
+.constructivist-app .source-badge { background:var(--surface-alt); color:var(--text); border:1px solid var(--line); font-size:14px; border-radius:0; }
+.constructivist-app .toggle { color:var(--text); font-size:14px; gap:8px; }
+.constructivist-app .toggle>span { border-color:var(--line); background:var(--track); }
+.constructivist-app .toggle input:checked+span { background:var(--electric); border-color:var(--electric); }
+.constructivist-app .role-filters { gap:4px; margin:0; }
+.constructivist-app .role-filters button { font-size:14px; padding:6px 9px; color:var(--text); border-color:var(--line); }
+.constructivist-app .role-filters button.active { background:var(--electric); color:white; }
+.constructivist-app .picker-search { background:var(--surface); border-color:var(--line); color:var(--muted); border-radius:0; margin:0; min-width:0; }
+.constructivist-app .picker-search input { color:var(--text); font-size:14px; }
+.constructivist-app :is(.text-input,.field input,.field select) { width:100%; background:var(--surface); color:var(--text); border-color:var(--line); font-size:14px; border-radius:0; }
+.constructivist-app .field { display:flex; flex-direction:column; align-items:flex-start; gap:6px; margin:10px 0; }
+.constructivist-app .portrait,.constructivist-overlay .portrait { background:var(--surface-alt); border:1px solid var(--line); border-radius:0; color:var(--text); overflow:hidden; }
+.constructivist-app .portrait img,.constructivist-overlay .portrait img { object-fit:cover; width:100%; height:100%; filter:none; }
+.constructivist-app .portrait.empty,.constructivist-overlay .portrait.empty { border-style:dashed; display:grid; place-items:center; }
+.constructivist-app .portrait.banned img,.constructivist-overlay .portrait.banned img,.constructivist-app .banned-art img { filter:grayscale(1); }
+.constructivist-app .ban-slash,.constructivist-overlay .ban-slash { height:1px; background:var(--vermillion); box-shadow:none; }
+/* Live draft: preserve the tested layout, apply the approved dark surfaces and real portraits. */
+.constructivist-app main.draft-page { --text:inherit; --muted:inherit; --line:inherit; --panel:inherit; --ink:inherit; --paper:inherit; background-color:var(--canvas); color:var(--ink); }
+.constructivist-app.is-draft .face-status,.constructivist-app.is-draft :is(.turn-guide h2,.turn-guide h2>span,.turn-guide p,.draft-filters label,.draft-filters select) { color:var(--ink); }
+.constructivist-app.is-draft .mode-switch button.active,.constructivist-app.is-draft .face-series-button { background:var(--surface-alt)!important; color:var(--ink)!important; border-color:var(--line); }
+.constructivist-app.is-draft .team-slots { background:var(--surface); clip-path:none; }
+.constructivist-app.is-draft .face-team.red .team-slots { background:var(--surface); clip-path:none; }
+.constructivist-app.is-draft .team-header { clip-path:polygon(0 0,100% 0,calc(100% - 16px) 100%,0 100%); min-height:42px; padding:8px 14px; }
+.constructivist-app.is-draft .team-slots .team-slot { color:var(--ink); padding:8px 0; }
+.constructivist-app.is-draft .team-slot :is(.slot-role,.slot-name strong) { color:var(--ink); font-weight:500; }
+.constructivist-app.is-draft .team-slot .portrait.draft { width:clamp(42px,4.3vw,80px); height:clamp(42px,4.3vw,80px); order:1; border-color:var(--electric); }
+.constructivist-app.is-draft .face-team.red .team-slot .portrait.draft { border-color:var(--vermillion); }
+.constructivist-app.is-draft .team-slot.eligible .portrait { border:1px dashed var(--ink); }
+.constructivist-app.is-draft .ban-slot .portrait.draft-ban { width:42px; height:42px; }
+.constructivist-app.is-draft .face-balance .balance-heading { border-color:var(--line); }
+.constructivist-app.is-draft .timeline-track button { color:var(--ink); border-color:var(--line); border-radius:50%; background:var(--canvas); min-height:0; }
+.constructivist-app.is-draft .timeline-track button.done { background:var(--surface-alt); border-color:var(--line); }
+.constructivist-app.is-draft .timeline-track :is(.blue,.red).current { background:var(--ink); color:var(--canvas); }
+.constructivist-app.is-draft :is(.draft-assessment,.face-options) { border:1px solid var(--line); background:var(--surface); }
+.constructivist-app.is-draft .face-options-heading select { color:var(--ink); border-color:var(--line); }
+.constructivist-app.is-draft .draft-hero { background:var(--surface); }
+.constructivist-app.is-draft .hero-portrait { display:block; width:100%; height:100%; max-height:200px; align-self:stretch; border:0; overflow:hidden; }
+.constructivist-app.is-draft .hero-portrait img { height:100%; width:100%; object-fit:cover; object-position:50% 18%; }
+.constructivist-app.is-draft .hero-prepare { color:white; background:var(--electric); }
+.constructivist-app.is-draft .hero-details { color:var(--ink); }
+.constructivist-app.is-draft .fixed-role { background:var(--surface-alt); color:var(--ink); border:1px solid var(--line); }
+.constructivist-app.is-draft :is(.damage-split,.assessment-details) { background:var(--surface-alt)!important; color:var(--ink)!important; border-color:var(--line); }
+.constructivist-app .draft-gauge,.constructivist-app.is-draft .draft-gauge { background:var(--track); }
+.constructivist-app .draft-gauge>span,.constructivist-app.is-draft .power-column>span { background:var(--gauge); }
+.constructivist-app.is-draft :is(.assessment-note,.recommendation-count,.recommendation-count small,.compact-reason) { color:var(--muted); }
+.constructivist-app.is-draft :is(.hero-summary,.hero-identity,.hero-gauges,.plan-title,.plan-need) { color:var(--ink); }
+.constructivist-app.is-draft :is(.plan-need,.compact-reason,.composition-axes,.face-duos,.enemy-response-list>div) { border-color:var(--line); }
+.constructivist-app.is-draft .recommendation-search { border-color:var(--line); background:var(--canvas); color:var(--muted); }
+.constructivist-app.is-draft .recommendation-search input { color:var(--ink); }
+.constructivist-app.is-draft .recommendation-search input::placeholder { color:var(--muted); }
+.constructivist-app.is-draft .recommendation-scroll { scrollbar-color:var(--line) var(--surface); }
+.constructivist-app.is-draft .face-candidate.selected { background:var(--surface-alt); }
+.constructivist-app.is-draft .face-candidate-preview .portrait.candidate { width:42px; height:42px; }
+.constructivist-app.is-draft .enemy-response-list .portrait.response { width:42px; height:42px; grid-row:span 2; border-color:var(--vermillion); }
+.constructivist-app.is-draft .sample-warning { color:#fa9e8b; }
+.constructivist-app[data-theme=light].is-draft .sample-warning { color:#a82f20; }
+.constructivist-app.is-draft .face-bottom { background:var(--chrome); }
+.constructivist-app.is-draft .face-bottom button { color:var(--chrome-text)!important; }
+/* Scouting: ten compact summaries, with the complete editable pool on demand. */
+.constructivist-app .teams-layout { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:start; }
+.constructivist-app .scouting-combined,.constructivist-app .teams-ready { grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px; border:1px solid var(--line); background:var(--surface); }
+.constructivist-app .scouting-team { min-width:0; padding:14px; }
+.constructivist-app .scouting-team>.section-heading { background:var(--electric); color:white; padding:8px 12px; margin:-14px -14px 12px; clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%); }
+.constructivist-app .scouting-team[data-testid=scouting-enemy]>.section-heading { background:var(--vermillion); }
+.constructivist-app .scouting-team>.section-heading h2 { color:white; margin:0; }
+.constructivist-app .scouting-team>.section-heading .source-badge { background:none; color:white; border:0; }
+.constructivist-app .scouting-url { display:block; }
+.constructivist-app .scouting-team .text-input { margin:5px 0 8px; }
+.constructivist-app .scouting-team>.button-row { gap:8px; }
+.constructivist-app .scouting-team>.muted { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:8px 0; }
+.constructivist-app .scouting-player { display:grid; grid-template-columns:minmax(120px,.7fr) minmax(180px,1.2fr) 105px; gap:4px 10px; border-top:1px solid var(--line); margin-top:10px; padding:10px 0 0; background:transparent; }
+.constructivist-app .scouting-player>.section-heading { display:flex; flex-direction:column; align-items:flex-start; grid-column:1; grid-row:1; margin:0; gap:5px; min-width:0; }
+.constructivist-app .scouting-player>.section-heading strong { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; font-weight:600; }
+.constructivist-app .scouting-player select { max-width:100%; padding:5px; }
+.constructivist-app .player-state { grid-column:1; grid-row:2; display:flex; align-items:center; gap:5px; color:var(--muted); }
+.constructivist-app .scouting-pool { grid-column:2; grid-row:1/3; display:flex; align-items:start; gap:6px; margin:0; flex-wrap:wrap; }
+.constructivist-app .scouting-chip { display:flex; flex-direction:column; text-align:center; min-width:0; gap:4px; background:transparent; border:0; border-radius:0; padding:0; }
+.constructivist-app .scouting-chip>span:not(.portrait) { display:flex; flex-direction:column; max-width:90px; }
+.constructivist-app .scouting-chip .portrait { width:48px; height:48px; margin:auto; }
+.constructivist-app .scouting-chip small { color:var(--muted); }
+.constructivist-app .pool-expand-plus { width:38px; height:48px; border-style:dashed; }
+.constructivist-app .player-expand { grid-column:3; grid-row:1/3; padding:5px; margin:auto 0; }
+.constructivist-app .player-details { grid-column:1/-1; }
+.constructivist-app .manual-pool-entry { display:flex; gap:8px; }
+.constructivist-app .manual-pool-entry input { margin:0; }
+.constructivist-app .manual-pool-entry button { min-width:40px; }
+/* Personal pool. */
+.constructivist-app .pool-toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
+.constructivist-app .pool-toolbar .picker-search { flex:1 1 240px; }
+.constructivist-app .pool-layout { display:grid; grid-template-columns:minmax(0,1fr) 270px; gap:16px; align-items:start; }
+.constructivist-app .pool-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; }
+.constructivist-app .pool-card { display:grid; grid-template-columns:68px minmax(0,1fr); gap:10px; padding:12px; clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); }
+.constructivist-app .pool-card.in-pool { border-color:var(--line); background:var(--surface); }
+.constructivist-app .pool-card .portrait { width:68px; height:68px; }
+.constructivist-app .pool-card strong { font:var(--medium)/1.1 Impact,'Arial Narrow',sans-serif; color:var(--text); display:block; overflow-wrap:anywhere; }
+.constructivist-app .pool-card small,.constructivist-app .pool-card>div>span { display:block; color:var(--muted); margin-top:4px; }
+.constructivist-app .mastery-dots { display:flex; gap:5px; margin:8px 0; }
+.constructivist-app .mastery-dots>button { width:14px; height:14px; min-height:0; border-radius:50%; background:transparent; border:1px solid var(--line); padding:0; }
+.constructivist-app .mastery-dots>button.on { background:var(--electric); border-color:var(--electric); }
+.constructivist-app .pool-remove { grid-column:1/-1; padding:6px; }
+.constructivist-app .pool-recap { position:sticky; top:0; }
+.constructivist-app .pool-totals { display:flex; justify-content:space-between; gap:18px; padding:14px 0; border-bottom:1px solid var(--line); }
+.constructivist-app .pool-totals>span { display:flex; flex-direction:column; flex:1; gap:6px; }
+.constructivist-app .pool-totals strong { font:var(--medium)/1 Impact,'Arial Narrow',sans-serif; }
+.constructivist-app .pool-roles>div { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line); }
+.constructivist-app .pool-recap>.primary { width:100%; margin-top:16px; }
+/* Data and settings share flat panels, with real rows and native range controls. */
+.constructivist-app .shared-data-control { display:grid; grid-template-columns:1.3fr 1fr; gap:24px; margin-bottom:14px; }
+.constructivist-app .shared-data-control>div:last-child { border-left:1px solid var(--line); padding-left:24px; display:flex; flex-direction:column; gap:14px; }
+.constructivist-app .shared-data-control .primary { align-self:flex-start; }
+.constructivist-app .data-columns { display:grid; grid-template-columns:minmax(0,2fr) minmax(260px,1fr); gap:14px; align-items:start; }
+.constructivist-app .data-main,.constructivist-app .data-side,.constructivist-app .settings-side { display:flex; flex-direction:column; gap:14px; min-width:0; }
+.constructivist-app .data-coverage,.constructivist-app .data-extra { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.constructivist-app .patch-badges { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:10px 0; }
+.constructivist-app .patch-badges b { padding:5px 10px; border:1px solid var(--line); font-weight:500; }
+.constructivist-app .pack-table { max-height:320px; overflow:auto; }
+.constructivist-app .pack-row { border-color:var(--line); }
+.constructivist-app .pack-row p { color:var(--muted); }
+.constructivist-app .log-panel { max-height:430px; overflow:auto; }
+.constructivist-app .log-entry { display:grid; grid-template-columns:64px minmax(0,1fr); gap:12px; padding:12px 0; border-bottom:1px solid var(--line); line-height:1.4; }
+.constructivist-app .log-entry time { color:var(--muted); }
+.constructivist-app .log-entry.error { color:#fa9c86; }
+.constructivist-app .settings-layout { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(340px,1fr); gap:16px; }
+.constructivist-app .settings-weights>.section-heading { background:var(--electric); color:white; padding:10px 14px; margin:-16px -16px 10px; }
+.constructivist-app .settings-weights>.section-heading h2 { color:white; margin:0; }
+.constructivist-app .slider-row { display:grid; grid-template-columns:minmax(150px,1.1fr) minmax(80px,1fr) 44px; gap:14px; align-items:center; padding:9px 0; margin:0; border-bottom:1px solid var(--line); color:var(--text); }
+.constructivist-app .slider-row>span { width:auto; min-width:0; }
+.constructivist-app .slider-row strong { display:block; color:var(--text); }
+.constructivist-app .slider-row small { display:block; margin-top:4px; color:var(--muted); line-height:1.3; }
+.constructivist-app input[type=range] { accent-color:var(--electric); width:100%; height:20px; background:transparent; border:0; padding:0; }
+.constructivist-app input[type=range]::-webkit-slider-runnable-track { height:6px; background:var(--track); border:0; border-radius:0; }
+.constructivist-app input[type=range]::-webkit-slider-thumb { background:var(--gauge); }
+.constructivist-app .settings-ban-weights { margin:12px 0 0; }
+.constructivist-app .settings-weights>.primary { margin-top:12px; }
+.constructivist-app .appearance-columns { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.constructivist-app .shortcut { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0; color:var(--text); border-color:var(--line); }
+.constructivist-app kbd { border:1px solid var(--line); border-radius:0; background:var(--canvas); color:var(--text); padding:4px 8px; }
+/* Simulation, including the setup and the existing interactive variations workshop. */
+.constructivist-app main.simulation-page { display:flex; flex-direction:column; overflow:hidden; }
+.constructivist-app .simulation-hub { min-height:0; flex:1; }
+.constructivist-app :is(.guided-simulation,.simulation-studio) { --guided-muted:var(--muted); color:var(--text); }
+.constructivist-app :is(.guided-simulation,.simulation-studio) :is(div,span,small,label,p,strong,b,li,button,input,select) { font-size:14px; }
+.constructivist-app :is(.simulation-mode-switch button,.guided-simulation button,.guided-simulation input,.guided-simulation select,.sim-toolbar button,.sim-toolbar input,.sim-toolbar select) { font-size:14px; border-radius:0; color:var(--text); background:var(--surface); border-color:var(--line); }
+.constructivist-app :is(.simulation-mode-switch button.active,.guided-simulation .primary,.sim-toolbar .primary) { background:var(--electric); color:white; border-color:var(--electric); }
+.constructivist-app :is(.guided-intro h2,.guided-topbar h2,.guided-team-header h3,.guided-decision-heading h3,.sim-toolbar h2) { color:var(--text); font:var(--medium)/1.15 Impact,'Arial Narrow',sans-serif; }
+.constructivist-app :is(.simulation-mode-switch>span,.guided-simulation .eyebrow,.guided-intro p,.guided-turn-banner,.guided-approach,.guided-last-choice,.guided-last-choice span,.guided-team-player,.guided-proposal small,.guided-proposal span,.sim-notice,.sim-toolbar p) { color:var(--muted); font-size:14px; }
+.constructivist-app :is(.guided-roster-state,.guided-last-choice,.guided-search,.guided-team,.guided-decisions,.draft-spotlight,.guided-proposal,.sim-team,.sim-proposal,.sim-comparison-card,.sim-inspector,.sim-branch,.sim-pin) { background:var(--surface); border-color:var(--line); border-radius:0; color:var(--text); }
+.constructivist-app .guided-team-header { border-bottom:1px solid var(--line); background:var(--electric); padding:8px; margin:-10px -10px 8px; }
+.constructivist-app .guided-team.red .guided-team-header { background:var(--vermillion); }
+.constructivist-app .guided-team-header :is(h3,span) { color:white; }
+.constructivist-app :is(.guided-team-slot,.guided-ban,.guided-step-rail button,.sim-slot,.sim-step,.sim-stage,.sim-inspector,.sim-empty,.sim-locks) { background:var(--surface); color:var(--text); border-color:var(--line); border-radius:0; }
+.constructivist-app :is(.guided-team-slot:has(.portrait),.guided-team-slot.filled) { background:var(--surface); }
+.constructivist-app .guided-team-slot .guided-slot-art:after,.constructivist-app .spotlight-vignette { background:none; display:none; }
+.constructivist-app .guided-team-slot .guided-slot-art { display:none; }
+.constructivist-app .guided-team-slot strong { color:var(--text); }
+.constructivist-app .guided-proposal-list { scrollbar-color:var(--line) var(--surface); }
+.constructivist-app .guided-proposal.selected { border-color:var(--electric); background:var(--surface-alt); }
+.constructivist-app .guided-proposal>b,.constructivist-app .guided-proposal>b span { color:var(--text); font-size:var(--medium); }
+.constructivist-app .guided-proposal .proposal-movement { color:var(--muted); background:var(--surface-alt); font-size:14px; }
+.constructivist-app .guided-arena>.draft-balance { background:transparent; border:0; padding:0 0 8px; margin:0; }
+.constructivist-app .guided-arena>.draft-balance .balance-team-labels { display:none; }
+.constructivist-app .guided-arena>.draft-balance .balance-heading { display:flex; flex-direction:row; justify-content:center; gap:12px; align-items:center; }
+.constructivist-app .guided-arena>.draft-balance .balance-heading strong,.constructivist-app .guided-arena>.draft-balance .balance-heading strong>span { color:var(--text); font:var(--medium)/1 Impact,'Arial Narrow',sans-serif; }
+.constructivist-app .guided-arena>.draft-balance .balance-track { height:4px; background:var(--track); }
+.constructivist-app .balance-fill { background:var(--gauge); }
+.constructivist-app .balance-caption { color:var(--muted); font-size:14px; }
+.constructivist-app :is(.spotlight-turn,.spotlight-art-stage,.spotlight-auto,.spotlight-actions,.guided-bottom,.sim-bottom) { background:var(--surface); border-color:var(--line); color:var(--text); }
+.constructivist-app .spotlight-turn { padding:10px; }
+.constructivist-app .spotlight-turn :is(h3,span) { color:var(--text); }
+.constructivist-app .spotlight-turn h3 { font:var(--medium)/1.15 Impact,'Arial Narrow',sans-serif; margin:4px 0 0; }
+.constructivist-app .spotlight-reason { color:var(--muted); font-size:14px; line-height:1.35; }
+.constructivist-app .spotlight-champion h4 { font:var(--medium)/1.1 Impact,'Arial Narrow',sans-serif; color:var(--text); }
+.constructivist-app .spotlight-champion strong,.constructivist-app .spotlight-champion strong>span { font:clamp(48px,4vw,80px)/1 Impact,'Arial Narrow',sans-serif; color:var(--text); }
+.constructivist-app .spotlight-kicker { color:var(--text); background:var(--surface); border:1px solid var(--line); font-size:14px; }
+.constructivist-app .spotlight-champion { background:var(--surface); padding:8px; }
+.constructivist-app .cinematic-guide .guided-faceoff { grid-template-columns:minmax(0,1fr) minmax(0,1.65fr) minmax(0,1fr); }
+.constructivist-app .spotlight-content { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); flex:1; min-height:0; }
+.constructivist-app .spotlight-art-stage { min-height:0; border-right:1px solid var(--line); }
+.constructivist-app .spotlight-copy { display:flex; flex-direction:column; justify-content:center; min-width:0; padding:10px; overflow:auto; }
+.constructivist-app .spotlight-copy .spotlight-champion { position:static; padding:0; }
+.constructivist-app .spotlight-copy .spotlight-champion>div { flex-wrap:wrap; }
+.constructivist-app .spotlight-copy .spotlight-champion strong { flex-basis:100%; margin:8px 0; flex-direction:column; align-items:flex-start; }
+.constructivist-app .spotlight-copy .spotlight-champion strong>small { font-size:14px; }
+.constructivist-app .spotlight-copy .spotlight-reason { padding:0; margin:8px 0; }
+.constructivist-app .spotlight-copy .spotlight-actions { padding:0; margin-top:14px; }
+.constructivist-app .guided-step-rail { display:flex; flex-direction:column; gap:5px; margin:0 0 8px; }
+.constructivist-app .guided-rail-row { display:flex; align-items:center; gap:10px; }
+.constructivist-app .guided-rail-row>span { width:44px; }
+.constructivist-app .guided-rail-track { display:flex; gap:6px; }
+.constructivist-app .guided-step-rail button { width:30px; height:30px; min-height:0; border-radius:50%; padding:0; justify-content:center; }
+.constructivist-app .guided-step-rail button :is(.portrait,svg,.guided-pick-dot) { display:none; }
+.constructivist-app .guided-step-rail button>span { color:inherit; }
+.constructivist-app .guided-step-rail button.current { background:var(--text); color:var(--canvas); border-color:var(--text); }
+.constructivist-app .guided-step-rail button.done { background:var(--surface-alt); }
+.constructivist-app .guided-step-rail button.future { border-style:dashed; }
+.constructivist-app :is(.guided-slot-role,.guided-team-bans>span,.guided-slot-meta,.guided-team-player,.guided-team-slot p,.guided-team-slot small,.guided-turn-meta,.guided-last-tag,.guided-empty,.guided-warning,.guided-summary,.guided-manual small,.guided-bottom span,.sim-toolbar label,.sim-branch small,.sim-step small) { font-size:14px; color:var(--muted); }
+.constructivist-app :is(.guided-error,.guided-warning,.guided-off-pool) { background:var(--surface-alt); border-color:var(--vermillion); color:var(--text); }
+.constructivist-app .guided-last-tag { background:var(--surface-alt); color:var(--text); }
+.constructivist-app .guided-plans { color:var(--text); border-color:var(--line); }
+.constructivist-app .guided-setup { overflow:auto; }
+.constructivist-app .cinematic-guide .guided-team { background:var(--surface); border-color:var(--line); }
+.constructivist-app .cinematic-guide .guided-team-heading { padding:8px; margin:-12px -12px 10px; background:var(--electric); clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,0 100%); }
+.constructivist-app .cinematic-guide .guided-team.red .guided-team-heading { background:var(--vermillion); }
+.constructivist-app .cinematic-guide .guided-team-heading :is(h3,span) { color:white; font-size:14px; }
+.constructivist-app .cinematic-guide .guided-team-heading h3 { font:var(--medium)/1.1 Impact,'Arial Narrow',sans-serif; }
+.constructivist-app .cinematic-guide .guided-player { background:var(--surface); color:var(--text); border-color:var(--line); border-radius:0; }
+.constructivist-app .cinematic-guide .guided-player .portrait.medium { width:56px; height:56px; flex-shrink:0; }
+.constructivist-app .cinematic-guide .guided-player strong { color:var(--text); font-size:14px; }
+.constructivist-app .cinematic-guide .guided-player :is(small,small>span) { color:var(--muted); font-size:14px; }
+.constructivist-app .guided-player-art,.constructivist-app .workshop-slot-art { display:none; }
+.constructivist-app .guided-proposal { background:var(--surface)!important; border-color:var(--line)!important; border-radius:0!important; }
+.constructivist-app .guided-proposal.selected { background:var(--surface-alt)!important; border-color:var(--electric)!important; }
+.constructivist-app .guided-skip { font-size:14px!important; }
+.constructivist-app .guided-proposal .proposal-art { border-radius:0; border-color:var(--line); }
+.constructivist-app .spotlight-champion>div>span { background:var(--surface); color:var(--text); border-color:var(--line); border-radius:0; }
+.constructivist-app .spotlight-answer-progress { background:var(--gauge); }
+.constructivist-app :is(.spotlight-status,.guided-recalculating,.guided-arena .balance-heading) { color:var(--text); }
+.constructivist-app .guided-step-rail button.current { outline-color:var(--text); }
+.constructivist-app .spotlight-drop-hint { background:var(--surface-alt); color:var(--text); }
+.constructivist-app .cinematic-guide .guided-plans,.constructivist-app .cinematic-guide .guided-plans[open] { background:var(--surface); border-color:var(--line); }
+.constructivist-app .cinematic-guide .guided-plans[open] summary { color:var(--text); font-size:14px; }
+.constructivist-app :is(.champion-flight,.champion-native-drag) { border-radius:0; background:var(--surface); border-color:var(--electric); }
+.constructivist-app .simulation-studio { --sim-line:var(--line); --sim-muted:var(--muted); color:var(--text); }
+.constructivist-app .simulation-studio :is(.sim-command-bar,.sim-library,.sim-picker,.sim-canvas,.sim-search,.sim-empty-role,.sim-info,.sim-warning,.sim-message,.sim-progress) { background:var(--surface); color:var(--text); border-color:var(--line); border-radius:0; }
+.constructivist-app .simulation-studio :is(button.active,.sim-command-bar .primary) { background:var(--electric); color:white; border-color:var(--electric); }
+.constructivist-app .simulation-studio .sim-team>h3 { background:var(--electric); color:white; padding:8px; }
+.constructivist-app .simulation-studio .sim-team.red>h3 { background:var(--vermillion); }
+.constructivist-app .simulation-studio .sim-slot { border-left-color:var(--electric); }
+.constructivist-app .simulation-studio .sim-slot.red { border-left-color:var(--vermillion); }
+.constructivist-app .simulation-studio .sim-slot.selected { outline-color:var(--electric); }
+.constructivist-app .simulation-studio :is(.sim-slot-step,.sim-slot-champion>small,.sim-slot-actions>span,.sim-options small,.sim-saved small,.sim-branch-open>small,.sim-role-select,.sim-compare-check,.sim-reasons,.sim-legend) { color:var(--muted); }
+.constructivist-app .simulation-studio :is(.sim-options>button>b,.sim-branch-open b.positive,.sim-branch-open b.negative) { color:var(--text); }
+.constructivist-app .simulation-studio .sim-branch.active { border-color:var(--electric); }
+.constructivist-app .simulation-studio .sim-canvas .draft-balance { background:var(--surface); border-color:var(--line); }
+.constructivist-app .simulation-studio :is(.balance-heading,.balance-team-labels,.balance-heading>strong,.balance-team-labels>span) { color:var(--text); font-size:14px; }
+.constructivist-app .simulation-studio .sim-bans .compact :is(.sim-slot-step,.sim-slot-actions>span) { font-size:14px; }
+.constructivist-app .simulation-studio .sim-plans h4 { color:var(--text); font-size:14px; }
+/* Dialogs and the native always-on-top overlay use the same theme. */
+:is(.constructivist-app,.constructivist-overlay) .modal-backdrop { backdrop-filter:none; background:#0009; }
+:is(.constructivist-app,.constructivist-overlay) .modal { background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:0; }
+.constructivist-app .modal :is(p,span,small,label,strong,b,button,input,select,summary,li,kbd,div) { color:inherit; font-size:14px; }
+.constructivist-app .modal :is(h2,h3) { color:var(--text); }
+.constructivist-app .modal :is(.picker-search,.champion-option,.role-context-detail,.composition-card,.face-criterion,.game-plan,.release-welcome,.release-entry,.release-symbol,.release-footer,.release-section,.ban-impact-detail) { background:var(--surface); color:var(--text); border-color:var(--line); border-radius:0; }
+.constructivist-app .modal :is(.meter,.balance-track) { background:var(--track); }
+.constructivist-app .modal .meter>span { background:var(--gauge); }
+.constructivist-app .modal .face-explanation :is(.face-criterion strong,.face-criterion h3,.face-criterion p) { color:var(--text); }
+.constructivist-app .modal .release-section h4 { color:var(--text); }
+.constructivist-app .modal :is(button.primary,.champion-option.selected) { background:var(--electric); border-color:var(--electric); color:white; }
+.constructivist-app .modal .error-inline { color:#fa9e8b; }
+.constructivist-overlay { border:1px solid var(--line); border-radius:0; background:var(--surface); --small:14px; --medium:24px; }
+.constructivist-overlay .overlay-top { background:var(--chrome); color:var(--chrome-text); border-bottom:1px solid var(--line); }
+.constructivist-overlay .overlay-top>strong { font-size:14px; }
+.constructivist-overlay :is(p,span,small,strong,b,button,input,select) { font-size:14px; color:inherit; }
+.constructivist-overlay .overlay-content :is(div,p,span,small,strong,b,label,button,kbd) { font-size:14px; color:var(--text); }
+.constructivist-overlay .overlay-content :is(.eyebrow,.rec-meta,.balance-caption,.balance-heading,.balance-team-labels) { font-size:14px; color:var(--muted); }
+.constructivist-overlay .source-badge { background:var(--surface-alt); color:var(--text); border-color:var(--line); border-radius:0; font-size:14px; }
+.constructivist-overlay .overlay-content { background:var(--surface); }
+.constructivist-overlay :is(.recommendation,.draft-balance) { background:var(--surface); border-color:var(--line); border-radius:0; }
+.constructivist-overlay .rec-meta { font-size:14px; }
+.constructivist-overlay .rec-score strong { font-size:24px; color:var(--text); }
+.constructivist-overlay .overlay-content .rec-score strong { font-size:24px; }
+.constructivist-overlay .pick-button { min-width:36px; min-height:36px; background:var(--surface-alt); color:var(--text); border-color:var(--line); }
+.constructivist-overlay .best .pick-button { background:var(--electric); color:white; border-color:var(--electric); }
+.constructivist-overlay .portrait.medium { width:40px; height:40px; }
+.constructivist-overlay .balance-track { background:var(--track); }
+.constructivist-overlay .balance-fill { background:var(--gauge); }
+@media(max-width:1500px) {
+  .constructivist-app .pool-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .constructivist-app .pool-card { grid-template-columns:56px minmax(0,1fr); gap:8px; padding:10px; }
+  .constructivist-app .pool-card .portrait { width:56px; height:56px; }
+}
+@media(max-width:1250px) {
+  .constructivist-app .teams-layout { gap:10px; }
+  .constructivist-app .scouting-team { padding:10px; }
+  .constructivist-app .scouting-team>.section-heading { margin:-10px -10px 10px; padding:8px; }
+  .constructivist-app .scouting-player { grid-template-columns:minmax(94px,.7fr) minmax(150px,1fr) 78px; gap:4px 5px; }
+  .constructivist-app .scouting-chip>span:not(.portrait) { max-width:65px; }
+  .constructivist-app .scouting-chip .portrait { width:38px; height:38px; }
+  .constructivist-app .pool-expand-plus { width:28px; height:38px; }
+  .constructivist-app .player-expand { padding:4px 1px; gap:2px; }
+  .constructivist-app .pool-layout { grid-template-columns:minmax(0,1fr) 220px; gap:12px; }
+  .constructivist-app .pool-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .constructivist-app .settings-layout { grid-template-columns:minmax(0,1.1fr) minmax(300px,1fr); gap:12px; }
+  .constructivist-app .slider-row { grid-template-columns:minmax(100px,1fr) minmax(70px,.8fr) 38px; gap:8px; }
+  .constructivist-app .appearance-columns { gap:8px; }
+  .constructivist-app .appearance-columns .role-filters { flex-wrap:wrap; }
+  .constructivist-app .data-columns { grid-template-columns:minmax(0,1.8fr) minmax(250px,1fr); }
+  .constructivist-app .data-extra { grid-template-columns:1fr; }
+  .constructivist-app.is-draft .team-slot .portrait.draft { width:38px; height:38px; }
+  .constructivist-app.is-draft .ban-slot .portrait.draft-ban { width:30px; height:30px; }
+  .constructivist-app.is-draft .face-candidate-preview .portrait.candidate,.constructivist-app.is-draft .enemy-response-list .portrait.response { width:34px; height:34px; }
+  .constructivist-app.is-draft .hero-portrait { max-height:156px; }
+  .constructivist-app .guided-step-rail button { width:24px; height:24px; }
+  .constructivist-app .guided-rail-track { gap:3px; }
+  .constructivist-app .simulation-mode-switch>span { max-width:40%; }
+  .constructivist-app .cinematic-guide .guided-faceoff { grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,1fr); }
+  .constructivist-app .spotlight-content { display:flex; flex-direction:column; }
+  .constructivist-app .spotlight-art-stage { min-height:80px; flex:1; border-right:0; }
+  .constructivist-app .spotlight-copy { padding:8px; flex-shrink:0; }
+  .constructivist-app .spotlight-copy .spotlight-champion h4 { margin:0 0 5px; }
+  .constructivist-app .spotlight-copy .spotlight-champion strong { flex-basis:auto; margin:0 0 0 auto; flex-direction:row; gap:6px; }
+  .constructivist-app .spotlight-copy .spotlight-champion strong,.constructivist-app .spotlight-copy .spotlight-champion strong>span { font-size:40px; }
+  .constructivist-app .spotlight-copy .spotlight-champion strong>small { display:none; }
+  .constructivist-app .cinematic-guide .guided-team-heading { margin:-8px -8px 8px; }
+  .constructivist-app .cinematic-guide .guided-player .portrait.medium { width:32px; height:32px; }
+  .constructivist-app.is-draft .team-slots .team-slot { padding:3px 0; }
+  .constructivist-app.is-draft .team-header { min-height:36px; padding:7px 8px 5px; }
+}
+.constructivist-app .range-control { position:relative; width:100%; height:24px; display:flex; align-items:center; }
+.constructivist-app .range-track { pointer-events:none; position:absolute; left:7px; right:7px; height:6px; background:var(--track); }
+.constructivist-app .range-track>span { display:block; height:100%; background:var(--electric); }
+.constructivist-app .range-control input[type=range] { position:relative; z-index:1; appearance:none; height:24px; margin:0; cursor:pointer; }
+.constructivist-app .range-control input[type=range]::-webkit-slider-runnable-track { background:transparent; height:6px; }
+.constructivist-app .range-control input[type=range]::-webkit-slider-thumb { appearance:none; width:14px; height:14px; margin-top:-4px; border:0; border-radius:50%; background:var(--gauge); }
+.constructivist-app.is-draft main.draft-page button:hover:not(:disabled) { background:var(--surface-alt); color:var(--ink); border-color:var(--line); }
+.constructivist-app.is-draft main.draft-page button.primary:hover:not(:disabled) { background:#4576ff; color:white; }
