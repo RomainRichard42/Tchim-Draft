@@ -48,28 +48,34 @@ describe('public HTML source contracts', () => {
     const $ = load(html); $('table.playerslist tr').eq(1).children('td').eq(4).text('999');
     expect(() => parseGolStats($.html(), champions, '16.18', 'TOP')).toThrow(/wins\/losses/);
   });
-  it('preserves real lineups and results without inventing a draft order', async () => {
+  it('reads the displayed gol.gg pick order and rejects inconsistent or unsupported ribbons', async () => {
     const game = parseGolGame(await fixture('gol-game'), champions, '82471');
-    expect(game.patch).toBe('16.17'); expect(game.winner).toBe('blue'); expect(game.durationSeconds).toBeGreaterThan(1000);
-    expect(game.goldDiff15).toBe(4314);
-    expect(game.draftOrderKnown).toBe(false); expect(game.history).toEqual([]);
-    expect(game.lineups!.blue.picks.map(p=>p.championId)).toEqual(['Jayce','JarvanIV','Anivia','Ashe','Seraphine']);
+    expect(game.patch).toBe('16.17'); expect(game.winner).toBe('red'); expect(game.durationSeconds).toBeGreaterThan(1000);
+    expect(game.goldDiff15).toBe(-4314);
+    expect(game.draftOrderKnown).toBe(true);expect(game.history[6].championId).toBe(game.lineups!.blue.picks.find(p=>p.championId===game.history[6].championId)!.championId);
+    expect(game.lineups!.red.picks.map(p=>p.championId)).toEqual(['Jayce','JarvanIV','Anivia','Ashe','Seraphine']);
+    const noSide=load(await fixture('gol-game'));noSide('img[alt="First Pick"]').remove();
+    expect(()=>parseGolGame(noSide.html(),champions,'82471')).toThrow(/side marker/);
     const broken=load(await fixture('gol-game'));
     const panel=broken('.blue-line-header').first().closest('.col-12.col-sm-6');
     panel.find('.col-2').filter((_,e)=>broken(e).text().trim().startsWith('Picks')).first().siblings('.col-10').find('a img').first().attr('alt','Warwick');
     const partial=parseGolGame(broken.html(),champions,'82471');expect(partial.draftOrderKnown).toBe(false);expect(partial.history).toEqual([]);
     expect(partial.lineups).toEqual(game.lineups);
+    const unsupported=load(await fixture('gol-game'));
+    const unsupportedRibbon=unsupported('.blue-line-header').first().closest('.col-12.col-sm-6').find('.col-2').filter((_,e)=>unsupported(e).text().trim().startsWith('Picks')).first().siblings('.col-10');
+    unsupportedRibbon.html((unsupportedRibbon.html()??'').replaceAll('|',''));
+    expect(parseGolGame(unsupported.html(),champions,'82471').draftOrderKnown).toBe(false);
     const complete=load(await fixture('gol-game'));
     for(const side of ['blue','red']){
       const p=complete(`.${side}-line-header`).first().closest('.col-12.col-sm-6'),ribbon=p.find('.col-2').filter((_,e)=>complete(e).text().trim().startsWith('Picks')).first().siblings('.col-10');
-      const icons=ribbon.find('a').toArray().map(e=>complete.html(e));const cut=side==='blue'?[1,3]:[2,3];
+      const icons=ribbon.find('a').toArray().map(e=>complete.html(e));const cut=side==='red'?[1,3]:[2,3];
       ribbon.html(icons.map((icon,i)=>`${cut.includes(i)?'|':''}${icon}`).join(''));
     }
-    const ordered=parseGolGame(complete.html(),champions,'82471');expect(ordered.draftOrderKnown).toBe(true);expect(ordered.history[6]).toEqual({championId:'JarvanIV',role:'JUNGLE'});
+    const ordered=parseGolGame(complete.html(),champions,'82471');expect(ordered.draftOrderKnown).toBe(true);expect(ordered.history[7]).toEqual({championId:'JarvanIV',role:'JUNGLE'});
     expect(game.lineups!.blue.picks.map(p => p.role)).toEqual(['TOP', 'JUNGLE', 'MID', 'ADC', 'SUPPORT']);
     expect(gamePairs([game]).filter(p=>p.league==='all')).toHaveLength(90);
     expect(gamePairs([game]).filter(p=>p.league===game.league)).toHaveLength(90);
-    expect(gamePairs([game]).filter(p => p.championId === game.lineups!.blue.picks[0].championId).every(p => p.wins === 1 && p.games === 1)).toBe(true);
+    expect(gamePairs([game]).filter(p => p.championId === game.lineups!.red.picks[0].championId).every(p => p.wins === 1 && p.games === 1)).toBe(true);
     expect(golGameLinks('<a href="../game/stats/82471/page-preview/">Game</a>', 'https://gol.gg/tournament/')).toEqual(['https://gol.gg/game/stats/82471/page-game/']);
   });
 });

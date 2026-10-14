@@ -327,3 +327,9 @@
   .constructivist-app.is-draft .timeline-track { gap:2px; }
   .constructivist-app.is-draft .timeline-track button { width:20px; height:20px; }
 }
+.opening-evidence { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+.opening-evidence > span { padding:5px 8px; border:1px solid var(--line); font-size:14px; }
+.flex-placements { display:grid; gap:7px; margin:10px 0; font-size:14px; }
+.flex-placements > div { display:flex; flex-wrap:wrap; gap:6px; }
+.flex-placements button { display:flex; align-items:center; gap:12px; padding:7px 10px; font-size:14px; }
+.flex-placements small { font-size:14px; line-height:1.35; }

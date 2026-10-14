@@ -9,6 +9,7 @@ data/local/
 *.sqlite*
 data/shared/
 data/local-*/
+data/refresh-*/
 .env.*
 tools/collector.config.json
 **/authorizations/

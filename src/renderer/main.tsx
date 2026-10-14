@@ -7,6 +7,10 @@ import './focus.css';
 import './face.css';
 import './constructivist.css';
 import './theme.css';
+import './coach.css';
+import './knowledge.css';
+import './workspace.css';
+import './pick-insights.css';
 
 class ErrorBoundary extends React.Component<React.PropsWithChildren, { error?: string }> {
   state: { error?: string } = {};

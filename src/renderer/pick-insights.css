@@ -1,0 +1,76 @@
+/* One real scroll area for the whole choice column. Large flex cards cannot clip the list below them. */
+.constructivist-app.is-draft .face-decisions{overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-gutter:stable;scrollbar-color:var(--text) var(--track);padding-right:5px;min-height:0}
+.pick-view-switch{display:flex;gap:6px;flex:0 0 auto;padding-bottom:4px}
+.constructivist-app.is-draft .pick-view-switch button{font-size:14px;min-height:38px;padding:8px 12px}
+.constructivist-app.is-draft .pick-view-switch button.active{background:var(--text);color:var(--canvas)}
+.constructivist-app.is-draft .pick-view-switch .pick-expand{margin-left:auto;min-width:38px;padding:6px}
+.constructivist-app .pick-expanded-modal{width:min(1200px,calc(100vw - 48px));height:calc(100vh - 48px);max-height:calc(100vh - 48px);display:flex;flex-direction:column;gap:12px;overflow:hidden;clip-path:none;background:var(--surface);border:1px solid var(--line)}
+.pick-expanded-modal .modal-heading{flex-shrink:0;margin:0}
+.pick-expanded-modal .decision-desk{min-height:0;flex:1;max-height:none}
+.pick-expanded-context{display:flex;gap:14px;justify-content:space-between;flex-wrap:wrap;font-size:14px;color:var(--muted);flex-shrink:0}
+.constructivist-app.is-draft .face-decisions[data-view=list] .first-choice{border:2px solid var(--electric);background:var(--surface-alt)}
+.constructivist-app.is-draft .face-decisions[data-view=list][data-side=red] .first-choice{border-color:var(--vermillion)}
+.constructivist-app.is-draft .face-decisions[data-view=list] .first-choice .rec-score strong{font-size:28px!important}
+.constructivist-app.is-draft .recommendation-browser{display:flex;flex-direction:column;flex:0 0 auto;min-height:0;overflow:visible;gap:10px;margin-top:8px}
+.constructivist-app.is-draft .recommendation-scroll{height:auto;min-height:0;max-height:none;flex:0 0 auto;overflow:visible;padding:0;gap:8px}
+.constructivist-app.is-draft .recommendation-search{min-height:42px;flex-shrink:0}
+.constructivist-app.is-draft .recommendation-search input{min-height:40px;font-size:16px;padding:8px 0}
+.constructivist-app.is-draft .recommendation-count{flex-wrap:wrap;gap:6px}
+.constructivist-app.is-draft .recommendation-scroll .face-candidate{display:grid;grid-template-columns:minmax(0,1fr) 44px;min-height:94px;border:1px solid var(--line);background:var(--surface);overflow:hidden;flex:none}
+.constructivist-app.is-draft .face-candidate.selected{border-color:var(--text);outline:0;background:var(--surface-alt)}
+.constructivist-app.is-draft .face-candidate-preview{grid-template-columns:22px 56px minmax(0,1fr) 58px;gap:10px;padding:12px 10px;min-height:92px}
+.constructivist-app.is-draft .face-candidate-preview .portrait.candidate{width:56px;height:56px;grid-row:1/3;grid-column:2;border:1px solid var(--line)}
+.constructivist-app.is-draft .face-candidate .rec-position{grid-column:1;grid-row:1/3}
+.constructivist-app.is-draft .face-candidate-name{grid-column:3;grid-row:1;gap:4px}
+.constructivist-app.is-draft .face-candidate-name strong{font:600 20px/1.15 'Segoe UI',sans-serif!important}
+.constructivist-app.is-draft .face-candidate-name>span{font-size:14px!important}
+.constructivist-app.is-draft .face-candidate .rec-score{grid-column:4;grid-row:1}
+.constructivist-app.is-draft .face-candidate .rec-score strong{font:600 20px/1.15 'Segoe UI',sans-serif!important}
+.constructivist-app.is-draft .face-candidate .compact-reason{grid-column:3/5;grid-row:2;padding:0;border:0;color:var(--muted);line-height:1.4;-webkit-line-clamp:2}
+.constructivist-app.is-draft .candidate-actions{display:flex;flex-direction:column;justify-content:center;border-left:1px solid var(--line);padding:4px;gap:4px}
+.constructivist-app.is-draft .candidate-actions button{padding:0;min-width:34px;min-height:38px;justify-content:center;color:var(--ink)}
+.constructivist-app.is-draft .candidate-actions .candidate-choose{border-color:var(--electric)}
+.constructivist-app.is-draft .draft-hero .flex-placements{grid-column:2/-1;margin:0 0 38px;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:8px}
+.constructivist-app.is-draft .draft-hero .flex-placements>div{display:flex;flex-wrap:wrap;gap:8px}
+.constructivist-app.is-draft .draft-hero .flex-placements button{display:flex;justify-content:space-between;gap:12px;min-height:38px;min-width:92px;flex:1;padding:8px}
+.constructivist-app.is-draft .draft-hero .flex-placements>span{font-size:14px}
+.constructivist-app.is-draft .draft-hero{min-height:230px}
+.constructivist-app.is-draft .hero-reasons{padding-bottom:36px}
+.constructivist-app.is-draft .opening-evidence{display:flex;flex-wrap:wrap;gap:6px}
+.constructivist-app.is-draft .opening-evidence>span{padding:5px;font-size:14px}
+.constructivist-app .pick-hover-card{position:fixed;z-index:150;width:min(540px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;border:2px solid var(--electric);background:var(--surface);color:var(--text);font:14px/1.5 'Segoe UI',sans-serif;padding:18px;box-shadow:none;filter:none}
+.constructivist-app .pick-hover-card.red{border-color:var(--vermillion)}
+.constructivist-app .pick-hover-card :is(p,span,small,button){font-size:14px}
+.constructivist-app .pick-hover-card :is(h2,h3){font:600 20px/1.3 'Segoe UI',sans-serif;text-transform:none;letter-spacing:0;margin:0;color:var(--text)}
+.constructivist-app .pick-hover-card header{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:14px}
+.pick-hover-card header>div{flex:1;min-width:0}
+.pick-hover-card header h2{overflow-wrap:anywhere}
+.pick-hover-card header button{min-height:38px;min-width:38px;padding:0}
+.pick-hover-card header .portrait{width:48px;height:48px;flex-shrink:0}
+.pick-hover-fit{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+.constructivist-app .pick-hover-fit h3{font-size:14px;display:flex;gap:8px;align-items:start}
+.pick-hover-fit h3 svg{flex-shrink:0}
+.pick-hover-fit section:last-child h3 svg{color:var(--vermillion)}
+.pick-hover-fit p{margin:10px 0 0;line-height:1.5}
+.pick-hover-group{border-top:1px solid var(--line);padding:16px 0 0;margin-top:16px}
+.constructivist-app .pick-hover-group h3{font-size:14px;margin-bottom:12px}
+.pick-hover-pair{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:10px 0}
+.pick-hover-pair .portrait{width:38px;height:38px}
+.pick-hover-pair>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pick-hover-pair strong{font-size:14px}
+.pick-hover-pair span{color:var(--muted)}
+.pick-hover-effect{align-items:flex-end;text-align:right}
+.pick-hover-effect b{font-size:20px}
+.pick-hover-empty{color:var(--muted);margin:0}
+.pick-hover-card footer{border-top:1px solid var(--line);margin-top:18px;padding-top:12px;color:var(--muted);display:grid;gap:6px}
+.pick-hover-card footer p{margin:0}
+.pick-hover-mechanics{margin-top:18px}
+.constructivist-app .pick-hover-mechanics h3{font-size:14px}
+.pick-hover-mechanics p{display:grid;gap:6px;border-left:3px solid var(--electric);padding-left:10px}
+.pick-hover-mechanics p.risk{border-left-color:var(--vermillion)}
+.pick-hover-mechanics span{color:var(--muted)}
+.pick-hover-loading{display:flex;align-items:center;gap:10px;padding:16px 0}
+.pick-hover-loading svg{animation:spin 1s linear infinite}
+.pick-hover-details{width:100%;margin-top:16px;justify-content:center;min-height:42px}
+@media(max-width:1250px){.constructivist-app.is-draft .face-candidate-preview{grid-template-columns:18px 48px minmax(0,1fr) 52px;gap:7px;padding:10px 7px}.constructivist-app.is-draft .face-candidate-preview .portrait.candidate{width:48px;height:48px}.constructivist-app.is-draft .recommendation-scroll .face-candidate{min-height:90px}}
+@media(prefers-reduced-motion:reduce){.pick-hover-loading svg{animation:none}}

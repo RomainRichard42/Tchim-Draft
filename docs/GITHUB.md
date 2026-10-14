@@ -1,16 +1,22 @@
 # Distribution GitHub
 
-Le dépôt public `RomainRichard42/Tchim-Draft` distribue les fichiers sans connexion GitHub. GitHub héberge le code et les Releases ; chaque utilisateur garde sa propre SQLite locale. Aucun serveur de calcul n’est nécessaire.
+Le dépôt public `RomainRichard42/Tchim-Draft` distribue le code et les installeurs sans connexion GitHub. Supabase héberge les comptes, les statistiques communes et les préparations/résultats privés. Chaque utilisateur garde une SQLite locale pour ses brouillons et son cache ; les calculs de draft tournent dans Electron. Voir [Supabase, comptes et accès](SUPABASE.md).
 
 ## Installer pour un ami
 
-Télécharger l’installeur Windows depuis [la dernière version](https://github.com/RomainRichard42/Tchim-Draft/releases/latest), l’installer, puis ouvrir **Données → Actualiser**. Le mode **GitHub : données déjà collectées** est choisi par défaut. Ce clic récupère les statistiques de l’éditeur, pas les pages gol.gg/Lolalytics. La première installation peut également télécharger les icônes Data Dragon.
+Télécharger l’installeur Windows depuis [la dernière version](https://github.com/RomainRichard42/Tchim-Draft/releases/latest), puis l’installer. L’administrateur crée un code d’invitation lié à l’adresse e-mail de l’ami depuis **Réglages → Compte et interface**. L’ami utilise ce code et choisit son mot de passe dans l’application. Après connexion, les statistiques communes sont consultées automatiquement ; il suffit de préparer son match avec les deux noms d’équipes et, si souhaité, les deux multi OP.GG. Les portraits sont inclus dans l’installeur.
 
-Après cette installation, les versions de l’app sont vérifiées au démarrage et toutes les quatre heures. Le téléchargement est automatique ; l’installation se fait à la fermeture normale de l’application, ou via **Installer et redémarrer**. Une draft en cours n’est pas interrompue. Les données statistiques ne sont jamais actualisées au lancement, y compris après une mise à jour de l’app.
+Après cette installation, les versions de l’app sont vérifiées au démarrage et toutes les quatre heures. Le téléchargement est automatique ; l’installation se fait à la fermeture normale de l’application, ou via **Installer et redémarrer**. Une draft en cours n’est pas interrompue. La consultation de la base partagée ne lance aucune collecte gol.gg/Lolalytics. Seul l’éditeur collecte et publie de nouvelles statistiques, sur demande explicite.
 
 Les anciennes versions sans flux de publication, notamment 0.5.0, doivent installer une première fois la version actuelle depuis la dernière Release. L’identité NSIS et le dossier de données restent identiques pour conserver les paramètres et sessions. Le lanceur de développement utilise `data/local` et désactive les installations automatiques pour ce lancement ; les amis doivent utiliser l’installeur.
 
-## Collecter et publier les statistiques
+## Collecter et publier les statistiques sur Supabase
+
+Le flux actuel est décrit dans [SUPABASE.md](SUPABASE.md). Les scripts de collecte et de publication s’exécutent uniquement chez l’éditeur, avec ses clés locales exclues de Git et de l’installeur. Publier une version de l’application ne relance pas la collecte et ne remplace pas les statistiques.
+
+## Ancienne distribution des statistiques par GitHub
+
+Le flux suivant reste disponible pour les configurations locales historiques. Il n’est pas utilisé par défaut par la version connectée à Supabase.
 
 À exécuter chez l’éditeur uniquement quand la publication des statistiques est demandée explicitement, avec GitHub CLI connecté et des données collectées à distribuer :
 

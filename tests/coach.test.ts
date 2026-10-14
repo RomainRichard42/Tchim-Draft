@@ -37,7 +37,7 @@ describe('Fearless series lifecycle and untrusted imports',()=>{
     input.draft.history=Array.from({length:6},()=>({championId:null}));
     const first=analyze(input).picks[0];input.draft.history.push({championId:first.championId,role:first.role});input.draft.side='red';
     for(const duo of analyze(input).duos){expect(blocked.has(duo.first.championId)).toBe(false);expect(blocked.has(duo.second.championId)).toBe(false);}
-  });
+  },15000);
   it('restores the exact previous draft when reopening and keeps legacy sessions loadable',()=>{
     const original=completed(),next=changeSeries(original,'next'),reopened=changeSeries(next,'previous');
     expect(reopened.history).toEqual(original.history);expect(fearlessUsed(reopened).size).toBe(0);

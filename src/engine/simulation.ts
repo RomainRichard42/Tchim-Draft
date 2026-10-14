@@ -1,3 +1,4 @@
+import { choicePolicy } from './policy';
 import type { EngineInput, Recommendation, SimulationApproach, SimulationBatch, SimulationBranch, SimulationPin, SimulationRequest, SimulationStep, SimulationTurn, SimulationTurnRequest } from '../shared/types';
 import { opposite, order, picks } from '../shared/draft';
 import { validateSimulation } from '../shared/simulation';
@@ -34,7 +35,9 @@ export function simulationOptions(input:EngineInput,pins:SimulationPin[]):Recomm
   const roles=new Set(pins.filter(p=>p.index>index&&sequence[p.index]?.side===action.side&&sequence[p.index]?.kind==='pick').map(p=>p.selection.role));
   const restrict=action.kind==='pick'?input.draft.targetRole:'AUTO';
   const options=action.kind==='pick'?rankCandidates(input,action.side,restrict,true):banCandidates(input,action.side);
-  return options.filter(r=>!reserved.has(r.championId)&&(action.kind==='ban'||!roles.has(r.role)));
+  const filtered=options.filter(r=>!reserved.has(r.championId)&&(action.kind==='ban'||!roles.has(r.role)));
+  if(action.kind==='pick'&&action.side!==input.draft.side){const policy=choicePolicy(input,action.side,filtered),position=new Map(policy.map((r,i)=>[r.championId+':'+r.role,i]));return filtered.sort((a,b)=>(position.get(a.championId+':'+a.role)??999)-(position.get(b.championId+':'+b.role)??999));}
+  return filtered;
 }
 
 /** Diverse, score-weighted local rollouts. Branch scores are indices, never win probabilities.
@@ -86,12 +89,13 @@ export function simulateDrafts(input:EngineInput,request:SimulationRequest,progr
           selection={championId:null};
         }else{
           // Bans use measured consequences. Vary picks and opponent answers among credible options.
-          const candidates=options.filter(r=>r.score>=options[0].score-8).slice(0,40).sort((a,b)=>action.kind==='ban'||action.side!==input.draft.side?b.score-a.score:(b.score+affinity(b))-(a.score+affinity(a))).slice(0,8);
+          const candidates=options.filter(r=>action.kind==='pick'&&action.side!==input.draft.side||r.score>=options[0].score-8).slice(0,40).sort((a,b)=>action.kind==='pick'&&action.side!==input.draft.side?0:action.kind==='ban'?b.score-a.score:(b.score+affinity(b))-(a.score+affinity(a))).slice(0,8);
           let selected=0;
           if(action.kind==='pick'&&attempt>0){
             if(firstChoice)selected=attempt%candidates.length;
             else {
-              const weights=candidates.map(r=>Math.exp((r.score-candidates[0].score)/4));
+              const probabilities=action.side!==input.draft.side?new Map(choicePolicy(state,action.side,options).map(r=>[r.championId+':'+r.role,r.preference])):undefined;
+              const weights=candidates.map(r=>probabilities?(probabilities.get(r.championId+':'+r.role)??.0001):Math.exp((r.score-candidates[0].score)/4));
               let draw=random()*weights.reduce((sum,w)=>sum+w,0);
               selected=weights.findIndex(w=>(draw-=w)<=0);if(selected<0)selected=0;
             }

@@ -3,6 +3,71 @@ import type { ReleaseNote, ReleaseNotesStatus } from './types';
 // User-facing copy shipped with the app: plain text, no remote HTML or network dependency.
 export const RELEASE_NOTES:ReleaseNote[]=[
   {
+    version:'0.13.1',title:{fr:'Plus de choix, plus lisibles et expliqués',en:'More readable choices with draft explanations'},
+    summary:{fr:'Parcours tous les picks, même quand une grande carte flex est affichée, et survole un champion pour lire ses atouts et ses risques.',en:'Browse every pick even when a large flex card is displayed, and hover a champion to read its strengths and risks.'},
+    sections:[{kind:'fixed',items:[
+      {fr:'La colonne des choix défile entièrement : une carte flex ne cache plus les autres picks sous la zone visible, côté bleu comme côté rouge.',en:'The entire choice column scrolls: a flex card no longer hides other picks below the visible area, on either side.'}
+    ]},{kind:'improved',items:[
+      {fr:'Les portraits et lignes de champions sont agrandis. Ouvre Tous les picks ou agrandis les choix pour voir la liste dans une grande fenêtre. Tu peux préparer un pick directement depuis sa ligne ou comparer sa grande carte.',en:'Champion portraits and rows are larger. Open All picks or expand choices to browse the list in a large window. Prepare a pick directly from its row or compare its large card.'}
+    ]},{kind:'new',items:[
+      {fr:'Au survol, consulte les menaces, les matchups favorables, les synergies et les raisons de jouer ce champion dans la draft actuelle. Le bouton Infos garde la fiche ouverte.',en:'Hover to review threats, favourable matchups, synergies and reasons to play the champion in the current draft. The Info button keeps the card open.'},
+      {fr:'Les interactions affichées utilisent les statistiques corrigées et lissées. Les petits échantillons restent limités ; les interactions de sorts indiquent leurs conditions.',en:'Displayed interactions use corrected, shrunk statistics. Small samples remain constrained; spell interactions show their conditions.'}
+    ]}]
+  },
+  {
+    version:'0.13.0',title:{fr:'Tous les choix au même endroit : ton match',en:'One workspace for each match'},
+    summary:{fr:'Crée un match avec les deux équipes, prépare leurs joueurs, puis passe de la draft au résultat sans chercher dans les onglets.',en:'Create a match with both teams, prepare their players, then move from draft to result without hunting through tabs.'},
+    sections:[{kind:'new',items:[
+      {fr:'Retrouve tes préparations dans Matchs, avec leurs équipes, pools OP.GG, BO et progression. Chaque match se sauvegarde séparément dans ton compte.',en:'Find preparations in Matches, with team names, OP.GG pools, series and progress. Each match saves separately in your account.'},
+      {fr:'Choisis un BO1, ou un BO3/BO5 classique ou Fearless. Le format classique autorise à rejouer les champions aux manches suivantes.',en:'Choose a BO1, or a standard or Fearless BO3/BO5. Standard series let you play champions again in later games.'},
+      {fr:'Après la draft, renseigne le vainqueur, les kills et ta note sur 5. En BO, enregistre le résultat avant de passer à la manche suivante.',en:'After drafting, record the winner, kills and your rating out of 5. In a series, save the result before moving to the next game.'}
+    ]},{kind:'improved',items:[
+      {fr:'La navigation principale se limite à Matchs et Simulations. Les statistiques, fiches de champions et réglages avancés restent accessibles dans Réglages.',en:'Main navigation now contains Matches and Simulations. Statistics, champion profiles and advanced options remain available in Settings.'},
+      {fr:'Ouvre l’analyse 5v5, les réponses adverses et la fiche d’un champion directement depuis la draft. Les simulations affichent le match et les deux équipes utilisés.',en:'Open 5v5 analysis, enemy replies and champion profiles directly from the draft. Simulations show the match and both teams being used.'}
+    ]}]
+  },
+  {
+    version:'0.12.1',
+    title:{fr:'Mieux choisir les blinds et les flexs',en:'Better blind and flex choices'},
+    summary:{fr:'Compare les placements d’un flex et garde la méta, les pools et le risque de blind visibles dans les recommandations.',en:'Compare flex placements and keep meta priority, pools and blind risk visible in recommendations.'},
+    sections:[{kind:'improved',items:[
+      {fr:'Au début de la draft, les réponses explorées ajustent le classement sans effacer les critères de méta, de blind et de confort.',en:'Early in the draft, explored replies adjust the ranking without removing meta, blind and comfort criteria.'},
+      {fr:'Un flex doit avoir des rôles réellement observés, encore disponibles et compatibles avec les pools renseignés. Compare leurs scores puis prépare le rôle voulu.',en:'A flex needs observed roles that remain available and match known player pools. Compare their scores and prepare your preferred role.'},
+      {fr:'La priorité de méta réunit les picks d’un champion dans ses différents rôles et compte ses bans une fois. Les petits échantillons restent limités.',en:'Meta priority combines champion picks across roles and counts bans once. Small samples remain constrained.'},
+      {fr:'Les côtés et l’ordre des matchs pro sont relus depuis l’indicateur de premier pick de gol.gg. Les recommandations utilisent ces choix observés quand l’échantillon est suffisant.',en:'Pro match sides and order are read from gol.gg’s first-pick marker. Recommendations use those observed choices when the sample is sufficient.'},
+      {fr:'Les statistiques partagées couvrent davantage d’options de méta et de flex pour documenter leurs matchups. Le scraping reste réservé à une actualisation demandée.',en:'Shared statistics cover more meta and flex options to document their matchups. Scraping still requires a requested refresh.'},
+      {fr:'Clique sur Préparer la draft avant de commencer pour préparer les matchups depuis la base partagée et limiter l’attente pendant tes choix.',en:'Click Prepare draft before starting to prepare matchups from the shared database and reduce waiting during your choices.'}
+    ]}]
+  },
+  {
+    version:'0.12.0',title:{fr:'Comprendre les champions et les patchs',en:'Understand champions and patches'},
+    summary:{fr:'Explore les compétences, lis les changements Riot et examine leurs conséquences possibles avant de drafter.',en:'Explore spells, read Riot changes and examine their possible consequences before drafting.'},
+    sections:[{kind:'new',items:[
+      {fr:'La page Patch & champions réunit les fiches des 173 champions sur trois patchs, avec descriptions FR/EN, stats de base, coûts, portées et délais des sorts.',en:'Patch & champions brings together 173 champion profiles across three patches, with FR/EN descriptions, base stats, spell costs, ranges and cooldowns.'},
+      {fr:'Compare deux champions et leurs rôles : les résultats observés restent séparés des interactions de sorts, avec leurs conditions de placement et de disponibilité.',en:'Compare two champions and their roles: observed results stay separate from spell interactions, with their positioning and availability conditions.'},
+      {fr:'Retrouve les changements chiffrés Riot et les pistes à tester dans chaque matchup. Les changements ambigus sont signalés et les autres modes de jeu sont écartés.',en:'Read numeric Riot changes and hypotheses to test in each matchup. Ambiguous changes are flagged and other game modes are excluded.'},
+      {fr:'L’administrateur peut préparer une nouvelle lecture, l’examiner, l’utiliser sur son ordinateur puis choisir de la partager aux coachs. Rien n’est collecté automatiquement au lancement.',en:'The administrator can prepare a new collection, review it, use it on their computer and choose to share it with coaches. Nothing is automatically collected at startup.'}
+    ]},{kind:'improved',items:[
+      {fr:'Les recommandations, bans et simulations tiennent compte des interactions de compétences reconnues et d’un effet de patch limité lorsque les statistiques ne couvrent pas encore les changements.',en:'Recommendations, bans and simulations include recognized spell interactions and a limited patch effect when statistics do not yet cover the changes.'},
+      {fr:'Les valeurs dynamiques incomplètes sont indiquées. Un changement de compétence reste une hypothèse de méta, sans promesse de victoire ni calcul de dégâts inventé.',en:'Incomplete dynamic values are identified. A spell change remains a meta hypothesis, with no promise of victory or invented damage calculation.'}
+    ]}]
+  },
+  {
+    version:'0.11.0',
+    title:{fr:'Ton coach et tes drafts connectés',en:'Your coach and drafts, connected'},
+    summary:{fr:'Connecte-toi à ton espace, explore les réponses adverses et garde une trace de tes drafts et résultats.',en:'Sign in to your workspace, explore enemy replies and keep your drafts and results together.'},
+    sections:[{kind:'new',items:[
+      {fr:'Crée ton compte avec un code d’invitation, ton e-mail et un mot de passe. Les statistiques centrales deviennent disponibles automatiquement. Chaque coach voit ses drafts ; l’administrateur peut consulter l’ensemble.',en:'Create your account using an invitation code, email and password. Central statistics become available automatically. Each coach sees their own drafts; the administrator can review all of them.'},
+      {fr:'Dans Coach, compare les deux compositions par leur pression, leur duo bot, leurs objectifs et leurs possibilités de combat. L’avantage reste un indice, pas une chance de victoire.',en:'In Coach, compare both compositions by pressure, bot duo, objectives and fighting options. The edge remains an index, not a win probability.'},
+      {fr:'Explore deux à quatre actions, clique sur les branches et glisse tes idées sur un choix futur. Compare les réponses probables, les contres dangereux et la réserve Fearless avant de choisir.',en:'Explore two to four actions, click branches and drag ideas onto future choices. Compare likely replies, dangerous counters and Fearless reserves before choosing.'},
+      {fr:'Nomme les équipes et le BO. Enregistre la draft avec ses joueurs, puis saisis ou modifie le résultat, les kills et ta note de draft sur cinq.',en:'Name the teams and series. Save the draft with its players, then enter or edit the result, kills and your draft rating out of five.'},
+      {fr:'L’administrateur peut entraîner un modèle commun à partir des matchs pro et des résultats renseignés. Son activation exige une vérification sur des matchs réservés au test ; les ajustements d’équipe limitent l’effet des petits échantillons.',en:'The administrator can train a shared model using pro games and recorded results. Activation requires validation on held-out games; team adjustments limit the influence of small samples.'}
+    ]},{kind:'improved',items:[
+      {fr:'Les picks tiennent compte des échanges explorés entre les équipes. Les réponses adverses utilisent les habitudes des joueurs séparément de la qualité théorique du champion.',en:'Picks account for explored trades between teams. Enemy replies use player habits separately from a champion’s theoretical quality.'},
+      {fr:'Précise le confort de chaque joueur sur ses champions. Les simulations et l’analyse des bans utilisent les pools, les compositions et les alternatives encore disponibles.',en:'Set each player’s comfort on their champions. Simulations and ban analysis use pools, compositions and remaining alternatives.'}
+    ]}]
+  },
+  {
     version:'0.10.5',
     title:{fr:'Toute la draft passe au sombre',en:'A dark look for the whole draft assistant'},
     summary:{fr:'Les six pages partagent la même présentation sombre, avec le retour des vrais portraits des champions.',en:'All six pages share the same dark design, with real champion portraits back in the draft.'},

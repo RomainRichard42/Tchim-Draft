@@ -1,0 +1,52 @@
+# Supabase — Tchim Draft 0.13.0
+
+Le projet `hnpqecujmueyivafhzsx` héberge les statistiques communes, les comptes, les brouillons et les résultats. L’application reste un programme Electron Windows ; elle accède à Supabase depuis le processus principal. Les statistiques sont consultées automatiquement. Aucun utilisateur ne collecte gol.gg ou Lolalytics à l’ouverture.
+
+## Accès et confidentialité
+
+- Une création de compte utilise un code d’invitation, l’adresse e-mail liée au code et un mot de passe choisi dans l’application. Elle ouvre directement l’espace du coach, sans SMTP ni e-mail de confirmation. Les inscriptions publiques Supabase sont désactivées.
+- Un coach voit ses résultats et son brouillon. L’administrateur voit ceux de tous les comptes. Les règles de la base contrôlent également les requêtes directes, indépendamment de l’interface.
+- L’administrateur crée un code depuis Réglages → Compte et interface et le transmet au coach. Chaque code est lié à une adresse, expire après 30 jours et n’est utilisable qu’une fois. Un nouveau code pour la même adresse annule le précédent. La base stocke uniquement son empreinte ; le code complet apparaît une seule fois dans l’interface.
+- Ton premier code administrateur est dans `data/local/authorizations/admin-invite.txt`, exclu de Git et de l’installeur. Il réserve les droits administrateur à l’adresse configurée. L’interface peut seulement créer des invitations de coach.
+- La fonction serveur `draft-register` vérifie et réserve le code avant de créer le compte ; une transaction consomme le code et attribue les droits. Deux inscriptions concurrentes avec le même code ne peuvent pas réussir. L’adresse seule ne donne aucun droit. En cas d’interruption après création, une nouvelle tentative nécessite le mot de passe existant.
+- Les pools et les dix joueurs sont conservés avec chaque match. Les noms des équipes et du BO, les kills, le vainqueur et la note de draft restent modifiables dans le journal.
+- Les jetons de connexion restent dans Electron main et sont chiffrés avec le stockage sécurisé du système avant persistance. Le renderer reçoit l’identité et les droits, jamais les jetons.
+- Les sessions, simulations et journaux locaux sont séparés par compte. Le premier administrateur peut récupérer les anciennes données locales de ce poste.
+
+## Préparations par match
+
+La migration 13 ajoute `draft_preparations` : document incomplet avec noms d’équipes, BO classique/Fearless, joueurs, pools et liens vers les résultats. Les résultats complets restent dans `draft_matches` et alimentent les analyses existantes. Les préparations sont privées au compte créateur ; l’administrateur peut les lire, et doit ouvrir une copie pour les modifier. Les politiques Postgres s’appliquent même à une requête REST directe.
+
+Chaque choix est conservé dans SQLite, puis envoyé automatiquement à Supabase. La révision empêche une ancienne fenêtre d’écraser des modifications plus récentes ; un conflit conserve le brouillon et permet d’en ouvrir une copie. Un envoi interrompu après réception par le serveur est réconcilié sans dupliquer le match. Une suppression de compte supprime ses préparations par clé étrangère. L’état du match ouvert reste propre à chaque poste ; les préparations sont accessibles après connexion depuis un autre poste.
+
+Cette migration de schéma ne publie ni une nouvelle version de l’application ni un nouveau jeu de statistiques. `scripts/matches-cloud-test.mjs` vérifie la confidentialité et les révisions sur le projet ; `scripts/workspace-ui-test.mjs --cloud` vérifie le parcours Electron réel, puis nettoie ses comptes de test.
+
+## Statistiques et publications
+
+La publication du 14 octobre 2026 comporte 2 558 lignes Lolalytics Master+, 465 lignes pro, 1 008 382 interactions solo et 92 924 interactions pro, ainsi que 953 matchs. Les fenêtres sont distinctes : Master+ 16.20/16.19/16.18 et pro 16.20/16.18/16.17, les trois derniers patchs disponibles sur gol.gg. Les trois patchs précédents du jeu initial sont remplacés, ce qui explique la diminution du nombre de matchs. Les 953 matchs ont une date et des identifiants d’équipes. L’indicateur explicite « First Pick » de gol.gg corrige les côtés de 390 matchs : la couleur des panneaux ne garantit pas le côté réel. Les rubans de picks et bans permettent de vérifier 934 ordres de draft ; 19 restent inconnus. Aucun ordre n’est reconstruit à partir de la liste des rôles.
+
+Les statistiques sont stockées dans Postgres sous forme de blocs JSONB, avec un index par champion et rôle. Les fichiers compressés servent d’archive dans un bucket privé. Les consultations de draft renvoient le contexte utile : douze options par rôle, douze flexs prioritaires, les pools et les champions sélectionnés. Les ajouts récupèrent les nouvelles interactions et conservent celles déjà reçues. Les historiques pro sont récupérés au premier contexte de pick pour calculer les fréquences d’ouverture réelles. Une nouvelle révision remplace ce contexte, sans mélanger les patchs de deux publications. Le bouton d’actualisation force la vérification de la révision, sans déclencher de scraping.
+
+La migration 12 découpe la consultation en slices de six champions sources afin d’éviter une requête et une réponse trop lourdes. « Précharger les matchups » charge ces matchups en avance et les conserve pendant les bans. Les rôles des champions ne sont pas déplacés automatiquement. La préparation initiale peut prendre plusieurs secondes suivant le réseau ; les choix suivants réutilisent les interactions reçues.
+
+Les tables de packs et les fonctions d’import sont réservées à l’éditeur. La publication change le pointeur `stable` dans une transaction après vérification de tous les blocs. Une publication concurrente est rejetée. Les clients ordinaires n’ont aucun droit d’écriture sur les statistiques.
+
+Les scripts administratifs lisent `.env.supabase.local`, exclu de Git et de l’installeur. La configuration distribuée dans `resources/supabase-public.json` contient uniquement l’URL et la clé publique. Une clé secrète ou un jeton de gestion ne doit jamais y être placé.
+
+Pour installer de futures migrations, utiliser `npm.cmd run supabase:setup`. Pour publier une collecte expressément demandée et terminée, utiliser `npm.cmd run supabase:publish`. Cette commande ne publie pas l’application sur GitHub. Les collecteurs restent manuels ; les nouvelles données doivent être collectées avant la publication.
+
+## Modèle et données de coaching
+
+Le moteur statistique mélange les trois patchs de chaque source avec correction des petits échantillons. La confrontation compare le 5v5 et ses conditions de jeu. Les choix adverses sont une politique heuristique de préférences basée sur les pools et la popularité, distincte de l’évaluation des réponses dangereuses. L’exploration est bornée à deux à quatre actions et à une présélection ; elle n’est pas une recherche exhaustive.
+
+Le modèle appris utilise les drafts complètes, les résultats et les caractéristiques de composition. Les statistiques de fin de partie (gold à 15 minutes, durée et objectifs) ne sont jamais des entrées de prédiction. Les deux patchs pro antérieurs servent à apprendre ; le patch pro le plus récent reste réservé au test. Les scrims plus récents que ce test sont exclus de cet apprentissage pour éviter une fuite temporelle. Ils restent conservés et peuvent alimenter les adaptations d’équipe.
+
+Les adaptations utilisent le nom d’équipe et le roster, avec un seuil de 20 matchs et un lissage fort. Les appréciations du coach et les résultats servent à construire des corrections limitées. Les coefficients globaux ne contiennent aucun identifiant de groupe privé ; chaque compte reçoit seulement ses profils d’équipe, et l’administrateur peut examiner l’ensemble.
+
+Le candidat initial partagé reste **inactif**. Après l’actualisation du 14 octobre, un nouvel entraînement local utilise 933 matchs et réserve les 20 matchs du dernier patch au test : erreur log loss 0,6790, contre 0,6637 pour la meilleure référence simple. L’échantillon de test est trop petit et le modèle ne passe pas le seuil d’amélioration. Ce nouvel entraînement n’a pas été activé ni publié. La vérification porte sur les coefficients effectivement exportés, sans identifiants d’équipes. La présence d’un entraînement ne constitue donc pas une validation de son utilité. Le moteur statistique reste actif. Les indices de draft, fenêtres de puissance et préférences adverses ne sont pas des probabilités de victoire calibrées.
+
+## Vérification
+
+`scripts/cloud-integration-test.mjs` vérifie la confidentialité sur le vrai projet avec des comptes temporaires, supprimés à la fin. `scripts/invitation-integration-test.mjs` vérifie les codes, leur expiration, leur remplacement, les tentatives simultanées et le refus d’élévation des droits. `scripts/cloud-ui-test.mjs` vérifie le parcours Electron complet : inscription par code, arbre, glisser-déposer, application du choix, résultats, changement de compte et copie d’une invitation. Les bases de test locales sont isolées du dossier de travail.
+
+Documentation officielle utilisée : [clés](https://supabase.com/docs/guides/getting-started/api-keys), [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [fonctions et délais](https://supabase.com/docs/guides/database/postgres/timeouts), [création de compte côté serveur](https://supabase.com/docs/reference/javascript/auth-admin-createuser), [déploiement de fonction](https://supabase.com/docs/reference/api/v1-deploy-a-function).

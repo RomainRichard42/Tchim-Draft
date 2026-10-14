@@ -1,3 +1,8 @@
+import { evaluateMatch, matchBalance } from './evaluation';
+import { choicePolicy } from './policy';
+import { exploreStrategy } from './strategy';
+import type { StrategyRequest } from '../shared/types';
+import { prepare, aggregate, pairRows } from './evidence';
 import type { Analysis, Champion, Composition, Draft, DraftBalance, Duo, EngineInput, PairStat, Prediction, Recommendation, Role, Scenario, Side, Stat, Weights } from '../shared/types';
 import { fearlessUsed, freeRoles, opposite, order, picks, used, PRO_ORDER } from '../shared/draft';
 import { clamp, patchDistance, posterior, softmax, wilson } from './math';
@@ -8,86 +13,10 @@ import { gamePlan } from './gameplan';
 import { banConsequences } from './ban-impact';
 import { contextualRisk, contextualScore, roleContext } from './role-context';
 import { assessBlind, blindDevelopment } from './blind';
+import { patchPrior } from './kit-matchups';
+import { metaProfiles, playableFlex } from './meta';
 
 function text(input: EngineInput, fr: string, en: string): string { return input.settings.language === 'fr' ? fr : en }
-interface Prepared {
-  stats: Map<string, Stat[]>; pairs: Map<string, PairStat[]>; roles: Map<string, Set<Role>>;
-  aggregates: Map<string, ReturnType<typeof aggregate>>;
-  historical: Map<string, { early: number; total: number }>;
-  windows: Record<'solo'|'pro',string[]>;
-  configuration: string;
-  pairsInput: PairStat[]; gamesInput: EngineInput['games']; counts: string;
-}
-const preparedCache = new WeakMap<Stat[], Prepared>();
-function prepare(input: EngineInput): Prepared {
-  const configuration=`${input.draft.league}|${input.settings.oldPatchDecay}`;
-  const counts=`${input.stats.length}|${input.pairs.length}|${input.games?.length??0}`;
-  const existing = preparedCache.get(input.stats); if (existing?.configuration===configuration&&existing.pairsInput===input.pairs&&existing.gamesInput===input.games&&existing.counts===counts) return existing;
-  const patches=(source:'solo'|'pro')=>{const stat=input.stats.filter(s=>s.source===source&&(source==='pro'||s.rank==='MASTER_PLUS'||s.rank==='all'));return latestPatches((stat.length?stat:input.pairs.filter(p=>p.source===source)).map(s=>s.patch));};
-  const data: Prepared = { stats: new Map(), pairs: new Map(), roles: new Map(), aggregates: new Map(), historical: new Map(),windows:{solo:patches('solo'),pro:patches('pro')},configuration,pairsInput:input.pairs,gamesInput:input.games,counts };
-  for (const row of input.stats) {
-    const key = `${row.championId}|${row.role}`, values = data.stats.get(key) ?? []; values.push(row); data.stats.set(key, values);
-    const roles = data.roles.get(row.championId) ?? new Set<Role>(); roles.add(row.role); data.roles.set(row.championId, roles);
-  }
-  for (const row of input.pairs) {
-    const key = `${row.kind}|${row.championId}|${row.role}|${row.otherId}|${row.otherRole}`, values = data.pairs.get(key) ?? []; values.push(row); data.pairs.set(key, values);
-  }
-  for (const game of input.games ?? []) {
-    if (game.draftOrderKnown === false) continue;
-    const age = data.windows.pro.indexOf(game.patch);
-    if (age < 0 || (game.league !== input.draft.league && input.draft.league !== 'all')) continue;
-    const weight = Math.pow(input.settings.oldPatchDecay, age), seq = PRO_ORDER;
-    game.history.forEach((s, i) => {
-      if (!s.championId || seq[i].kind !== 'pick') return;
-      const key = `${s.championId}|${s.role}|${seq[i].side}`, current = data.historical.get(key) ?? { early: 0, total: 0 };
-      current.total += weight; if (i < 9) current.early += weight; data.historical.set(key, current);
-    });
-  }
-  preparedCache.set(input.stats, data); return data;
-}
-function eligible<T extends Stat | PairStat>(rows: T[], input: EngineInput, side: Side): { row: T; age: number }[] {
-  const selected = rows.filter(r => {
-    const window=prepare(input).windows[r.source],age = window.indexOf(r.patch.split('.').slice(0,2).join('.'));
-    return age >= 0 && (age === 0 || input.settings.oldPatchDecay > 0) &&
-      (r.side === side || r.side === 'all') && (r.source==='pro'||r.rank==='MASTER_PLUS'||r.rank==='all') &&
-      (r.league === input.draft.league || r.league === 'all');
-  });
-  // Prefer the most specific slice, never add a global aggregate to its subset.
-  const best = new Map<string, T>();
-  const specificity = (r: T) => Number(r.side === side) * 4 + Number(r.rank === 'MASTER_PLUS') * 2 + Number(r.league === input.draft.league && r.league !== 'all');
-  for (const row of selected) {
-    const key = [row.source, row.patch.split('.').slice(0, 2).join('.'), row.championId, row.role, 'otherId' in row ? `${row.otherId}:${row.otherRole}:${row.kind}` : ''].join('|');
-    const current = best.get(key); if (!current || specificity(row) > specificity(current)) best.set(key, row);
-  }
-  return [...best.values()].map(row => ({ row, age: prepare(input).windows[row.source].indexOf(row.patch.split('.').slice(0,2).join('.')) }));
-}
-function aggregate(rows: (Stat | PairStat)[], input: EngineInput, side: Side) {
-  const filtered = eligible(rows, input, side);
-  const groups = (['solo', 'pro'] as const).flatMap(source => {
-    const selected = filtered.filter(r => r.row.source === source);
-    if (!selected.length) return [];
-    let n = 0, wins = 0, baselineTotal = 0, pickRate = 0, banRate = 0, exposure=0;
-    for (const { row, age } of selected) {
-      const discount = Math.pow(input.settings.oldPatchDecay, age);
-      n += row.games * discount; wins += row.wins * discount; baselineTotal += row.baseline * row.games * discount;
-      if ('pickRate' in row) { const population=row.pickRate>0?row.games/row.pickRate:row.games;exposure+=population*discount;pickRate += row.pickRate * population * discount; banRate += row.banRate * population * discount }
-    }
-    const baseline = baselineTotal / n, estimate = posterior(wins, n, baseline, source === 'pro' ? 50 : 200);
-    const desired = input.draft.mode === 'pro' ? (source === 'pro' ? .55 : .45) : (source === 'solo' ? .9 : .1);
-    const mixture=desired*n/(n+(source==='pro'?80:800));
-    const usable=n >= (source==='pro'?10:200), support=usable?n/(n+(source==='pro'?50:200)):0;
-    return [{ source, n, wins, baseline, estimate, pickRate: exposure?pickRate / exposure:0, banRate: exposure?banRate / exposure:0, mixture, usable, support }];
-  });
-  if (!groups.length) return null;
-  const totalWeight = groups.reduce((s, g) => s + g.mixture, 0);
-  const avg = (fn: (g: typeof groups[number]) => number) => groups.reduce((s, g) => s + fn(g) * g.mixture, 0) / totalWeight;
-  // Each source gets a prior of its own. The mixture never lets the larger solo sample swamp pro data.
-  const uncertainty = groups.map(g => wilson(g.wins, g.n));
-  return { estimate: avg(g => g.estimate), delta: avg(g => (g.estimate - g.baseline)*g.support), n: groups.reduce((s, g) => s + g.n, 0), usable:groups.some(g=>g.usable),
-    confidence: avg(g => g.usable?g.n / (g.n + (g.source === 'pro' ? 100 : 1000)):0),
-    interval: [avg(g => uncertainty[groups.indexOf(g)][0]), avg(g => uncertainty[groups.indexOf(g)][1])] as [number, number],
-    pickRate: avg(g => g.pickRate), banRate: avg(g => g.banRate), groups, sources: groups.map(g => g.source).join(' + '), old: filtered.some(r => r.age > 0), rounded: filtered.some(r => r.row.countMethod === 'rounded_rate') };
-}
 export function composition(champions: Champion[], language = 'fr',roles:Role[]=[]): Composition {
   const count = champions.length, sum = (key: keyof Champion['traits']) => champions.reduce((s, c) => s + c.traits[key], 0);
   const adShare = damageShare(champions,roles), frontline = sum('frontline'), engage = sum('engage'), peel = sum('peel'), poke = sum('poke');
@@ -105,15 +34,6 @@ export function composition(champions: Champion[], language = 'fr',roles:Role[]=
   return { count, adShare, frontline, engage, peel, poke, early, scaling, archetype, strengths, weaknesses, quality };
 }
 function team(input: EngineInput, side: Side): Champion[] { return picks(input.draft, side).flatMap(p => input.champions.find(c => c.id === p.championId) ?? []) }
-function pairRows(input: EngineInput, candidate: Champion, role: Role, target: { championId: string | null; role: Role }, kind: PairStat['kind']): PairStat[] {
-  const prepared = prepare(input);
-  const direct = prepared.pairs.get(`${kind}|${candidate.id}|${role}|${target.championId}|${target.role}`) ?? [];
-  if (direct.length) return direct;
-  return (prepared.pairs.get(`${kind}|${target.championId}|${target.role}|${candidate.id}|${role}`) ?? [])
-    .map(p => ({ ...p, championId: candidate.id, otherId: target.championId!, role, otherRole: target.role,
-      wins: kind === 'matchup' ? p.games - p.wins : p.wins, baseline: kind === 'matchup' ? 1 - p.baseline : p.baseline,
-      side: kind === 'matchup' && p.side !== 'all' ? opposite(p.side) : p.side }));
-}
 export function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AUTO' = 'AUTO', usePool = true, useFamiliarity = true, candidateId?:string): Recommendation[] {
   const availableRoles = freeRoles(input.draft, side), locked = new Set([...used(input.draft),...fearlessUsed(input.draft)]), allies = picks(input.draft, side), enemies = picks(input.draft, opposite(side));
   const allyTeam = team(input, side), before = composition(allyTeam,'fr',allies.map(a=>a.role)), enemyTeam = team(input, opposite(side));
@@ -184,34 +104,42 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
         ownPlan:allies.length?clamp(50+(ownAfter.score-beforeOwnPlan.score)*1.5):50,
         pair:(candidate,candidateRole,target,kind)=>summary(`${kind}|${candidate.id}|${candidateRole}|${target.championId}|${target.role}`,pairRows(input,candidate,candidateRole,target,kind))}):undefined;
       // Unseen lanes imply risk: early selections reward role ambiguity and protection.
-      const viableRoles=[...prepared.roles.get(c.id)??c.roles].filter(r=>input.stats.length?observedRole(summary(`stat|${c.id}|${r}`,prepared.stats.get(`${c.id}|${r}`)??[])):c.roles.includes(r));
-      const priority=stats?stats.groups.reduce((sum,g)=>{
-        const total=g.source==='pro'?championPro:championSolo;
-        const raw=clamp(25+Math.sqrt(g.pickRate)*65+Math.sqrt(g.banRate)*(g.source==='pro'?40:35)*Math.min(1,g.n/Math.max(1,total)*2));
-        return sum+(35+(raw-35)*g.support)*g.mixture;
-      },0)/stats.groups.reduce((sum,g)=>sum+g.mixture,0):35;
-      const blindSafety=clamp(50+(priority-50)*.6+Math.min(2,viableRoles.length-1)*4);
+      const flex=playableFlex(input,c.id,side),viableRoles=flex.roles;
+      const meta=metaProfiles(input,side).get(c.id),priority=meta?.rolePriority[role]??35;
+      const blindSafety=clamp((blind?.score??50)*.6+priority*.4+(flex.score-50)*.15);
       const historical = prepared.historical.get(`${c.id}|${role}|${side}`);
-      const historyPriority = historical && historical.total >= 10 ? posterior(historical.early, historical.total, 0.3, 20) * 100 : null;
+      const opening=historical&&historical.total>=10?{games:Math.round(historical.total),firstShare:posterior(historical.first,historical.total,.2,20),earlyShare:posterior(historical.early,historical.total,.6,20),blindShare:posterior(historical.blind,historical.total,.5,20)}:undefined;
+      const historyPriority=opening?(pickIndex===0?(opening.firstShare-.2)*100:(opening.earlyShare-.6)*100):null;
       // Evaluate prospective lane counters before an early blind pick, when pair data exists.
       const potential = input.draft.mode==='solo'&&early && input.pairs.length > 0 && !opponentLane ? input.champions.filter(o => !locked.has(o.id) && o.id !== c.id && o.roles.includes(role))
         .flatMap(o => summary(`matchup|${c.id}|${role}|${o.id}|${role}`, pairRows(input, c, role, { championId: o.id, role }, 'matchup')) ?? []) : [];
       const blindCounterPenalty = potential.length ? Math.max(0, -Math.min(...potential.map(p => p.delta))) * 100 : 0;
-      const orderValue = last && opponentLane ? clamp(50 + (matchup - 50) * 1.5) : early ? clamp(blindSafety - blindCounterPenalty + (input.draft.mode === 'pro' && historyPriority !== null ? (historyPriority - 50) * .2 : 0)) : opponentLane ? clamp(50 + (matchup - 50) * 1.2) : blindSafety;
+      const orderValue = last && opponentLane ? clamp(50 + (matchup - 50) * 1.5) : early ? clamp(blindSafety - blindCounterPenalty + (input.draft.mode === 'pro' && historyPriority !== null ? clamp(historyPriority*.2,-4,10) : 0)) : opponentLane ? clamp(50 + (matchup - 50) * 1.2) : blindSafety;
       const mastery = input.draft.mode==='solo'?input.settings.pool[c.id]:undefined;
       const factors: Weights = { winrate: stats ? clamp(50 + stats.delta * 600) : 50, matchup, synergy,
         meta: priority,
-        flex: early?clamp(50 + Math.max(0,viableRoles.length - 1) * 10):50, order: orderValue, composition: comp,
+        flex: early?flex.score:50, order: orderValue, composition: comp,
         mastery: !useFamiliarity?50:familiarity?(familiarity.games?clamp(40+Math.log2(1+familiarity.games)*9):80):players.some(p=>p.pool.length>0)?25:side === input.draft.side && mastery !== undefined ? mastery * 20 : 50 };
       const weights = { ...input.settings.weights };
       if (input.draft.mode === 'solo') { weights.mastery *= 2; weights.flex *= 0.4; weights.synergy *= 0.7 }
-      else { weights.flex *= early?1:.2; weights.order *= 1.3;if(useFamiliarity&&players.some(p=>p.pool.length>0))weights.mastery*=3; }
-      const score = contextualScore(factors, weights, context);
+      else { weights.flex *= early?3:.2; weights.order *= 1.3;weights.meta*=early?1.5:1;if(useFamiliarity&&players.some(p=>p.pool.length>0))weights.mastery*=3; }
+      const prior=patchPrior({...input,draft:{...input.draft,side}},c.id,role);
+      const knownComfort=familiarity?.games?familiarity.games/(familiarity.games+40)*((familiarity.player.pool.find(p=>p.championId===c.id&&(!p.role||p.role===role))?.comfort??3)/5):0;
+      // A well-covered pro dataset does not certify every strong solo offrole as an opening blind.
+      // This is a disclosed uncertainty cost, never a fabricated negative matchup statistic.
+      const openingUncertainty=input.draft.mode==='pro'&&early&&!opponentLane&&input.stats.some(s=>s.source==='pro'&&s.games>=100)
+        ?6*(1-(pro?.usable?pro.support:0))*(1-knownComfort*.6):0;
+      const score = clamp(contextualScore(factors, weights, context)+prior.value-openingUncertainty);
       const reasons: string[] = [];
+      if(openingUncertainty>.5)reasons.push(text(input,`Ouverture : prudence de ${openingUncertainty.toFixed(1)} points pour une position encore peu étayée en pro ; le confort renseigné réduit ce coût. Ce n’est pas un malus de matchup mesuré.`,`Opening: ${openingUncertainty.toFixed(1)} points of caution for a role with limited pro support; known comfort reduces this cost. This is not a measured matchup penalty.`));
+      if(input.draft.mode==='pro'&&meta&&(meta.proRoleGames[role]??0)<10)reasons.push(text(input,`Position ${role} peu documentée en pro (${Math.round(meta.proRoleGames[role]??0)} apparitions pondérées). La présence du champion dans ses autres rôles ne certifie pas ce blind ; les données Master+ restent une indication.`,`Limited pro evidence for ${role} (${Math.round(meta.proRoleGames[role]??0)} weighted appearances). Presence in other roles does not certify this blind; Master+ data remains an indication.`));
+      if(input.draft.mode==='pro'&&opening)reasons.push(text(input,`Ordre pro connu : ${opening.games} apparitions pondérées · premier choix de ce camp ${(opening.firstShare*100).toFixed(0)} % · phase 1 ${(opening.earlyShare*100).toFixed(0)} %. Fréquences lissées, pas des taux de victoire en blind.`,`Known pro order: ${opening.games} weighted appearances · this side’s opening pick ${(opening.firstShare*100).toFixed(0)}% · phase 1 ${(opening.earlyShare*100).toFixed(0)}%. Smoothed frequencies, not blind-pick win rates.`));
+      if(input.draft.mode==='pro'&&meta)reasons.push(text(input,`Priorité observée : présence pro ${meta.proPresence===null?'indisponible':(meta.proPresence*100).toFixed(1)+' %'} · Master+ ${meta.soloPresence===null?'indisponible':(meta.soloPresence*100).toFixed(1)+' %'}. Picks réunis par champion, bans comptés une fois. Ce n’est pas une fréquence de first pick.`,`Observed priority: pro presence ${meta.proPresence===null?'unavailable':(meta.proPresence*100).toFixed(1)+'%'} · Master+ ${meta.soloPresence===null?'unavailable':(meta.soloPresence*100).toFixed(1)+'%'}. Picks combined by champion, bans counted once. This is not a first-pick frequency.`));
+      if(prior.value)reasons.push(text(input,`Patch : ajustement prudent ${prior.value>0?'+':''}${prior.value.toFixed(1)}, hypothèse sur les données encore décalées.`,`Patch: bounded adjustment ${prior.value>0?'+':''}${prior.value.toFixed(1)}, a hypothesis for lagging statistics.`));
       if (stats) reasons.push(text(input, `${(stats.estimate * 100).toFixed(1)} % lissé · ${Math.round(stats.n).toLocaleString('fr-FR')} parties pondérées${stats.old ? ' · anciens patchs inclus' : ''}`, `${(stats.estimate * 100).toFixed(1)}% smoothed · ${Math.round(stats.n)} weighted games${stats.old ? ' · older patches included' : ''}`));
       else reasons.push(text(input, 'Aucune statistique compatible : priorité qualitative uniquement.', 'No matching statistics: qualitative priority only.'));
       if (stats?.rounded) reasons.push(text(input, 'Lolalytics : victoires reconstituées à partir des taux publiés arrondis ; intervalle approximatif.', 'Lolalytics: wins reconstructed from rounded published rates; approximate interval.'));
-      if (viableRoles.length > 1 && early) reasons.push(text(input, `Flex observé ${viableRoles.join(' / ')} : conserve l’ambiguïté du premier tour.`, `${viableRoles.join(' / ')} observed flex: preserves early-round ambiguity.`));
+      if (viableRoles.length > 1 && early) reasons.push(text(input, `Flex jouable ${viableRoles.join(' / ')} : rôles observés, encore libres et compatibles avec les pools renseignés.`, `${viableRoles.join(' / ')} playable flex: observed roles, still free and compatible with declared pools.`));
       reasons.push(...contextual.reasons);
       if(blind){
         const threats=blind.threats.map(t=>input.champions.find(ch=>ch.id===t.championId)?.name??t.championId).join(' / ');
@@ -240,18 +168,16 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
       const strongest=context?.parts.filter(p=>p.weight>0&&p.score>52).sort((a,b)=>(b.score-50)*b.weight-(a.score-50)*a.weight)[0];
       const blindBrief=blind&&blind.coverage<.5?text(input,'Blind : couverture des réponses insuffisante.','Blind: insufficient response coverage.'):blind&&blind.score<47?text(input,`Blind exposé${blind.threats.length?` : ${blind.threats.map(t=>input.champions.find(ch=>ch.id===t.championId)?.name??t.championId).join(' / ')} encore disponibles`:''}.`,`Exposed blind${blind.threats.length?`: ${blind.threats.map(t=>input.champions.find(ch=>ch.id===t.championId)?.name??t.championId).join(' / ')} still available`:''}.`):null;
       const brief=blindBrief??(strongest?text(input,`${strongest.label} : favorable${context?.partial?' · draft encore partielle':''}.`,`${strongest.label}: favorable${context?.partial?' · draft still partial':''}.`):contextual.reasons[0]??(useFamiliarity&&familiarity?(familiarity.games?text(input,`${familiarity.player.riotId} joue ce champion (${familiarity.games} parties connues).`,`${familiarity.player.riotId} plays this champion (${familiarity.games} known games).`):text(input,`Déclaré jouable par ${familiarity.player.riotId}.`,`Declared playable by ${familiarity.player.riotId}.`)):viableRoles.length>1&&early?text(input,'Un flex qui garde plusieurs options ouvertes.','A flex pick that keeps several options open.'):opponentLane&&matchup>52?text(input,'Matchup favorable face au rôle adverse déjà révélé.','Favorable matchup against the revealed enemy role.'):priority>55?text(input,'Champion prioritaire dans la méta sur les patchs analysés.','High-priority champion in the analyzed patch meta.'):stats&&stats.delta>0?text(input,'Résultats solides sur les derniers patchs.','Solid results across the latest patches.'):text(input,'À comparer avec les autres options pour votre composition.','Compare with the other options for your composition.')));
-      results.push({ championId: c.id, role, viableRoles, score: Math.round(score * 10) / 10, confidence: stats ? Math.round(stats.confidence * coverage * 100) : 0,
-        games: stats ? Math.round(stats.n) : 0, winrate: stats?.usable ? stats.estimate : null, interval: stats?.usable ? stats.interval : null, factors, reasons,context,blind,summary:stats&&!stats.usable?text(input,`Échantillon insuffisant (${Math.round(stats.n)} parties) · choix évalué sur son plan de jeu et le pool.`,`Insufficient sample (${Math.round(stats.n)} games) · evaluated through game plan and pool.`):brief,lowSample:!!stats&&!stats.usable,
+      results.push({ championId: c.id, role, viableRoles, opening, score: Math.round(score * 10) / 10, confidence: stats ? Math.round(stats.confidence * coverage * 100) : 0,
+        games: stats ? Math.round(stats.n) : 0, winrate: stats?.usable ? stats.estimate : null, interval: stats?.usable ? stats.interval : null, factors, reasons,context,blind,meta,summary:stats&&!stats.usable?text(input,`Échantillon insuffisant (${Math.round(stats.n)} parties) · choix évalué sur son plan de jeu et le pool.`,`Insufficient sample (${Math.round(stats.n)} games) · evaluated through game plan and pool.`):brief,lowSample:!!stats&&!stats.usable,
         responseRisk: context?contextualRisk(context):enemyTeam.length ? clamp(50 + (50 - matchup)) : 50, source: stats ? (input.demo ? 'DEMO · ' : '') + stats.sources : 'heuristic' });
     }
   }
   return results.sort((a, b) => b.score - a.score || a.championId.localeCompare(b.championId) || a.role.localeCompare(b.role));
 }
-function unique(recs: Recommendation[]): Recommendation[] { const seen = new Set<string>(); return recs.filter(r => !seen.has(r.championId) && !!seen.add(r.championId)) }
+function unique(recs: Recommendation[]): Recommendation[] { const seen = new Set<string>(); return recs.filter(r => !seen.has(r.championId) && !!seen.add(r.championId)).map(r=>({...r,alternatives:recs.filter(other=>other.championId===r.championId).map(other=>({role:other.role,score:other.score,blindScore:other.blind?.score}))})); }
 function predict(input: EngineInput, side: Side): Prediction[] {
-  const candidates = unique(rankCandidates(input, side, 'AUTO', false));
-  const preference = softmax(candidates.map(r => r.score));
-  return candidates.slice(0, 5).map((r, i) => ({ championId: r.championId, role: r.role, preference: preference[i] }));
+  return choicePolicy(input,side,rankCandidates(input,side,'AUTO',true)).slice(0,5);
 }
 function append(input: EngineInput, rec: Recommendation | Prediction): EngineInput {
   return { ...input, draft: { ...input.draft, targetRole: 'AUTO', history: [...input.draft.history, { championId: rec.championId, role: rec.role }] } };
@@ -289,7 +215,8 @@ function duos(input: EngineInput, recs: Recommendation[]): Duo[] {
     for (const second of unique(rankCandidates(afterFirst, current.side)).slice(0, 4)) {
       const afterBoth = append(afterFirst, second), response = predict(afterBoth, opposite(current.side))[0] ?? null;
       const bestReply = unique(rankCandidates(afterBoth, opposite(current.side), 'AUTO', false))[0];
-      const score = (first.score + second.score) / 2 - Math.max(0, (bestReply?.score ?? 50) - 50) * 0.15;
+      const leaf=bestReply?append(afterBoth,bestReply):afterBoth;const confrontation=evaluateMatch(leaf).value*(current.side==='blue'?1:-1);
+      const score=clamp(50+confrontation*1.3+((first.score+second.score)/2-50)*.25);
       combos.push({ first, second, score: Math.round(score * 10) / 10, response });
     }
   }
@@ -322,31 +249,16 @@ function simulate(input: EngineInput, current: Recommendation[]): Scenario[] {
  * Popularity, pick order and personal mastery are not outcome probabilities and are excluded.
  */
 export function draftBalance(input:EngineInput):DraftBalance {
-  const criteria=['winrate','matchup','synergy','composition'] as const;
-  const configured=criteria.reduce((sum,key)=>sum+input.settings.weights[key],0);
-  const weights:Weights={winrate:0,matchup:0,synergy:0,composition:0,meta:0,flex:0,order:0,mastery:0};
-  for(const key of criteria)weights[key]=configured?input.settings.weights[key]:1;
-  const evaluationInput=configured?input:{...input,settings:{...input.settings,weights}};
-  const sequence=order(input.draft);
-  const evaluate=(side:Side)=>{
-    const ratings=input.draft.history.flatMap((selection,index)=>{
-      if(sequence[index].kind!=='pick'||sequence[index].side!==side||!selection.championId||!selection.role)return [];
-      const history=input.draft.history.map((s,i)=>i===index?{championId:null}:s);
-      const recommendation=rankCandidates({...evaluationInput,draft:{...input.draft,history}},side,selection.role,false,false,selection.championId)[0];
-      if(!recommendation)return [50];
-      return [contextualScore(recommendation.factors,weights,recommendation.context)];
-    });
-    return {score:ratings.length?Math.round(ratings.reduce((sum,r)=>sum+r,0)/ratings.length*10)/10:50,count:ratings.length};
-  };
-  const blue=evaluate('blue'),red=evaluate('red'),revealed=blue.count+red.count;
-  return {value:Math.round((blue.score-red.score)*10)/10,blue,red,revealed,complete:revealed===10};
+  return matchBalance(input);
 }
 export function analyze(input: EngineInput): Analysis {
   const { draft } = input, next = order(draft)[draft.history.length] ?? null;
   const role = draft.targetRole !== 'AUTO' ? draft.targetRole : draft.mode === 'solo' && next?.side === draft.side && freeRoles(draft, draft.side).includes(draft.role) ? draft.role : 'AUTO';
   const side = next?.side ?? draft.side;
   const all = next?rankCandidates(input, side, role, next.side === draft.side):[];
-  const recommendations = unique(all), bans = next?banCandidates(input, side, next.kind === 'ban' ? draft.targetRole : 'AUTO'):[];
+  let recommendations = unique(all); const bans = next?banCandidates(input, side, next.kind === 'ban' ? draft.targetRole : 'AUTO'):[];
+  const strategy=next?.kind==='pick'&&draft.mode==='pro'?strategyAnalysis(input):undefined;
+  if(strategy?.options.length){const checked=new Set(strategy.options.map(r=>r.championId));recommendations=[...strategy.options,...recommendations.filter(r=>!checked.has(r.championId))].sort((a,b)=>b.score-a.score);}
   const warnings: string[] = [];
   if (!input.stats.length) warnings.push(text(input, 'Mode heuristique : importez un pack autorisé pour utiliser les winrates, counters et synergies statistiques.', 'Heuristic mode: import an authorized pack to use statistical win rates, counters and synergies.'));
   else if (next && !recommendations.some(r => r.games)) warnings.push(text(input, 'Aucune donnée compatible avec ces filtres et rôles. Les scores restent qualitatifs.', 'No data matches these filters and roles. Scores remain qualitative.'));
@@ -361,5 +273,17 @@ export function analyze(input: EngineInput): Analysis {
     duos: duos(input, all), scenarios,
     ally: composition(team(input, draft.side), input.settings.language,picks(draft,draft.side).map(p=>p.role)), enemy: composition(team(input, opposite(draft.side)), input.settings.language,picks(draft,opposite(draft.side)).map(p=>p.role)),
     plans:{ally:gamePlan(team(input,draft.side),picks(draft,draft.side).map(p=>p.role),team(input,opposite(draft.side)),picks(draft,opposite(draft.side)).map(p=>p.role),input.settings.language),
-      enemy:gamePlan(team(input,opposite(draft.side)),picks(draft,opposite(draft.side)).map(p=>p.role),team(input,draft.side),picks(draft,draft.side).map(p=>p.role),input.settings.language)},balance:draftBalance(input), warnings, next };
+      enemy:gamePlan(team(input,opposite(draft.side)),picks(draft,opposite(draft.side)).map(p=>p.role),team(input,draft.side),picks(draft,draft.side).map(p=>p.role),input.settings.language)},balance:draftBalance(input),evaluation:evaluateMatch(input),strategy, warnings, next };
+}
+
+export function strategyAnalysis(input:EngineInput,request?:StrategyRequest){
+ return exploreStrategy(input,(state,side,kind,restrict='AUTO')=>{
+  const base=kind==='ban'?banCandidates(state,side):rankCandidates(state,side,restrict,true);
+  if(request?.roots.length&&state.draft.history.length===request.draft.history.length&&kind==='pick'){
+   for(const root of request.roots)if(root.championId&&root.role&&freeRoles(state.draft,side).includes(root.role)&&!used(state.draft).has(root.championId)&&!fearlessUsed(state.draft).has(root.championId)){
+    const forced=rankCandidates(state,side,root.role,false,true,root.championId)[0];if(forced&&!base.some(r=>r.championId===forced.championId&&r.role===forced.role))base.push(forced);
+   }
+  }
+  return base;
+ },request);
 }

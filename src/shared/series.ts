@@ -9,11 +9,11 @@ export function validateDraft(draft: Draft, known: Set<string>): Draft {
   for (const [index,game] of (s?.games ?? []).entries()) {
     if(seriesFinished({...draft,history:[],series:{format:s!.format,games:s!.games.slice(0,index)}}))throw new Error('Series already won before this game');
     for (const id of game.picks) {
-      if (!known.has(id) || previous.has(id)) throw new Error('Unknown or repeated Fearless pick');
+      if (!known.has(id) || (s?.fearless!==false && previous.has(id))) throw new Error('Unknown or repeated Fearless pick');
       previous.add(id);
     }
     if (game.history) {
-      const historical: Draft = {...draft,side:game.side??draft.side,series:{format:s!.format,games:s!.games.slice(0,index)},history:game.history};
+      const historical: Draft = {...draft,side:game.side??draft.side,series:{...s!,games:s!.games.slice(0,index)},history:game.history};
       validateDraft(historical,known);
       const actual = PRO_ORDER.flatMap((a,i) => a.kind === 'pick' ? [game.history![i].championId!] : []);
       if (actual.length !== 10 || actual.some(id => !game.picks.includes(id))) throw new Error('Fearless picks do not match archived draft');

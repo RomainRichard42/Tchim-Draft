@@ -49,13 +49,23 @@ export function parseGolGame(html: string, champions: Champion[], id: string): H
   const text = $('body').text().replace(/\s+/g, ' '), patch = /\bv(\d+\.\d+)\b/.exec(text)?.[1];
   const tournament = $('a[href*="tournament-stats"]').first().text().trim();
   if (!patch || !tournament) throw new Error('gol.gg game patch/tournament missing');
+  // The panel colors follow the displayed teams, not necessarily their actual side.
+  // The explicit First Pick marker identifies the real blue team.
+  const panels={blue:$('.blue-line-header').first().closest('.col-12.col-sm-6'),red:$('.red-line-header').first().closest('.col-12.col-sm-6')};
+  const marker=(side:'blue'|'red')=>panels[side].find('.col-2').filter((_,e)=>$(e).text().trim().startsWith('Picks')).find('img[alt="First Pick"]').length;
+  if(marker('blue')+marker('red')!==1)throw new Error('gol.gg first-pick side marker missing or ambiguous');
+  const swapped=marker('red')===1;
   let winner: HistoricalGame['winner'] | undefined;
+  const teams:NonNullable<HistoricalGame['teams']>={blue:{id:'',name:''},red:{id:'',name:''}};
   const objectives: Record<string, number> = {};
   for (const side of ['blue', 'red'] as const) {
-    const header = $(`.${side}-line-header`).first(), team = header.closest('.col-12.col-sm-6');
+    const displayed=swapped?(side==='blue'?'red':'blue'):side;
+    const header = $(`.${displayed}-line-header`).first(), team = panels[displayed];
     if (!team.length) throw new Error('gol.gg team panel missing');
+    const link=header.find('a[href*="team-stats/"]').first(),teamId=/team-stats\/(\d+)\//.exec(link.attr('href')??'')?.[1];
+    if(teamId)teams[side]={id:'gol-'+teamId,name:link.text().trim().slice(0,100)};
     if (/\bWIN\b/.test(header.text())) winner = side;
-    const played=$('table.playersInfosLine').eq(side==='blue'?0:1).find('a[href*="champion-stats"] img').toArray();
+    const played=$('table.playersInfosLine').eq(displayed==='blue'?0:1).find('a[href*="champion-stats"] img').toArray();
     if(played.length!==5)throw new Error('gol.gg incomplete played lineup');
     lineups[side].picks=played.map((icon,i)=>({championId:champ($(icon).attr('alt')??''),role:ROLES[i]}));
     const pickLabel=team.find('.col-2').filter((_,e)=>$(e).text().trim().startsWith('Picks')).first();
@@ -63,7 +73,10 @@ export function parseGolGame(html: string, champions: Champion[], id: string): H
     try{
       draftPicks[side]=ribbon.find('a img').toArray().map(icon=>champ($(icon).attr('alt')??''));
       const groups=(ribbon.html()??'').split('|').map(part=>load(part)('a img').length);
-      if(groups.join(',')!==(side==='blue'?'1,2,2':'2,1,2')||draftPicks[side].length!==5||new Set(draftPicks[side]).size!==5||!draftPicks[side].every(id=>lineups[side].picks.some(p=>p.championId===id)))orderKnown=false;
+      // gol.gg groups the red ribbon as 2|2|1; its left-to-right per-team order
+      // still maps to R1..R5. Also accept the explicit phase-aware 2|1|2 layout.
+      const supported=side==='blue'?groups.join(',')==='1,2,2':['2,2,1','2,1,2'].includes(groups.join(','));
+      if(!supported||draftPicks[side].length!==5||new Set(draftPicks[side]).size!==5||!draftPicks[side].every(id=>lineups[side].picks.some(p=>p.championId===id)))orderKnown=false;
     }catch{orderKnown=false;}
     for (const kind of ['Bans']) {
       const label = team.find('.col-2').filter((_, e) => $(e).text().trim().startsWith(kind)).first();
@@ -81,6 +94,8 @@ export function parseGolGame(html: string, champions: Champion[], id: string): H
     });
   }
   if (!winner) throw new Error('gol.gg game result not recorded');
+  const actualIds=Object.values(lineups).flatMap(team=>[...team.picks.map(p=>p.championId),...team.bans.filter((id):id is string=>!!id)]);
+  if(new Set(actualIds).size!==actualIds.length)throw new Error('gol.gg game has repeated picks or bans');
   const duration = /Game Time\s*(\d+):(\d{2})/.exec(text);
   const league = /^(LCK CL|LCK|LPL|LEC|LCS|LCP|LFL|NLC|CBLOL|MSI|Worlds|EMEA Masters|VCS|TCL)\b/i.exec(tournament)?.[1].toUpperCase() ?? tournament.split(' 20')[0];
   const goldScript = $('script').toArray().map(e => $(e).text()).find(s => /var golddatas\s*=/.test(s));
@@ -89,10 +104,13 @@ export function parseGolGame(html: string, champions: Champion[], id: string): H
   const labels = goldScript && /labels\s*:\s*\[([^\]]+)\]/.exec(goldScript)?.[1].match(/\d+/g);
   const minute15 = labels ? labels.indexOf('15') : -1;
   const turn={blue:{pick:0,ban:0},red:{pick:0,ban:0}};
+  const date=$('.col-12.col-sm-5.text-right').toArray().map(e=>/\b(\d{4}-\d{2}-\d{2})\b/.exec($(e).text())?.[1]).find(Boolean);
+  const playedAt=date&&!Number.isNaN(Date.parse(date))&&new Date(date).toISOString().startsWith(date)?new Date(date).toISOString():undefined;
   const history=orderKnown?PRO_ORDER.map(action=>{const championId=(action.kind==='pick'?draftPicks:draftBans)[action.side][turn[action.side][action.kind]++];return action.kind==='pick'?{championId,role:lineups[action.side].picks.find(p=>p.championId===championId)!.role}:{championId};}):[];
   return { id: `gol-${id}`, patch, tournament, league, winner, history, draftOrderKnown: orderKnown, lineups,
+    ...(playedAt?{playedAt}:{}),...(teams.blue.id&&teams.red.id?{teams}:{}),
     ...(duration ? { durationSeconds: Number(duration[1]) * 60 + Number(duration[2]) } : {}),
-    ...(gold && minute15 >= 0 && Number.isFinite(gold[minute15]) ? { goldDiff15: gold[minute15] } : {}), objectives };
+    ...(gold && minute15 >= 0 && Number.isFinite(gold[minute15]) ? { goldDiff15: gold[minute15]*(swapped?-1:1) } : {}), objectives };
 }
 export function gamePairs(games: HistoricalGame[],stats:Stat[]=[]): PairStat[] {
   const strength=new Map(stats.map(s=>[`${s.patch}|${s.championId}|${s.role}`,(s.wins+25)/(s.games+50)-.5]));

@@ -1,3 +1,4 @@
+import { enrichCachedGames } from './enrich';
 import Database from 'better-sqlite3';
 import { createHash } from 'node:crypto';
 import { gzipSync, gunzipSync } from 'node:zlib';
@@ -10,7 +11,12 @@ import { datasetSchema, publicChampionSchema, type DatasetManifest } from '../sh
 import type { DataPack } from '../shared/types';
 
 const hash=(body:Buffer|string)=>createHash('sha256').update(body).digest('hex');
-export async function exportDataset(db:Database.Database,directory:string):Promise<DatasetManifest> {
+export async function readDatasetManifest(file:string):Promise<DatasetManifest> {
+ const manifest=datasetSchema.parse(JSON.parse(await readFile(file,'utf8')));
+ const revision=hash(JSON.stringify({staticVersion:manifest.staticVersion,champions:manifest.champions,parts:manifest.parts,coverage:manifest.coverage}));
+ if(revision!==manifest.revision)throw new Error('Prepared dataset revision mismatch');return manifest;
+}
+export async function exportDataset(db:Database.Database,directory:string,enrichmentRoot?:string):Promise<DatasetManifest> {
   // No Storage constructor: the editor's database remains read-only and no user kv/session/log is exported.
   const packs=(db.prepare('SELECT raw FROM packs ORDER BY imported_at').all() as {raw:string}[]).map(p=>JSON.parse(p.raw) as DataPack)
     .filter(p=>!p.provenance.demo&&/^golgg-|^lolalytics-/.test(p.id));
@@ -20,6 +26,7 @@ export async function exportDataset(db:Database.Database,directory:string):Promi
   const staticRow=db.prepare("SELECT value FROM kv WHERE key = 'staticVersion'").get() as {value:string}|undefined;
   const staticVersion=staticRow?JSON.parse(staticRow.value):null;if(!staticVersion)throw new Error('Data Dragon catalog required');
   const champions=(db.prepare('SELECT json FROM champions ORDER BY id').all()).map(row=>{const {icon,...publicFields}=JSON.parse((row as {json:string}).json);return publicChampionSchema.parse(publicFields);});
+  if(enrichmentRoot){const enriched=await enrichCachedGames(enrichmentRoot,champions,input.games??[]);if(enriched.failed)throw new Error(`${enriched.failed} cached pro games could not be verified; publication stopped`);input.games=enriched.games;}
   const known=new Set(champions.map(c=>c.id));
   const createdAt=packs.map(p=>p.createdAt).sort().at(-1)!;
   const parts:DatasetManifest['parts']=[],coverage:DatasetManifest['coverage']=[];
@@ -35,10 +42,10 @@ export async function exportDataset(db:Database.Database,directory:string):Promi
     for(const patch of patches) {
       const patchPairs=pairs.filter(p=>p.patch===patch),patchStats=stats.filter(p=>p.patch===patch),patchGames=games.filter(p=>p.patch===patch);
       const stamp=packs.filter(p=>p.stats.some(s=>s.source===source&&s.patch===patch)||p.pairs.some(s=>s.source===source&&s.patch===patch)).map(p=>p.createdAt).sort().at(-1)!;
-      for(let offset=0;offset<Math.max(1,patchPairs.length);offset+=75000) {
-        const pack:DataPack={schemaVersion:1,id:`shared-${source}-${patch}-${Math.floor(offset/75000)}`,createdAt:stamp,
+      for(let offset=0;offset<Math.max(1,patchPairs.length);offset+=15000) {
+        const pack:DataPack={schemaVersion:1,id:`shared-${source}-${patch}-${Math.floor(offset/15000)}`,createdAt:stamp,
           provenance:{name:source==='pro'?`gol.gg ${patch}`:`Lolalytics Master+ ${patch}`,url:source==='pro'?'https://gol.gg/':'https://lolalytics.com/',license:'Public statistics collected by the publisher. Source attribution retained; robots.txt is not a redistribution license.',demo:false},
-          stats:offset?[]:patchStats,pairs:patchPairs.slice(offset,offset+75000),games:offset?[]:patchGames};
+          stats:offset?[]:patchStats,pairs:patchPairs.slice(offset,offset+15000),games:offset?[]:patchGames};
         const raw=JSON.stringify(validateDataPack(pack,known));let body:Buffer|undefined;
         if(Buffer.byteLength(raw)>48*1024*1024)throw new Error('Dataset part too large');
         const old=previous?.parts.find(p=>p.id===pack.id);

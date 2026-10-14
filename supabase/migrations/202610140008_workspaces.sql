@@ -1,0 +1,13 @@
+begin;
+create table if not exists public.draft_workspaces(user_id uuid primary key references auth.users(id),label text not null,draft jsonb not null,teams jsonb not null,settings jsonb not null,updated_at timestamptz not null default now());
+alter table public.draft_workspaces enable row level security;
+revoke all on public.draft_workspaces from public,anon,authenticated;
+grant select,insert,update on public.draft_workspaces to authenticated;
+grant all on public.draft_workspaces to service_role;
+create policy draft_workspace_read on public.draft_workspaces for select to authenticated using(user_id=auth.uid() or public.draft_access(null,true));
+create policy draft_workspace_insert on public.draft_workspaces for insert to authenticated with check(user_id=auth.uid() and public.draft_access());
+create policy draft_workspace_update on public.draft_workspaces for update to authenticated using(user_id=auth.uid() and public.draft_access()) with check(user_id=auth.uid() and public.draft_access());
+create or replace function public.draft_workspace_touch() returns trigger language plpgsql set search_path='' as $$begin new.updated_at=now();return new;end $$;
+create trigger draft_workspace_touch before update on public.draft_workspaces for each row execute function public.draft_workspace_touch();
+revoke all on function public.draft_workspace_touch() from public,anon,authenticated;
+commit;

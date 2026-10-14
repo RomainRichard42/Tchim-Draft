@@ -1,3 +1,4 @@
+import { evaluateMatch, members } from './evaluation';
 import type { BanImpact, EngineInput, Recommendation, Side } from '../shared/types';
 import { fearlessUsed, opposite, picks, used } from '../shared/draft';
 import { clamp } from './math';
@@ -13,6 +14,7 @@ export function banConsequences(input:EngineInput, banningSide:Side, enemy:Recom
   const before=gamePlan(enemyTeam,enemyRoles,ownTeam,ownRoles);
   const threat=(r:Recommendation)=>{
     const c=input.champions.find(c=>c.id===r.championId);
+    const lineups={blue:members(input,'blue'),red:members(input,'red')};if(c&&revealed.length){lineups[enemySide]=[...lineups[enemySide],{champion:c,role:r.role}];return 50+(r.score-50)*.35+evaluateMatch(input,lineups).value*(enemySide==='blue'?1:-1)*1.3;}
     return r.score+(c&&revealed.length?clamp((gamePlan([...enemyTeam,c],[...enemyRoles,r.role],ownTeam,ownRoles).score-before.score)*.25,-6,6):0);
   };
   const threats=enemy.map(r=>({r,value:threat(r)})).sort((a,b)=>b.value-a.value);

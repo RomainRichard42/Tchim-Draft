@@ -1,0 +1,13 @@
+import Database from 'better-sqlite3';
+import { mkdir, writeFile, copyFile, readdir } from 'node:fs/promises';
+import path from 'node:path';
+const target=path.resolve('data/refresh-20261014');
+await mkdir(target,{recursive:true});
+const db=new Database('data/local/tchim.sqlite',{readonly:true,fileMustExist:true});
+console.log('Before refresh',JSON.stringify(db.prepare('SELECT id,imported_at FROM packs WHERE id LIKE ? OR id LIKE ? ORDER BY imported_at DESC LIMIT 6').all('golgg-%','lolalytics-%')));
+console.log('Window',JSON.stringify(db.prepare('SELECT key,value FROM kv WHERE key IN (?,?,?)').all('staticVersion','staticPatches','scrapeWindow')));
+await db.backup(path.join(target,'tchim.sqlite'));db.close();
+await mkdir(path.join(target,'icons'),{recursive:true});
+for(const name of await readdir('data/local/icons'))if(name.endsWith('.png'))await copyFile(path.join('data/local/icons',name),path.join(target,'icons',name));
+await writeFile(path.join(target,'prepared.json'),JSON.stringify({source:'data/local/tchim.sqlite',createdAt:new Date().toISOString()}));
+console.log('Isolated collection ready',target);

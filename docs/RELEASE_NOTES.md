@@ -1,23 +1,23 @@
-# Tchim Draft 0.10.5 — Toute la draft passe au sombre
+# Tchim Draft 0.13.1 — Prépare ton match, compare tous les picks
 
-- **Une interface plus claire pendant la draft.** Les deux équipes sont regroupées par camp. Le choix principal, son portrait et son score prennent place au centre ; les autres propositions se comparent dans une liste déroulante.
-- **Sombre ou clair, à toi de choisir.** Le thème sombre est actif par défaut. Change-le dans Paramètres : ton choix est mémorisé et s’applique aux six pages, aux détails, aux nouveautés et à l’overlay.
-- **Le retour des vrais champions.** Les portraits s’affichent dans les picks, les bans, les pools et les propositions. Les icônes sont incluses dans l’application et restent disponibles hors connexion.
-- **Les équipes OP.GG plus faciles à lire.** Retrouve les cinq joueurs de chaque équipe et leurs premiers champions. Développe un joueur pour consulter et modifier tout son pool, puis prépare la draft depuis un bouton commun.
-- **Une simulation avec les mêmes repères.** Le champion à examiner apparaît en grand entre les deux camps. Retrouve les bans et les picks sur deux lignes ; les choix imposés, les réponses adverses, la pause et les sauvegardes restent disponibles.
-- **Ton pool et tes données mieux regroupés.** Mon pool affiche la maîtrise que tu déclares et un récapitulatif calculé depuis tes choix. Données rassemble la couverture des trois patchs disponibles, les packs et le journal des actualisations.
-- **Des paramètres plus lisibles.** Les curseurs montrent les poids choisis. Changer de thème ou de langue conserve les réglages en cours sans les appliquer à la draft.
+- **Une préparation par match.** Nomme les deux équipes, choisis le BO classique ou Fearless et renseigne leurs multi OP.GG. Retrouve tes matchs dans une bibliothèque, puis passe de Préparation à Draft et Résultat.
+- **Des picks plus faciles à comparer.** La liste défile entièrement côté bleu comme côté rouge, y compris dans une petite fenêtre. Les lignes et portraits sont plus grands ; « Agrandir les choix » ouvre une grande vue avec recherche.
+- **Les explications au survol.** Consulte les counters, les matchups favorables, les synergies et les atouts ou risques dans ta draft. « Infos » garde la fiche ouverte ; Échap la ferme. La flèche prépare directement ton pick.
+- **Des recommandations plus prudentes.** Le moteur tient mieux compte des flexs réellement observés, des rôles encore libres, des pools et des réponses adverses. Un ou deux matchs pro ne suffisent plus à faire passer un rôle inhabituel pour un choix fiable. Les synergies du duo bot sont prioritaires pour ADC et support.
+- **Tes drafts liées à leurs résultats.** Enregistre le vainqueur, les kills des deux équipes, ta note de draft sur 5 et tes remarques. Le BO classique permet de rejouer un champion ; le Fearless bloque les champions déjà utilisés.
+- **Un compte personnel et les statistiques partagées.** Crée ton compte avec un code d’invitation, ton e-mail et ton mot de passe. Tes préparations, pools et résultats restent privés à ton compte, avec accès administrateur. Les statistiques communes viennent de Supabase : aucune collecte des sites à faire chez toi.
+- **Les champions et les changements de patch.** Consulte les caractéristiques et compétences des champions, les changements recensés et les interactions de sorts avec leurs conditions. Les indications de méta restent des hypothèses à confronter aux matchs.
 
-Les nouveautés s’affichent une fois après la mise à jour et restent consultables dans Paramètres. Les statistiques s’actualisent uniquement quand tu cliques sur Actualiser ; elles ne sont pas collectées au lancement ni après une mise à jour de l’application. Les scores restent des indices de draft, pas des probabilités de victoire.
+Les nouveautés s’affichent une fois après la mise à jour et restent consultables dans **Réglages → Compte et interface**. Les mises à jour de l’application se téléchargent automatiquement et s’installent à sa fermeture. Elles ne déclenchent aucune collecte gol.gg ou Lolalytics. Les scores sont des indices de draft ; ils ne constituent pas des probabilités de victoire calibrées.
 
-# English — A dark look for the whole draft assistant
+# English — Prepare your match and compare every pick
 
-- **A clearer draft screen.** Both teams are grouped by side. Your main choice, portrait and score take center stage; compare the other suggestions in a scrolling list.
-- **Choose dark or light.** Dark is the default. Change it in Settings: your choice is saved and applies to all six pages, details, release notes and the overlay.
-- **Real champion portraits return.** Picks, bans, pools and suggestions show champion portraits. Icons are bundled with the app and remain available offline.
-- **Easier OP.GG team scouting.** See each team's five players and their first champions. Expand a player to view and edit their full pool, then prepare the draft from one shared button.
-- **Consistent simulations.** Examine the champion between both teams. Follow bans and picks on two rows; forced choices, enemy responses, pause and saved drafts remain available.
-- **Your pool and data in one place.** My pool shows your declared proficiency and an overview calculated from your choices. Data groups available three-patch coverage, packs and update logs.
-- **Readable settings.** Sliders show your chosen weights. Switching theme or language preserves pending adjustments without applying them to the draft.
+- **One preparation per match.** Name both teams, choose a regular or Fearless series and add their multi OP.GG links. Find your matches in a library, then move through Preparation, Draft and Result.
+- **Easier pick comparisons.** Scroll through the full list on blue or red side, including in a small window. Rows and portraits are larger; “Expand choices” opens a large searchable view.
+- **Hover for explanations.** Review counters, favourable matchups, synergies and strengths or risks in your current draft. “Info” pins the card; Escape closes it. The arrow prepares the pick directly.
+- **More cautious recommendations.** The engine better accounts for observed flex roles, remaining roles, player pools and enemy responses. One or two pro games no longer make an unusual role look reliable. ADC and support prioritise bot-lane synergies.
+- **Drafts connected to results.** Record the winner, both teams’ kills, your draft grade out of five and notes. Regular series allow repeated champions; Fearless blocks champions already used.
+- **A personal account with shared statistics.** Register with an invitation code, email and password. Your preparations, pools and results are private to your account, with administrator access. Shared statistics come from Supabase; you do not need to collect websites yourself.
+- **Champion details and patch changes.** Browse champion stats and abilities, recorded changes and conditional ability interactions. Meta forecasts remain hypotheses to compare against actual matches.
 
-Release notes appear once after the update and remain available in Settings. Statistics refresh only when you click Refresh, with no collection at startup or after an app update. Scores remain draft indices, not win probabilities.
+Release notes appear once after the update and remain available in **Settings → Account and interface**. App updates download automatically and install when you close the app. They do not trigger gol.gg or Lolalytics collection. Scores are draft indices, not calibrated win probabilities.

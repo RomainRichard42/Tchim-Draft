@@ -18,7 +18,7 @@ export function seriesFinished(draft: Draft): boolean {
   return s.games.length >= limit || (['ally','enemy'] as const).some(side => s.games.filter(g => g.winner === side).length >= required);
 }
 export function fearlessUsed(draft: Draft): Set<string> {
-  return new Set(draft.mode === 'pro' && draft.series?.format !== 'single' ? draft.series?.games.flatMap(g => g.picks) ?? [] : []);
+  return new Set(draft.mode === 'pro' && draft.series?.fearless !== false && draft.series?.format !== 'single' ? draft.series?.games.flatMap(g => g.picks) ?? [] : []);
 }
 export function order(draft: Draft): Action[] { return seriesFinished(draft) ? [] : draft.mode === 'pro' ? PRO_ORDER : SOLO_ORDER }
 export function used(draft: Draft): Set<string> { return new Set(draft.history.flatMap(s => s.championId ? [s.championId] : [])) }

@@ -1,0 +1,30 @@
+import { mkdir,writeFile } from 'node:fs/promises';
+import { createTestUsers,cleanupTestUsers,newTestInvitation,cloudRequest } from './cloud-integration-test.mjs';
+import { adminConfig,management,sql } from './supabase-admin.mjs';
+import config from '../resources/supabase-public.json' with {type:'json'};
+const check=(value,message)=>{if(!value)throw new Error(message);};
+const register=invitation=>cloudRequest('/functions/v1/draft-register',{email:invitation.email,password:invitation.password,code:invitation.code});
+const report={};
+try{
+ const [coach,,admin,blocked]=await createTestUsers(),invite=await newTestInvitation(admin);
+ const env=await adminConfig(),ref=new URL(env.SUPABASE_URL).hostname.split('.')[0],auth=await management('projects/'+ref+'/config/auth');
+ check(auth.disable_signup===true,'Public signup was not disabled');
+ check(!(await cloudRequest('/auth/v1/signup',{email:invite.email,password:invite.password})).ok,'Public signup accepted');report.publicSignupClosed=true;
+ check(!(await cloudRequest('/rest/v1/rpc/draft_issue_invitation',{target_email:invite.email},coach.headers)).ok,'Coach issued invitation');report.coachCannotInvite=true;
+ check((await register({...invite,email:'other@example.invalid'})).status===403,'Code accepted another email');report.emailBound=true;
+ check((await register({...invite,code:'TD-'+'0'.repeat(32)})).status===403,'Invalid code accepted');report.invalidCodeDenied=true;
+ check(!(await cloudRequest('/functions/v1/draft-register',{email:invite.email,password:invite.password,code:invite.code,role:'owner'})).ok,'Client-selected role accepted');report.roleSpoofDenied=true;
+ const created=await register(invite);check(created.status===201,'Code registration failed ('+created.status+')');
+ const signed=await cloudRequest('/auth/v1/token?grant_type=password',{email:invite.email,password:invite.password});check(signed.ok,'Created account could not sign in');
+ const headers={apikey:config.publishableKey,'Content-Type':'application/json',Authorization:'Bearer '+signed.data.access_token};
+ const member=await cloudRequest('/rest/v1/draft_members?select=role',undefined,headers);check(member.data.length===1&&member.data[0].role==='coach','Incorrect registration role');report.directLoginWithoutEmail=true;
+ check((await register(invite)).status===403,'Used code was accepted');report.singleUse=true;
+ check(!(await cloudRequest('/rest/v1/draft_invitations?select=*',undefined,headers)).ok,'User read invitation hashes');report.invitationTablePrivate=true;
+ await cloudRequest('/rest/v1/rpc/draft_claim_invitation',{},blocked.headers);
+ check((await cloudRequest('/rest/v1/draft_members?select=role',undefined,blocked.headers)).data.length===0,'Email-only claim created membership');report.emailClaimDisabled=true;
+ const concurrent=await newTestInvitation(admin),races=await Promise.all([register(concurrent),register(concurrent)]);check(races.filter(r=>r.status===201).length===1,'Concurrent code use did not have exactly one winner');report.concurrentSingleUse=true;
+ const regenerated=await newTestInvitation(admin),replacement=await cloudRequest('/rest/v1/rpc/draft_issue_invitation',{target_email:regenerated.email},admin.headers);check(replacement.ok,'Code replacement failed');
+ check((await register(regenerated)).status===403,'Previous code remained valid');check((await register({...regenerated,code:replacement.data.code})).status===201,'Replacement code failed');report.regenerationInvalidatesOld=true;
+ const expired=await newTestInvitation(admin);await sql('update public.draft_invitations set expires_at=now()-interval \'1 day\' where email=$1',[expired.email]);check((await register(expired)).status===403,'Expired code accepted');report.expiryEnforced=true;
+ await mkdir('artifacts',{recursive:true});await writeFile('artifacts/invitation-integration-report.json',JSON.stringify(report,null,2));console.log('INVITATION_INTEGRATION_OK',JSON.stringify(report));
+}finally{await cleanupTestUsers();}
