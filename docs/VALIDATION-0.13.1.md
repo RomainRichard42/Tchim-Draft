@@ -26,7 +26,7 @@ La fiche explique les apports à la composition et les risques ; les interaction
 
 Scripts : `scripts/pick-scroll-ui-test.mjs`, `scripts/pick-insight-cloud-test.mjs`, `scripts/release-notes-ui-test.mjs`. Les captures et résultats sont dans `artifacts/pick-*.png` et `artifacts/pick-*-report.json`.
 
-Les changements restent locaux. Aucune publication GitHub, release ou nouvelle collecte de statistiques n’est autorisée ni effectuée pour ce correctif.
+Cette validation a été réalisée avant l’autorisation de publication. Les changements étaient alors locaux, sans nouvelle collecte de statistiques. La publication demandée ensuite est vérifiée dans [VALIDATION-PUBLICATION-0.13.1.md](VALIDATION-PUBLICATION-0.13.1.md).
 
 ## Installeur vérifié
 
