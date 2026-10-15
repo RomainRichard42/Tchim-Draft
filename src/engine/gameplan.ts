@@ -1,6 +1,7 @@
 import type { Champion, GamePlan, Role } from '../shared/types';
 import { clamp } from './math';
 import { damageShare } from './teamplay';
+import {compositionDuties} from './duties';
 
 const group = (ids: string) => new Set(ids.split(' '));
 const waveclear = group('Anivia Ahri Azir AurelionSol Caitlyn Cassiopeia Corki Hwei Jinx Karma Lux Malzahar MissFortune Orianna Ryze Seraphine Sivir Smolder Syndra Taliyah Tristana TwistedFate Varus Viktor Xerath Ziggs');
@@ -61,5 +62,5 @@ export function gamePlan(team: Champion[], roles: Role[], enemy: Champion[], ene
   const primary=kind==='poke'?objectives:kind==='side'?sideLane:kind==='dive'?teamfight:kind==='front-to-back'?teamfight:(objectives+teamfight)/2;
   const score=count?clamp(primary*.4+lanes*.15+objectives*.15+clamp(teamfight)*.2+execution*.1):50;
   const timing=count?avg('early')>avg('scaling')+.4?tr('Créer un avantage tôt et convertir sur les objectifs.','Build an early lead and convert it into objectives.'):avg('scaling')>avg('early')+.4?tr('Atteindre les pics de puissance avec une économie stable.','Reach power spikes with stable economy.'):tr('Jouer les fenêtres de puissance et les rotations préparées.','Play prepared power windows and rotations.'):tr('Timings à définir.','Timings to define.');
-  return {kind,title:titles[kind],score:Math.round(score*10)/10,partial:count<5,profiled:team.filter(c=>c.curated).length,axes,timing,conditions:[...new Set(conditions)],risks:[...new Set(risks)],needs:[...new Set(needs)]};
+  return {duties:compositionDuties(team,roles,language),kind,title:titles[kind],score:Math.round(score*10)/10,partial:count<5,profiled:team.filter(c=>c.curated).length,axes,timing,conditions:[...new Set(conditions)],risks:[...new Set(risks)],needs:[...new Set(needs)]};
 }

@@ -22,6 +22,7 @@ await Promise.all([
   build({ entryPoints: ['src/collector/scrape-cli.ts'], bundle: true, platform: 'node', format: 'cjs', target: 'node22',
     outfile: 'dist/collector/scrape.cjs', external: ['better-sqlite3'] }),
   build({ entryPoints: ['src/collector/knowledge-cli.ts'],bundle:true,platform:'node',format:'cjs',target:'node22',outfile:'dist/collector/knowledge.cjs' }),
+  build({entryPoints:['scripts/build-pro-context.ts'],bundle:true,platform:'node',format:'cjs',target:'node22',outfile:'dist/collector/pro-context.cjs',external:['better-sqlite3']}),
   build({ entryPoints: ['src/collector/export-dataset.ts'], bundle: true, platform: 'node', format: 'cjs', target: 'node22',
     outfile: 'dist/collector/export-dataset.cjs', external: ['better-sqlite3'] })
 ]);

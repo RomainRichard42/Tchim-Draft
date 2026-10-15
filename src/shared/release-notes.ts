@@ -3,6 +3,19 @@ import type { ReleaseNote, ReleaseNotesStatus } from './types';
 // User-facing copy shipped with the app: plain text, no remote HTML or network dependency.
 export const RELEASE_NOTES:ReleaseNote[]=[
   {
+    version:'0.14.0',title:{fr:'La méta expliquée, le plan de jeu et ton avis',en:'Explained meta, team duties and your feedback'},
+    summary:{fr:'Compare les formats de draft, comprends les données derrière les priorités et précise ce qui fonctionne pour ton équipe.',en:'Compare draft formats, understand the evidence behind priorities and record what works for your team.'},
+    sections:[{kind:'new',items:[
+      {fr:'Méta & coaching distingue les matchs classiques documentés, le Fearless, les ouvertures de BO et les formats inconnus. Un champion déjà consommé en Fearless ne perd plus de priorité à cause de son indisponibilité.',en:'Meta & coaching separates documented classic games, Fearless, series openings and unknown formats. Champions already used in Fearless no longer lose priority because they are unavailable.'},
+      {fr:'Recherche et compare les champions par présence, progression et rôles observés. Les petits échantillons et les ordres de draft manquants sont signalés.',en:'Search and compare champions by presence, trend and observed roles. Small samples and missing draft orders are identified.'},
+      {fr:'Les plans des équipes précisent qui prépare la vague, accompagne le jungler, engage, suit en dégâts, protège et tient la side. Chaque tâche affiche ses conditions et les manques.',en:'Team plans identify who prepares waves, supports the jungler, engages, follows with damage, protects and holds side lanes. Each task shows its conditions and missing tools.'},
+      {fr:'Donne ton avis sur un pick : bon choix, injouable pour nous ou mauvais matchup. Retrouve et annule tes avis ; leur influence reste prudente et propre à ton équipe.',en:'Review a pick as good, unplayable for us or a bad matchup. Revisit and undo reviews; their influence stays conservative and specific to your team.'}
+    ]},{kind:'improved',items:[
+      {fr:'Une correction du niveau des équipes atténue les résultats des champions surtout joués par des équipes dominantes. Elle utilise uniquement les résultats connus avant chaque match et reste une estimation.',en:'A team-strength adjustment reduces the apparent edge of champions mostly played by dominant teams. It uses only results known before each game and remains an estimate.'},
+      {fr:'Tes avis sont conservés sur ton poste, puis synchronisés avec ton compte. Ils restent privés avec accès administrateur et ne deviennent pas de faux résultats de match.',en:'Your reviews are saved on your device and synced to your account. They remain private with administrator access and never become fabricated match results.'}
+    ]}]
+  },
+  {
     version:'0.13.1',title:{fr:'Plus de choix, plus lisibles et expliqués',en:'More readable choices with draft explanations'},
     summary:{fr:'Parcours tous les picks, même quand une grande carte flex est affichée, et survole un champion pour lire ses atouts et ses risques.',en:'Browse every pick even when a large flex card is displayed, and hover a champion to read its strengths and risks.'},
     sections:[{kind:'fixed',items:[

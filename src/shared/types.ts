@@ -1,4 +1,5 @@
 import type { KnowledgeDataset,KnowledgeState,KnowledgeSummary,KnowledgeEvidence,MetaForecast } from './knowledge';
+import type {CoachingMeta,CompositionDuty,CoachFeedback,FeedbackRequest,FeedbackState,CoachAdjustment,ProRule,ProView,ProGameContext} from './coaching';
 export const ROLES = ['TOP', 'JUNGLE', 'MID', 'ADC', 'SUPPORT'] as const;
 export type Role = typeof ROLES[number];
 export type Side = 'blue' | 'red';
@@ -14,7 +15,7 @@ export interface SeriesGame { picks: string[]; history?: Selection[]; winner?: '
 export interface FearlessSeries { format: 'single' | 'bo3' | 'bo5'; games: SeriesGame[]; fearless?:boolean }
 export interface Draft { teamNames?:{ally:string;enemy:string}; seriesName?:string; mode: Mode; side: Side; role: Role; patch: string; rank: string; league: string; history: Selection[]; targetRole: Role | 'AUTO'; series?: FearlessSeries }
 export interface Weights { winrate: number; matchup: number; synergy: number; meta: number; flex: number; order: number; composition: number; mastery: number }
-export interface Settings { strategyDepth?:2|3|4; strategyRisk?:number; theme?: Theme; language: Lang; weights: Weights; banScoutingWeight: number; banImpactWeight?: number; pool: Record<string, number>; poolOnly: boolean; overlayOpacity: number; feedUrl: string; oldPatchDecay: number; scrapingEnabled: boolean; dataSource?: 'shared' | 'scrape' }
+export interface Settings { proView?:ProView;teamStrengthCorrection?:boolean;proRules?:Record<string,ProRule>; strategyDepth?:2|3|4; strategyRisk?:number; theme?: Theme; language: Lang; weights: Weights; banScoutingWeight: number; banImpactWeight?: number; pool: Record<string, number>; poolOnly: boolean; overlayOpacity: number; feedUrl: string; oldPatchDecay: number; scrapingEnabled: boolean; dataSource?: 'shared' | 'scrape' }
 export interface Stat { championId: string; role: Role; patch: string; source: Source; rank: string; league: string; side: Side | 'all'; games: number; wins: number; pickRate: number; banRate: number; baseline: number; countMethod?: 'reported' | 'rounded_rate'; reportedWinRate?: number }
 export interface PairStat { championId: string; otherId: string; role: Role; otherRole: Role; kind: 'synergy' | 'matchup'; patch: string; source: Source; rank: string; league: string; side: Side | 'all'; games: number; wins: number; baseline: number; countMethod?: 'reported' | 'rounded_rate'; reportedWinRate?: number }
 export interface HistoricalGame { id: string; patch: string; league: string; tournament: string; winner: Side; playedAt?:string; teams?:Record<Side,{id:string;name:string}>; durationSeconds?: number; goldDiff15?: number; objectives?: Record<string, number>; history: Selection[]; draftOrderKnown?: boolean; lineups?: Record<Side, { picks: { championId: string; role: Role }[]; bans: (string | null)[] }> }
@@ -29,7 +30,7 @@ export interface MatchDocument { name:string; kind:MatchSetup['kind']; draft:Dra
 export interface MatchPreparation { id:string; author:string; updatedAt:string; revision:number; document:MatchDocument; pending?:boolean; conflict?:boolean }
 export interface MatchLibrary { matches:MatchPreparation[]; activeId:string|null; message:string }
 export interface MatchResult { winner:Side; coachRating:number; kills:{blue:number;red:number}; notes:string }
-export interface Snapshot { match?:{id:string;name:string;kind:MatchSetup['kind'];archived:boolean;results:{game:number;id:number}[];message:string}; knowledge?:KnowledgeSummary; draft: Draft; settings: Settings; teams: Teams; champions: Champion[]; data: DataStatus; sessions: { id: number; name: string; savedAt: string }[]; simulations: {id:number;name:string;savedAt:string}[]; update: string; coachRevision?:number; cloud?:CloudState }
+export interface Snapshot { evidenceRevision?:number;match?:{id:string;name:string;kind:MatchSetup['kind'];archived:boolean;results:{game:number;id:number}[];message:string}; knowledge?:KnowledgeSummary; draft: Draft; settings: Settings; teams: Teams; champions: Champion[]; data: DataStatus; sessions: { id: number; name: string; savedAt: string }[]; simulations: {id:number;name:string;savedAt:string}[]; update: string; coachRevision?:number; cloud?:CloudState }
 export interface BanScouting { riotId: string; games: number; wins: number; share: number; winrate: number | null; score: number; confidence: number; appliedWeight: number; declared: boolean }
 export interface BanImpact { replacement: {championId:string;role:Role}|null; alternatives: number; enemyLoss: number; ownLoss: number; net: number; poolExhausted: boolean }
 export interface ContextPart { key: 'lane' | 'opposition' | 'synergy' | 'plan' | 'bot'; label: string; score: number; baseWeight: number; weight: number; coverage: number }
@@ -38,16 +39,16 @@ export interface BlindAssessment { score: number; statisticalScore: number; unce
 export interface PickInteraction {championId:string;role:Role;effect:number;games:number;confidence:number;source:string;present:boolean;inPool:boolean;scope:'lane'|'composition'}
 export interface PickInsight {championId:string;role:Role;side:Side;windows:{source:Source;patches:string[]}[];counters:PickInteraction[];favourable:PickInteraction[];synergies:PickInteraction[];strengths:string[];risks:string[];mechanics:{championId:string;direction:'good'|'risk';reason:string;condition:string}[];confidence:number;games:number;warnings:string[]}
 export interface PickInsightRequest {championId:string;role:Role;side:Side}
-export interface Recommendation { opening?:{games:number;firstShare:number;earlyShare:number;blindShare:number}; meta?:{priority:number;roles:Role[];roleSupport:Partial<Record<Role,number>>;proPresence:number|null;soloPresence:number|null}; alternatives?:{role:Role;score:number;blindScore?:number;after?:number}[]; viableRoles?: Role[]; championId: string; role: Role; score: number; confidence: number; games: number; winrate: number | null; interval: [number, number] | null; factors: Weights; reasons: string[]; summary?: string; responseRisk: number; source: string; banScouting?: BanScouting; banImpact?: BanImpact; lowSample?: boolean; context?: DraftContext; blind?: BlindAssessment; outlook?:StrategyOutlook }
+export interface Recommendation { coachAdjustment?:CoachAdjustment; opening?:{games:number;firstShare:number;earlyShare:number;blindShare:number}; meta?:{priority:number;roles:Role[];roleSupport:Partial<Record<Role,number>>;proPresence:number|null;soloPresence:number|null}; alternatives?:{role:Role;score:number;blindScore?:number;after?:number}[]; viableRoles?: Role[]; championId: string; role: Role; score: number; confidence: number; games: number; winrate: number | null; interval: [number, number] | null; factors: Weights; reasons: string[]; summary?: string; responseRisk: number; source: string; banScouting?: BanScouting; banImpact?: BanImpact; lowSample?: boolean; context?: DraftContext; blind?: BlindAssessment; outlook?:StrategyOutlook }
 export type PlanKind = 'building' | 'front-to-back' | 'dive' | 'poke' | 'side' | 'mixed';
-export interface GamePlan { kind: PlanKind; title: string; score: number; partial: boolean; profiled: number; axes: { lanes: number; objectives: number; teamfight: number; sideLane: number; execution: number }; timing: string; conditions: string[]; risks: string[]; needs: string[] }
+export interface GamePlan { duties?:CompositionDuty[]; kind: PlanKind; title: string; score: number; partial: boolean; profiled: number; axes: { lanes: number; objectives: number; teamfight: number; sideLane: number; execution: number }; timing: string; conditions: string[]; risks: string[]; needs: string[] }
 export interface Composition { count: number; adShare: number; frontline: number; engage: number; peel: number; poke: number; early: number; scaling: number; archetype: string; strengths: string[]; weaknesses: string[]; quality: number }
 export interface Prediction { championId: string; role: Role; preference: number; basis?:'pool'|'meta'|'fallback'; quality?:number }
 export interface Duo { first: Recommendation; second: Recommendation; score: number; response: Prediction | null }
 export interface Scenario { title: string; history: Selection[]; advantage: number; winProbability: number | null; explanation: string }
 export interface DraftBalance { value: number; blue: {score:number;count:number}; red: {score:number;count:number}; revealed: number; complete: boolean }
-export interface Analysis { picks: Recommendation[]; bans: Recommendation[]; enemies: Prediction[]; duos: Duo[]; scenarios: Scenario[]; ally: Composition; enemy: Composition; plans: {ally:GamePlan;enemy:GamePlan}; balance: DraftBalance; evaluation?:MatchEvaluation; strategy?:StrategyReport; warnings: string[]; next: Action | null }
-export interface EngineInput { knowledge?:KnowledgeDataset; teamContext?:Record<Side,string>; teamProfiles?:TeamProfile[]; model?:DraftModel; draft: Draft; settings: Settings; teams?: Teams; champions: Champion[]; stats: Stat[]; pairs: PairStat[]; games?: HistoricalGame[]; demo: boolean }
+export interface Analysis { coaching?:CoachingMeta; picks: Recommendation[]; bans: Recommendation[]; enemies: Prediction[]; duos: Duo[]; scenarios: Scenario[]; ally: Composition; enemy: Composition; plans: {ally:GamePlan;enemy:GamePlan}; balance: DraftBalance; evaluation?:MatchEvaluation; strategy?:StrategyReport; warnings: string[]; next: Action | null }
+export interface EngineInput { proContext?:Record<string,ProGameContext>;feedback?:CoachFeedback[];knowledge?:KnowledgeDataset; teamContext?:Record<Side,string>; teamProfiles?:TeamProfile[]; model?:DraftModel; draft: Draft; settings: Settings; teams?: Teams; champions: Champion[]; stats: Stat[]; pairs: PairStat[]; games?: HistoricalGame[]; demo: boolean }
 export interface SimulationPin { index:number; selection:Selection }
 export interface SimulationContext { settings:Settings; teams?:Teams }
 export type SimulationApproach='balanced'|'engage'|'poke'|'tempo'|'scaling';
@@ -64,6 +65,9 @@ export interface ReleaseNoteSection { kind:'new'|'improved'|'fixed'; items:Relea
 export interface ReleaseNote { version:string; title:ReleaseNoteText; summary:ReleaseNoteText; sections:ReleaseNoteSection[] }
 export interface ReleaseNotesStatus { currentVersion:string; lastSeenVersion:string|null; pending:boolean; entries:ReleaseNote[]; history:ReleaseNote[] }
 export interface DesktopApi {
+  feedback(all?:boolean):Promise<FeedbackState>;
+  saveFeedback(request:FeedbackRequest):Promise<FeedbackState>;
+  deleteFeedback(id:string):Promise<FeedbackState>;
   pickInsight(request:PickInsightRequest):Promise<PickInsight>;
   matches():Promise<MatchLibrary>;
   createMatch(setup:MatchSetup):Promise<Snapshot>;

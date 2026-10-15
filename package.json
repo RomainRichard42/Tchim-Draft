@@ -1,6 +1,6 @@
 {
   "name": "tchim-draft",
-  "version": "0.13.1",
+  "version": "0.14.0",
   "description": "Assistant de draft League of Legends desktop, local et explicable",
   "author": "Tchim",
   "private": true,
@@ -23,7 +23,8 @@
     "publish:data": "npm run build && npm run data:export && node scripts/publish-data.mjs",
     "knowledge:collect": "node dist/collector/knowledge.cjs",
     "supabase:setup": "node scripts/setup-supabase.mjs",
-    "supabase:publish": "npm run build && node scripts/publish-supabase.mjs --publish --enrich"
+    "supabase:publish": "npm run build && node scripts/publish-supabase.mjs --publish --enrich",
+    "pro:context": "node dist/collector/pro-context.cjs"
   },
   "dependencies": {
     "better-sqlite3": "13.0.3",

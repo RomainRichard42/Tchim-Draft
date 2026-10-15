@@ -12,6 +12,8 @@ import { mergeDataPacks } from '../shared/packs';
 import type { DatasetManifest } from '../shared/dataset';
 import { compareVersions, releaseNotesStatus } from '../shared/release-notes';
 import { knowledgeSummary,type KnowledgeDataset } from '../shared/knowledge';
+import type {CoachFeedback} from '../shared/coaching';
+import type {ProGameContext} from '../shared/coaching';
 
 export class Storage {
   private packCache: DataPack[] | undefined;
@@ -37,6 +39,7 @@ export class Storage {
   teamContext?:EngineInput['teamContext'];
   cloudCoverage?:DataStatus['coverage'];
   cloudChampions?:Champion[];
+  proContext?:Record<string,ProGameContext>;
   refreshing = false;
   message = '';
   update = 'disabled';
@@ -50,6 +53,8 @@ export class Storage {
       CREATE TABLE IF NOT EXISTS simulations (id INTEGER PRIMARY KEY, name TEXT NOT NULL, saved_at TEXT NOT NULL, json TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS logs (id INTEGER PRIMARY KEY, at TEXT NOT NULL, level TEXT NOT NULL, message TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS scrims (id INTEGER PRIMARY KEY, json TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS coach_feedback (id TEXT PRIMARY KEY,owner TEXT NOT NULL,json TEXT NOT NULL,dirty INTEGER NOT NULL DEFAULT 1);
+      CREATE INDEX IF NOT EXISTS coach_feedback_owner ON coach_feedback(owner);
       PRAGMA user_version = 1;`);
     for(const table of ['sessions','simulations','logs'])if(!(this.db.pragma('table_info('+table+')') as {name:string}[]).some(c=>c.name==='owner'))this.db.exec('ALTER TABLE '+table+" ADD COLUMN owner TEXT NOT NULL DEFAULT ''");
     const insert = this.db.prepare('INSERT OR IGNORE INTO champions VALUES (?, ?)');
@@ -120,7 +125,7 @@ export class Storage {
   }
   engineInput(): EngineInput {
     const packs = this.packs();
-    const configuration={draft:this.draft,settings:this.settings,teams:this.teams,champions:this.champions(),model:this.get<DraftModel>('draftModel'),teamProfiles:this.teamProfiles,teamContext:this.teamContext,knowledge:this.knowledge};
+    const configuration={proContext:this.proContext,feedback:this.feedbackRecords(),draft:this.draft,settings:this.settings,teams:this.teams,champions:this.champions(),model:this.get<DraftModel>('draftModel'),teamProfiles:this.teamProfiles,teamContext:this.teamContext,knowledge:this.knowledge};
     if(this.cloudData)return {...configuration,stats:this.cloudData.stats,pairs:this.cloudData.pairs,games:this.cloudData.games,demo:false};
     if(this.merged)return {...configuration,...this.merged};
     this.merged=mergeDataPacks(packs);
@@ -140,7 +145,7 @@ export class Storage {
     return { draft: privateAccess?this.draft:newDraft(), settings: privateAccess?this.settings:{...DEFAULT_SETTINGS,language:this.settings.language,theme:this.settings.theme,pool:{}}, teams: privateAccess?this.teams:{ally:{url:'',region:'euw',players:[],poolOnly:false,message:''},enemy:{url:'',region:'euw',players:[],poolOnly:false,message:''}}, champions: this.champions(), data,
       match:privateAccess?this.match:undefined,
       sessions: !privateAccess?[]:this.db.prepare('SELECT id, name, saved_at AS savedAt FROM sessions WHERE owner=? ORDER BY id DESC LIMIT 50').all(this.owner()) as Snapshot['sessions'],
-      simulations:!privateAccess?[]:this.db.prepare('SELECT id,name,saved_at AS savedAt FROM simulations WHERE owner=? ORDER BY id DESC LIMIT 200').all(this.owner()) as Snapshot['simulations'], update: this.update,cloud:this.cloud,coachRevision:this.get<number>('coachRevision')??0,knowledge:knowledgeSummary(this.knowledge,!!this.db.prepare('SELECT 1 FROM kv WHERE key=?').get('knowledgeStaged'),this.knowledgeMessage) };
+      simulations:!privateAccess?[]:this.db.prepare('SELECT id,name,saved_at AS savedAt FROM simulations WHERE owner=? ORDER BY id DESC LIMIT 200').all(this.owner()) as Snapshot['simulations'], update: this.update,evidenceRevision:this.dataRevision,cloud:this.cloud,coachRevision:this.get<number>('coachRevision')??0,knowledge:knowledgeSummary(this.knowledge,!!this.db.prepare('SELECT 1 FROM kv WHERE key=?').get('knowledgeStaged'),this.knowledgeMessage) };
   }
   validateSimulationDocument(raw:unknown):SimulationDocument {
     const document=simulationDocumentSchema.parse(raw),known=new Set(this.champions().map(c=>c.id));
@@ -179,6 +184,7 @@ export class Storage {
   storeModel(model:DraftModel):void {this.set('draftModel',model);this.coachChanged();}
   activateModel(active:boolean):void {const model=this.get<DraftModel>('draftModel');if(!model||(active&&!model.eligible))throw new Error('Model has not passed independent validation');this.storeModel({...model,active});}
   enrichGames(games:HistoricalGame[]):void {const lookup=new Map(games.map(g=>[g.id,g]));for(const pack of [...this.packs()])if(pack.games.length&&!pack.provenance.demo){const updated={...pack,games:pack.games.map(g=>lookup.get(g.id)??g)};if(JSON.stringify(updated.games)!==JSON.stringify(pack.games))this.importPack(updated);}this.coachChanged();}
+  feedbackRecords(includeDeleted=false):CoachFeedback[]{if(this.cloud?.configured&&!this.cloud.authorized)return [];return (this.db.prepare('SELECT json,dirty FROM coach_feedback WHERE owner=? ORDER BY rowid DESC LIMIT 2000').all(this.owner()) as {json:string;dirty:number}[]).map(row=>({...JSON.parse(row.json),pending:!!row.dirty})).filter(row=>includeDeleted||!row.deleted);}
   private owner():string{return this.cloud?.configured?this.cloud.userId:'';}
   account(userId:string,admin:boolean):void {
     this.match=undefined;

@@ -1,4 +1,6 @@
 import { evaluateMatch, matchBalance } from './evaluation';
+import {proEvidence} from './pro-evidence';
+import {coachAdjustment} from './coach-feedback';
 import { choicePolicy } from './policy';
 import { exploreStrategy } from './strategy';
 import type { StrategyRequest } from '../shared/types';
@@ -129,7 +131,8 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
       // This is a disclosed uncertainty cost, never a fabricated negative matchup statistic.
       const openingUncertainty=input.draft.mode==='pro'&&early&&!opponentLane&&input.stats.some(s=>s.source==='pro'&&s.games>=100)
         ?6*(1-(pro?.usable?pro.support:0))*(1-knownComfort*.6):0;
-      const score = clamp(contextualScore(factors, weights, context)+prior.value-openingUncertainty);
+      const coach=coachAdjustment(input,c.id,role,side);
+      const score = clamp(contextualScore(factors, weights, context)+prior.value-openingUncertainty+coach.value);
       const reasons: string[] = [];
       if(openingUncertainty>.5)reasons.push(text(input,`Ouverture : prudence de ${openingUncertainty.toFixed(1)} points pour une position encore peu étayée en pro ; le confort renseigné réduit ce coût. Ce n’est pas un malus de matchup mesuré.`,`Opening: ${openingUncertainty.toFixed(1)} points of caution for a role with limited pro support; known comfort reduces this cost. This is not a measured matchup penalty.`));
       if(input.draft.mode==='pro'&&meta&&(meta.proRoleGames[role]??0)<10)reasons.push(text(input,`Position ${role} peu documentée en pro (${Math.round(meta.proRoleGames[role]??0)} apparitions pondérées). La présence du champion dans ses autres rôles ne certifie pas ce blind ; les données Master+ restent une indication.`,`Limited pro evidence for ${role} (${Math.round(meta.proRoleGames[role]??0)} weighted appearances). Presence in other roles does not certify this blind; Master+ data remains an indication.`));
@@ -168,7 +171,8 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
       const strongest=context?.parts.filter(p=>p.weight>0&&p.score>52).sort((a,b)=>(b.score-50)*b.weight-(a.score-50)*a.weight)[0];
       const blindBrief=blind&&blind.coverage<.5?text(input,'Blind : couverture des réponses insuffisante.','Blind: insufficient response coverage.'):blind&&blind.score<47?text(input,`Blind exposé${blind.threats.length?` : ${blind.threats.map(t=>input.champions.find(ch=>ch.id===t.championId)?.name??t.championId).join(' / ')} encore disponibles`:''}.`,`Exposed blind${blind.threats.length?`: ${blind.threats.map(t=>input.champions.find(ch=>ch.id===t.championId)?.name??t.championId).join(' / ')} still available`:''}.`):null;
       const brief=blindBrief??(strongest?text(input,`${strongest.label} : favorable${context?.partial?' · draft encore partielle':''}.`,`${strongest.label}: favorable${context?.partial?' · draft still partial':''}.`):contextual.reasons[0]??(useFamiliarity&&familiarity?(familiarity.games?text(input,`${familiarity.player.riotId} joue ce champion (${familiarity.games} parties connues).`,`${familiarity.player.riotId} plays this champion (${familiarity.games} known games).`):text(input,`Déclaré jouable par ${familiarity.player.riotId}.`,`Declared playable by ${familiarity.player.riotId}.`)):viableRoles.length>1&&early?text(input,'Un flex qui garde plusieurs options ouvertes.','A flex pick that keeps several options open.'):opponentLane&&matchup>52?text(input,'Matchup favorable face au rôle adverse déjà révélé.','Favorable matchup against the revealed enemy role.'):priority>55?text(input,'Champion prioritaire dans la méta sur les patchs analysés.','High-priority champion in the analyzed patch meta.'):stats&&stats.delta>0?text(input,'Résultats solides sur les derniers patchs.','Solid results across the latest patches.'):text(input,'À comparer avec les autres options pour votre composition.','Compare with the other options for your composition.')));
-      results.push({ championId: c.id, role, viableRoles, opening, score: Math.round(score * 10) / 10, confidence: stats ? Math.round(stats.confidence * coverage * 100) : 0,
+      if(coach.observations)reasons.push(text(input,`Ton retour pour cette équipe : ${coach.value>0?'+':''}${coach.value} points (${coach.observations} avis contextuels).`,`Your feedback for this team: ${coach.value>0?'+':''}${coach.value} points (${coach.observations} contextual reviews).`));
+      results.push({ coachAdjustment:coach.observations?coach:undefined,championId: c.id, role, viableRoles, opening, score: Math.round(score * 10) / 10, confidence: stats ? Math.round(stats.confidence * coverage * 100) : 0,
         games: stats ? Math.round(stats.n) : 0, winrate: stats?.usable ? stats.estimate : null, interval: stats?.usable ? stats.interval : null, factors, reasons,context,blind,meta,summary:stats&&!stats.usable?text(input,`Échantillon insuffisant (${Math.round(stats.n)} parties) · choix évalué sur son plan de jeu et le pool.`,`Insufficient sample (${Math.round(stats.n)} games) · evaluated through game plan and pool.`):brief,lowSample:!!stats&&!stats.usable,
         responseRisk: context?contextualRisk(context):enemyTeam.length ? clamp(50 + (50 - matchup)) : 50, source: stats ? (input.demo ? 'DEMO · ' : '') + stats.sources : 'heuristic' });
     }
@@ -264,12 +268,12 @@ export function analyze(input: EngineInput): Analysis {
   else if (next && !recommendations.some(r => r.games)) warnings.push(text(input, 'Aucune donnée compatible avec ces filtres et rôles. Les scores restent qualitatifs.', 'No data matches these filters and roles. Scores remain qualitative.'));
   if (input.demo) warnings.push(text(input, 'DONNÉES FICTIVES : démonstration uniquement, aucune valeur prédictive.', 'SYNTHETIC DATA: demonstration only, no predictive validity.'));
   const windows=prepare(input).windows;
-  if(draft.league!=='all'&&!input.stats.some(s=>s.source==='pro'&&s.league===draft.league))warnings.push(text(input,'Winrates et priorité pro : agrégats toutes ligues. Le filtre de ligue concerne les paires et drafts disponibles.','Pro win rates and priority use all-league aggregates. The league filter applies to available pairs and drafts.'));
+  if(draft.league!=='all'&&!(input.games??[]).some(g=>g.league===draft.league))warnings.push(text(input,'Aucun match pro disponible dans cette ligue : les données des autres ligues ne remplacent pas cette sélection.','No pro games available in this league: other leagues do not replace this selection.'));
   if(windows.solo.length&&windows.pro.length&&windows.solo[0]!==windows.pro[0])warnings.push(text(input,`Fenêtres distinctes : Master+ ${windows.solo.join(' / ')} ; pro ${windows.pro.join(' / ')}. Le patch pro est décalé, les recommandations peuvent subir les changements de méta.`,`Different source windows: Master+ ${windows.solo.join(' / ')}; pro ${windows.pro.join(' / ')}. Pro data lags and can be affected by meta changes.`));
   if (draft.mode === 'solo') warnings.push(text(input, 'Les 10 bans sont saisis par équipe ; en ranked ils sont simultanés et les doublons adverses sont autorisés.', 'Enter the 10 bans by team; ranked bans are simultaneous and opposing duplicates are allowed.'));
   const scenarios = simulate(input, next?.kind === 'ban' ? bans : recommendations);
   if (scenarios.some(s => s.history.length < 20)) warnings.push(text(input, 'Le pool restreint ne permet pas de terminer certaines simulations : élargissez les rôles couverts.', 'The restricted pool cannot complete some simulations: broaden its role coverage.'));
-  return { picks: recommendations, bans: bans.slice(0, 5), enemies: next?predict(input, opposite(draft.side)):[],
+  return {coaching:proEvidence(input).report, picks: recommendations, bans: bans.slice(0, 5), enemies: next?predict(input, opposite(draft.side)):[],
     duos: duos(input, all), scenarios,
     ally: composition(team(input, draft.side), input.settings.language,picks(draft,draft.side).map(p=>p.role)), enemy: composition(team(input, opposite(draft.side)), input.settings.language,picks(draft,opposite(draft.side)).map(p=>p.role)),
     plans:{ally:gamePlan(team(input,draft.side),picks(draft,draft.side).map(p=>p.role),team(input,opposite(draft.side)),picks(draft,opposite(draft.side)).map(p=>p.role),input.settings.language),

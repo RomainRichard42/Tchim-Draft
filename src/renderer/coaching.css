@@ -1,0 +1,20 @@
+.coaching-panel,.feedback-panel {display:grid;gap:18px;min-width:0;color:var(--text);font-size:14px}.coaching-panel small {font-size:14px}
+.constructivist-app .modal.coaching-modal {width:min(1180px,calc(100vw - 48px));max-width:calc(100vw - 48px);max-height:90vh;overflow:auto;box-sizing:border-box}
+.coaching-tabs,.coaching-controls,.coaching-summary,.coaching-badges {display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.coaching-controls label,.coaching-source-rules label,.feedback-panel label {display:grid;gap:8px;min-width:180px}
+.coaching-controls select,.coaching-controls input,.feedback-panel select,.feedback-panel textarea,.coaching-source-rules input,.coaching-source-rules select {padding:10px;min-height:44px;max-width:100%;font:inherit}
+.coaching-controls .coaching-check {display:flex;align-items:center;gap:10px;min-width:0}.coaching-check input {min-height:20px;width:20px}
+.coaching-summary {padding:16px;border-left:6px solid var(--electric);background:var(--surface-alt)}
+.coaching-badges span,.evidence-badge {padding:6px 9px;border:1px solid var(--line)}
+.coaching-warning {border-left:3px solid var(--vermillion);padding:10px 14px;background:var(--surface);margin:0}
+.coaching-caption {color:var(--muted);margin:0;line-height:1.5}
+.coaching-table-wrap {overflow:auto;max-height:50vh;min-height:140px;border:1px solid var(--line)}
+.coaching-table {width:100%;border-collapse:collapse;text-align:left}.coaching-table :is(td,th){padding:12px;border-bottom:1px solid var(--line);vertical-align:middle;line-height:1.45}
+.coaching-table th {position:sticky;top:0;background:var(--surface-alt);z-index:1}.coaching-table td:first-child button {display:flex;gap:10px;align-items:center;padding:8px;width:100%;text-align:left}
+.coaching-table :is(small,td>span){display:block;color:var(--muted);margin-top:5px}.coaching-table meter {display:block;width:100px;height:10px;accent-color:var(--electric)}
+.coaching-table meter::-webkit-meter-bar {background:var(--track);border:0}.coaching-table meter::-webkit-meter-optimum-value {background:var(--electric)}
+.coaching-table tr.selected td {background:var(--surface-alt)}.coaching-table .evidence-badge {display:inline-block;font-weight:700}.evidence-badge.limited {border-style:dashed}
+.coaching-detail,.coaching-source-rules,.feedback-entry {border:1px solid var(--line);background:var(--surface);padding:16px}.coaching-rule {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
+.coaching-source-rules[open] {display:grid;gap:12px}.feedback-panel form {display:grid;gap:14px;padding:18px;border:2px solid var(--electric)}.feedback-panel textarea {min-height:90px;resize:vertical;width:100%;box-sizing:border-box}.feedback-entry header,.feedback-entry footer {display:flex;align-items:center;justify-content:space-between;gap:14px}.feedback-entry footer>span {color:var(--muted)}
+.composition-duties {display:grid;gap:10px;margin:18px 0}.composition-duty {display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;padding:12px;border-left:4px solid var(--electric);background:var(--surface-alt)}.composition-duty.missing {border-color:var(--line);border-style:dashed}.composition-duty p {margin:5px 0;line-height:1.5}.composition-duty summary {color:var(--muted);cursor:pointer}.composition-duty .duty-number {font:24px Impact,sans-serif}.composition-duty strong {display:block}.composition-duties-title {margin-top:18px}
+@media(max-width:1180px){.coaching-table :is(td,th){padding:10px 8px}.coaching-summary{align-items:flex-start;flex-direction:column}}

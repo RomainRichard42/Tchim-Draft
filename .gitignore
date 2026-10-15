@@ -8,6 +8,7 @@ data/local/
 .env
 *.sqlite*
 data/shared/
+data/shared-*/
 data/local-*/
 data/refresh-*/
 .env.*

@@ -15,9 +15,10 @@ async function main() {
     finally { storage.settings.scrapingEnabled = enabled; storage.persist() }
     const result = await scrapeSources(storage, root, message => console.log(message), {
       ...(flags.source==='pro'||flags.source==='solo'?{source:flags.source}:{}),
+      ...(flags.cache?{cacheDirectory:flags.cache}:{}),
       ...(flags.patch ? { patch: flags.patch } : {}), ...(flags.rank ? { tier: flags.rank } : {}),
       ...(flags.details ? { details: Number(flags.details) } : {}), ...(flags.games ? { games: Number(flags.games) } : {}), revalidate:true,force: 'force' in flags });
-    console.log(JSON.stringify({ directory: root, ...result, packs: storage.snapshot().data.packs }, null, 2));
+    console.log(JSON.stringify({ directory: root, ...result, packs: storage.snapshot().data.packs.filter(pack=>result.imported.includes(pack.id)) }, null, 2));
     if (!result.errors.length) storage.set('lastRefresh', new Date().toISOString());
     if (result.errors.length) process.exitCode = 1;
   } finally { storage.close() }

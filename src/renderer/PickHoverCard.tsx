@@ -15,7 +15,7 @@ export function usePickHover(contextKey:string,enabled:boolean){
  const keep=()=>{clearTimeout(closing.current);};
  return {value,show,leave,keep,close};
 }
-export function PickHoverCard({hover,champions,language,side,contextKey,keep,leave,close,details}:{hover:Hover;champions:Map<string,Champion>;language:'fr'|'en';side:Side;contextKey:string;keep:()=>void;leave:()=>void;close:()=>void;details:(recommendation:Recommendation)=>void}){
+export function PickHoverCard({hover,champions,language,side,contextKey,keep,leave,close,details,review}:{hover:Hover;champions:Map<string,Champion>;language:'fr'|'en';side:Side;contextKey:string;keep:()=>void;leave:()=>void;close:()=>void;details:(recommendation:Recommendation)=>void;review?:(recommendation:Recommendation)=>void}){
  const fr=language==='fr',tr=(a:string,b:string)=>fr?a:b,r=hover.recommendation,champion=champions.get(r.championId),box=useRef<HTMLElement>(null);
  const [insight,setInsight]=useState<PickInsight>(),[error,setError]=useState(false),[position,setPosition]=useState({left:12,top:12});
  const key=`${contextKey}|${r.championId}|${r.role}|${side}`;
@@ -34,6 +34,7 @@ export function PickHoverCard({hover,champions,language,side,contextKey,keep,lea
    {!!insight.mechanics.length&&<section className="pick-hover-mechanics"><h3>{tr('Interactions de sorts · sous conditions','Spell interactions · conditional')}</h3>{insight.mechanics.map((item,index)=><p key={index} className={item.direction}><strong>{item.reason}</strong><span>{item.condition}</span></p>)}</section>}
    <footer>{insight.windows.map(window=><span key={window.source}>{window.source==='solo'?'Lolalytics Master+':'gol.gg'} · {window.patches.join(' / ')||'—'}</span>)}{insight.warnings.map(warning=><p key={warning}>{warning}</p>)}<p>{tr('Les points indiquent un effet ajusté pour le champion affiché, pas un winrate brut.','Points indicate an adjusted effect for the displayed champion, not a raw winrate.')}</p></footer>
   </>}
+  {review&&<button className="pick-hover-details" onClick={()=>{close();review(r);}}>{tr('Donner mon avis sur ce pick','Give feedback on this pick')}</button>}
   <button className="pick-hover-details" onClick={()=>{close();details(r);}}><Info size={17}/>{tr('Ouvrir les détails du score','Open score details')}</button>
  </aside>,document.querySelector('[data-testid=app]')??document.body);
 }

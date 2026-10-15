@@ -9,6 +9,7 @@ import { scrimSchema, draftSchema, settingsSchema, teamsSchema } from '../shared
 import type { Storage } from './storage';
 import { knowledgeSchema } from '../shared/knowledge';
 import { contextChampionIds } from '../engine/meta';
+import {proContextSchema} from '../shared/coaching';
 
 const authSchema=z.object({access_token:z.string(),refresh_token:z.string(),expires_in:z.number(),user:z.object({id:z.string().uuid(),email:z.string().email()})});
 type Session=z.infer<typeof authSchema>&{expiresAt:number};
@@ -16,6 +17,16 @@ export class CloudService {
  readonly state:CloudState={configured:!!SUPABASE.url&&process.env.TCHIM_OFFLINE!=='1',authorized:false,email:'',userId:'',role:null,organizationId:'',message:'',syncing:false};
  private session?:Session;private candidates=new Set<string>();private pending?:Promise<void>;private checkedAt=0;private gamesRevision?:string;
  private workspaceTimer?:ReturnType<typeof setTimeout>;
+ private proContextRevision='';
+ private async syncProContext(revision:string,actor:string){
+  if(this.proContextRevision===revision)return;
+  try{
+   const rows=await this.request('/rest/v1/draft_pro_context?revision=eq.'+revision+'&select=context',undefined,'GET',true,actor) as {context:unknown}[];
+   const context=rows[0]?proContextSchema.parse(rows[0].context):undefined;
+   if(context?.datasetRevision&&context.datasetRevision!==revision)throw Error('Context revision mismatch');
+   if(this.state.userId!==actor)return;this.storage.proContext=context?.games;this.proContextRevision=revision;
+  }catch{if(this.state.userId===actor){this.storage.proContext=undefined;this.storage.log('info','Contexte pro local utilisé / Local pro context used');}}
+ }
  private async restoreAccount(){
   const saved=this.storage.get<{savedAt?:string}>('account:'+this.state.userId);
   this.storage.account(this.state.userId,this.state.role==='owner');
@@ -56,10 +67,10 @@ export class CloudService {
   if(this.state.authorized)await this.flushWorkspace();
   const data=authSchema.parse(await this.request('/auth/v1/token?grant_type=password',{email,password},'POST',false));
   this.session={...data,expiresAt:Date.now()+data.expires_in*1000};this.persist();this.candidates.clear();this.checkedAt=0;
-  this.storage.cloudData=undefined;this.storage.teamProfiles=[];await this.identify();if(this.state.authorized)await this.restoreAccount();this.notify();
+  this.storage.cloudData=undefined;this.storage.proContext=undefined;this.proContextRevision='';this.storage.teamProfiles=[];await this.identify();if(this.state.authorized)await this.restoreAccount();this.notify();
  }
  async signup(email:string,password:string,code:string){await this.request('/functions/v1/draft-register',{email,password,code},'POST',false);await this.login(email,password);return {message:'Compte créé, bienvenue / Account created, welcome'};}
- async logout(){try{await this.flushWorkspace();if(this.session)await this.request('/auth/v1/logout',{},'POST');}finally{this.storage.persist();this.session=undefined;this.persist();Object.assign(this.state,{authorized:false,email:'',userId:'',role:null,organizationId:'',message:'',syncing:false,revision:undefined});this.storage.cloudData=undefined;this.storage.teamProfiles=[];this.candidates.clear();this.checkedAt=0;this.storage.draft={...this.storage.draft,history:[]};this.storage.teams={ally:{url:'',region:'euw',players:[],poolOnly:false,message:''},enemy:{url:'',region:'euw',players:[],poolOnly:false,message:''}};this.storage.persist();this.notify();}}
+ async logout(){try{await this.flushWorkspace();if(this.session)await this.request('/auth/v1/logout',{},'POST');}finally{this.storage.persist();this.session=undefined;this.persist();Object.assign(this.state,{authorized:false,email:'',userId:'',role:null,organizationId:'',message:'',syncing:false,revision:undefined});this.storage.cloudData=undefined;this.storage.proContext=undefined;this.proContextRevision='';this.storage.teamProfiles=[];this.candidates.clear();this.checkedAt=0;this.storage.draft={...this.storage.draft,history:[]};this.storage.teams={ally:{url:'',region:'euw',players:[],poolOnly:false,message:''},enemy:{url:'',region:'euw',players:[],poolOnly:false,message:''}};this.storage.persist();this.notify();}}
  requireAccess(){if(this.state.configured&&!this.state.authorized)throw new Error('Connecte-toi avec un compte autorisé / Sign in with an approved account');}
  async refreshStatistics(){this.checkedAt=0;await this.sync();}
  async prepareDraft(){await this.sync(this.storage.draft,[],this.storage.teams,true);this.state.message='Matchups préparés pour la draft / Draft matchups ready';this.notify();}
@@ -98,7 +109,7 @@ export class CloudService {
    const retained=data.revision===this.state.revision?(this.storage.cloudData?.pairs??[]).filter(p=>ids.has(p.championId)&&ids.has(p.otherId)):[];
    const pack=this.storage.validatePack({schemaVersion:1,id:'cloud-'+data.revision.slice(0,32),createdAt:manifest.createdAt,provenance:{name:'Supabase · gol.gg + Lolalytics Master+',url:SUPABASE.url,license:'Source attribution retained. Shared only with approved accounts.',demo:false},stats:data.stats,pairs:[...retained,...data.pairs],games:data.games.length?data.games:data.revision===this.state.revision?this.storage.cloudData?.games??[]:[]},new Set(manifest.champions.map(c=>c.id)));
    const models=await this.request('/rest/v1/draft_models?kind=eq.active&select=model') as {model:DraftModel}[];const profiles=await this.request('/rest/v1/draft_model_profiles?select=profile&user_id=eq.'+this.state.userId) as {profile:TeamProfile}[];if(this.state.userId!==generation||!this.state.authorized)return;
-   this.storage.cloudData=pack;this.storage.cloudCoverage=manifest.coverage;this.storage.cloudChampions=manifest.champions;this.storage.dataRevision++;await this.syncKnowledge();
+   await this.syncProContext(data.revision,generation);if(this.state.userId!==generation||!this.state.authorized)return;this.storage.cloudData=pack;this.storage.cloudCoverage=manifest.coverage;this.storage.cloudChampions=manifest.champions;this.storage.dataRevision++;await this.syncKnowledge();
    const model=models[0]?.model;if(model){this.storage.set('draftModel',modelForDataset(model,data.revision,pack.stats.filter(s=>s.source==='pro').map(s=>s.patch)));}else this.storage.db.prepare('DELETE FROM kv WHERE key=?').run('draftModel');this.storage.teamProfiles=profiles.map(p=>p.profile);
    if(!draft.history.length&&draft.patch==='unknown'){this.storage.draft.patch=manifest.staticVersion.split('.').slice(0,2).join('.');this.storage.persist();}
    this.state.revision=data.revision;if(includeGames)this.gamesRevision=data.revision;this.state.message='Statistiques centrales à jour / Central statistics ready';this.candidates=ids;this.checkedAt=Date.now();

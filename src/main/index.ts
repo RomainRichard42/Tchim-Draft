@@ -1,4 +1,6 @@
 import { CloudService } from './cloud';
+import {FeedbackService} from './feedback';
+import {feedbackRequestSchema} from '../shared/coaching';
 import { MatchService } from './matches';
 import { PickInsightService } from './pick-insights';
 import { pickInsightSchema } from '../shared/validation';
@@ -49,6 +51,7 @@ if (process.env.TCHIM_DATA_DIR) app.setPath('userData', path.resolve(process.env
 let cloud:CloudService;
 let matches:MatchService;
 let knowledge:KnowledgeService;
+let feedback:FeedbackService;
 let storage: Storage, mainWindow: BrowserWindow | null = null, overlayWindow: BrowserWindow | null = null, worker: Worker;
 let analysisCache: { key: string; result: Promise<Analysis> } | null = null;
 let requestId = 0;
@@ -130,12 +133,15 @@ function handlers() {
   bind('knowledge:source',value=>shell.openExternal(sourceUrlSchema.parse(value)));
   const scouting=new Set<string>();
   const credentials=z.object({email:z.string().email().max(254),password:z.string().min(8).max(72)}).strict();
-  bind('cloud:login',async value=>{const {email,password}=credentials.parse(value);await matches.flush().catch(()=>{});await cloud.login(email,password);await matches.list();analysisCache=null;return storage.snapshot();});
+  bind('cloud:login',async value=>{const {email,password}=credentials.parse(value);await matches.flush().catch(()=>{});await cloud.login(email,password);await feedback.sync();await matches.list();analysisCache=null;return storage.snapshot();});
   bind('cloud:signup',value=>{const {email,password,code}=credentials.extend({code:z.string().trim().regex(/^TD-[a-f0-9]{32}$/i)}).parse(value);return cloud.signup(email,password,code);});
   bind('cloud:logout',async()=>{simulations.stop();await matches.flush().catch(()=>{});matches.stop();storage.match=undefined;await cloud.logout();analysisCache=null;return storage.snapshot();});
   bind('cloud:workspace',async value=>{const id=z.string().uuid().parse(value);const rows=await cloud.workspaces() as import('../shared/types').CloudWorkspace[];const workspace=rows.find(w=>w.user_id===id);if(!workspace)throw new Error('Workspace not found');matches.capture();await matches.flush().catch(()=>{});matches.detach();if(storage.draft.history.length)storage.saveSession('Before workspace review');storage.draft=validateHistory(workspace.draft);storage.teams=teamsSchema.parse(workspace.teams);return changed();});
   bind('cloud:invite',value=>cloud.invite(z.string().email().max(254).parse(value)));
   bind('cloud:copy-invitation',async value=>{cloud.requireAccess();if(cloud.state.role!=='owner')throw new Error('Administrator only');await clipboard.writeText(z.string().regex(/^TD-[a-f0-9]{32}$/).parse(value));});
+  bind('feedback:list',value=>feedback.list(z.boolean().default(false).parse(value)));
+  bind('feedback:save',value=>feedback.save(feedbackRequestSchema.parse(value)));
+  bind('feedback:delete',value=>feedback.remove(z.string().uuid().parse(value)));
   bind('draft:snapshot', () => storage.snapshot());
   bind('match:list',async()=>{const library=await matches.list();notify();return library;});
   bind('match:create',async value=>{simulations.stop();await matches.create(value);return changed();});
@@ -256,6 +262,7 @@ else {
     cloud=new CloudService(storage,notify);
     matches=new MatchService(storage,cloud,notify);
     knowledge=new KnowledgeService(storage,notify);
+    feedback=new FeedbackService(storage,cloud,notify);
     protocol.handle('tchim', async request => {
       const url = new URL(request.url), decoded = decodeURIComponent(url.pathname);
       const root = url.hostname === 'app' ? path.join(app.getAppPath(), 'dist/renderer') : url.hostname === 'assets' ? app.getPath('userData') : null;
@@ -267,7 +274,7 @@ else {
     session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
     session.defaultSession.setPermissionCheckHandler(() => false);
     createWorker(); handlers(); initUpdater();
-    mainWindow = createWindow(); void cloud.initialize().then(()=>{if(!cloud.state.configured||cloud.state.authorized)return matches.list().then(()=>notify());}); mainWindow.on('closed', () => { mainWindow = null; overlayWindow?.close() });
+    mainWindow = createWindow(); void cloud.initialize().then(()=>{if(!cloud.state.configured||cloud.state.authorized)return matches.list().then(()=>feedback.sync()).then(()=>notify());}); mainWindow.on('closed', () => { mainWindow = null; overlayWindow?.close() });
     if (!isSmoke) {
       let wasCollecting=false;
       const externalProgress=setInterval(()=>{const active=storage.collecting();if(active||wasCollecting){analysisCache=null;notify();}wasCollecting=active;},3000);externalProgress.unref();

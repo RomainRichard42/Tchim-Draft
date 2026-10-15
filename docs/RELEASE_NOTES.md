@@ -1,23 +1,23 @@
-# Tchim Draft 0.13.1 — Prépare ton match, compare tous les picks
+# Tchim Draft 0.14.0 — La méta expliquée, le plan de jeu et ton avis
 
-- **Une préparation par match.** Nomme les deux équipes, choisis le BO classique ou Fearless et renseigne leurs multi OP.GG. Retrouve tes matchs dans une bibliothèque, puis passe de Préparation à Draft et Résultat.
-- **Des picks plus faciles à comparer.** La liste défile entièrement côté bleu comme côté rouge, y compris dans une petite fenêtre. Les lignes et portraits sont plus grands ; « Agrandir les choix » ouvre une grande vue avec recherche.
-- **Les explications au survol.** Consulte les counters, les matchups favorables, les synergies et les atouts ou risques dans ta draft. « Infos » garde la fiche ouverte ; Échap la ferme. La flèche prépare directement ton pick.
-- **Des recommandations plus prudentes.** Le moteur tient mieux compte des flexs réellement observés, des rôles encore libres, des pools et des réponses adverses. Un ou deux matchs pro ne suffisent plus à faire passer un rôle inhabituel pour un choix fiable. Les synergies du duo bot sont prioritaires pour ADC et support.
-- **Tes drafts liées à leurs résultats.** Enregistre le vainqueur, les kills des deux équipes, ta note de draft sur 5 et tes remarques. Le BO classique permet de rejouer un champion ; le Fearless bloque les champions déjà utilisés.
-- **Un compte personnel et les statistiques partagées.** Crée ton compte avec un code d’invitation, ton e-mail et ton mot de passe. Tes préparations, pools et résultats restent privés à ton compte, avec accès administrateur. Les statistiques communes viennent de Supabase : aucune collecte des sites à faire chez toi.
-- **Les champions et les changements de patch.** Consulte les caractéristiques et compétences des champions, les changements recensés et les interactions de sorts avec leurs conditions. Les indications de méta restent des hypothèses à confronter aux matchs.
+15 octobre 2026
 
-Les nouveautés s’affichent une fois après la mise à jour et restent consultables dans **Réglages → Compte et interface**. Les mises à jour de l’application se téléchargent automatiquement et s’installent à sa fermeture. Elles ne déclenchent aucune collecte gol.gg ou Lolalytics. Les scores sont des indices de draft ; ils ne constituent pas des probabilités de victoire calibrées.
+- **Compare la méta dans son contexte.** Ouvre Méta & coaching pour filtrer les formats, rechercher un champion, comparer sa présence, ses rôles et sa progression. Les petits échantillons et les données manquantes restent signalés.
+- **Lis le Fearless correctement.** Les champions consommés lors des manches précédentes ne sont plus comptés comme disponibles. Les séries incomplètes sont écartées.
+- **Relativise les résultats d’une équipe dominante.** Une correction optionnelle utilise les résultats des jours précédents pour atténuer l’avantage apparent de ses champions.
+- **Sache qui fait quoi.** Les plans précisent qui prépare la vague, accompagne le jungler, engage, suit en dégâts, protège et tient la side, avec les conditions à respecter.
+- **Précise ce qui fonctionne chez vous.** Donne ton avis sur un pick, retrouve-le et annule-le. Son influence reste limitée à ton équipe et au contexte ; tes avis sont privés, avec accès administrateur, et synchronisés avec ton compte.
 
-# English — Prepare your match and compare every pick
+Ces indications aident à comparer les choix ; elles ne constituent pas une probabilité de victoire.
 
-- **One preparation per match.** Name both teams, choose a regular or Fearless series and add their multi OP.GG links. Find your matches in a library, then move through Preparation, Draft and Result.
-- **Easier pick comparisons.** Scroll through the full list on blue or red side, including in a small window. Rows and portraits are larger; “Expand choices” opens a large searchable view.
-- **Hover for explanations.** Review counters, favourable matchups, synergies and strengths or risks in your current draft. “Info” pins the card; Escape closes it. The arrow prepares the pick directly.
-- **More cautious recommendations.** The engine better accounts for observed flex roles, remaining roles, player pools and enemy responses. One or two pro games no longer make an unusual role look reliable. ADC and support prioritise bot-lane synergies.
-- **Drafts connected to results.** Record the winner, both teams’ kills, your draft grade out of five and notes. Regular series allow repeated champions; Fearless blocks champions already used.
-- **A personal account with shared statistics.** Register with an invitation code, email and password. Your preparations, pools and results are private to your account, with administrator access. Shared statistics come from Supabase; you do not need to collect websites yourself.
-- **Champion details and patch changes.** Browse champion stats and abilities, recorded changes and conditional ability interactions. Meta forecasts remain hypotheses to compare against actual matches.
+## English — Explained meta, team duties and your feedback
 
-Release notes appear once after the update and remain available in **Settings → Account and interface**. App updates download automatically and install when you close the app. They do not trigger gol.gg or Lolalytics collection. Scores are draft indices, not calibrated win probabilities.
+15 October 2026
+
+- **Compare meta in context.** Open Meta & coaching to filter formats, search champions and inspect presence, roles and trends. Small samples and missing evidence remain visible.
+- **Read Fearless correctly.** Previously used champions are excluded from availability counts. Incomplete series are omitted.
+- **Account for dominant teams.** An optional adjustment uses results from previous days to reduce their champions’ apparent advantage.
+- **Know each champion’s job.** Plans identify wave preparation, jungle accompaniment, engage, follow-up damage, protection and side-lane duties, with conditions.
+- **Record what works for your team.** Review a pick, revisit it and undo it. Its influence remains bounded and contextual; reviews are private, with administrator access, and synced to your account.
+
+These are comparison aids, not calibrated win probabilities.

@@ -5,6 +5,8 @@ import { AccessError, type ScrapeHttp } from './http';
 import { latestPatches } from '../shared/patches';
 import type { DataPack } from '../shared/types';
 import { PRO_ORDER } from '../shared/draft';
+import { coachProLeague } from '../shared/pro-leagues';
+import { scopedProGames, proStatsFromGames } from './pro-population';
 
 const norm = (s: string) => s.normalize('NFKD').replace(/[^a-z0-9]/gi, '').toLowerCase();
 function championMap(champions: Champion[]): (name: string) => string {
@@ -112,8 +114,8 @@ export function parseGolGame(html: string, champions: Champion[], id: string): H
     ...(duration ? { durationSeconds: Number(duration[1]) * 60 + Number(duration[2]) } : {}),
     ...(gold && minute15 >= 0 && Number.isFinite(gold[minute15]) ? { goldDiff15: gold[minute15]*(swapped?-1:1) } : {}), objectives };
 }
-export function gamePairs(games: HistoricalGame[],stats:Stat[]=[]): PairStat[] {
-  const strength=new Map(stats.map(s=>[`${s.patch}|${s.championId}|${s.role}`,(s.wins+25)/(s.games+50)-.5]));
+export function gamePairs(games: HistoricalGame[],stats:Stat[]=[],expectedWin?:Map<string,number>): PairStat[] {
+  const strength=new Map(stats.filter(s=>s.source==='pro'&&s.league==='all'&&s.side==='all').map(s=>[`${s.patch}|${s.championId}|${s.role}`,(s.wins+50*s.baseline)/(s.games+50)-s.baseline]));
   const rows = new Map<string, PairStat>();
   for (const game of games) {
     if (!game.lineups) continue;
@@ -123,10 +125,12 @@ export function gamePairs(games: HistoricalGame[],stats:Stat[]=[]): PairStat[] {
         for (const other of others) {
           if (other.championId === pick.championId) continue;
           const a=strength.get(`${game.patch}|${pick.championId}|${pick.role}`)??0,b=strength.get(`${game.patch}|${other.championId}|${other.role}`)??0;
-          const baseline=Math.max(.1,Math.min(.9,.5+a+(kind==='synergy'?b:-b)));
+          const team=expectedWin?(side==='blue'?(expectedWin.get(game.id)??.5):1-(expectedWin.get(game.id)??.5)):.5;
+          const baseline=Math.max(.1,Math.min(.9,team+a+(kind==='synergy'?b:-b)));
           for(const league of [...new Set(['all',game.league])]){
             const key = [pick.championId, pick.role, other.championId, other.role, kind, game.patch,league].join('|');
             const r = rows.get(key) ?? { ...pick, otherId: other.championId, otherRole: other.role, kind, patch: game.patch, source: 'pro', rank: 'all', league, side: 'all', games: 0, wins: 0, baseline, countMethod: 'reported' };
+            if(expectedWin&&r.games)r.baseline=(r.baseline*r.games+baseline)/(r.games+1);
             r.games++; if (game.winner === side) r.wins++; rows.set(key, r);
           }
         }
@@ -135,20 +139,24 @@ export function gamePairs(games: HistoricalGame[],stats:Stat[]=[]): PairStat[] {
   }
   return [...rows.values()];
 }
-export interface GolOptions {revalidate?:boolean;force?:boolean;stats?:Stat[];tournamentCounts?:Record<string,string>;rememberCounts?:(counts:Record<string,string>)=>void;rememberBaseline?:(counts:Record<string,string>)=>void}
+export interface GolOptions {rememberPatches?:(patches:string[])=>void;leagueScope?:'coach';revalidate?:boolean;force?:boolean;stats?:Stat[];tournamentCounts?:Record<string,string>;rememberCounts?:(counts:Record<string,string>)=>void;rememberBaseline?:(counts:Record<string,string>)=>void}
 export async function scrapeGol(http: ScrapeHttp, champions: Champion[], patch: string, maxGames: number, progress: (m: string) => void,
   publish:(id:string,rows:Pick<DataPack,'stats'|'pairs'|'games'>)=>Promise<void>=async()=>{}, existingGames:HistoricalGame[]=[], options:GolOptions={}) {
   const url = `https://gol.gg/champion/list/season-S${patch.split('.')[0]}/split-ALL/tournament-ALL/`;
   const ttl=options.revalidate?0:6*3600000;
-  const list = await http.page(url,undefined,options.stats?6*3600000:ttl), available = golPatches(list.html), stats: Stat[] = [...options.stats??[]], games: HistoricalGame[] = [];
+  // The patch selector is stable within the current Riot patch. Reuse it, while
+  // revalidating tournament counts/lists below to discover newly played games.
+  const saved=options.leagueScope?await http.peek?.(url):undefined;
+  const list = saved&&golPatches(saved.html)[0]===patch?saved:await http.page(url,undefined,options.stats?6*3600000:ttl), available = golPatches(list.html), stats: Stat[] = [...options.stats??[]], games: HistoricalGame[] = [];
   const target = latestPatches(available);
   if (!target.length) throw new Error('No gol.gg patch available for this season');
-  if(!options.stats)for (const p of target) for (const role of ROLES) {
+  options.rememberPatches?.(target);
+  if(!options.stats&&!options.leagueScope)for (const p of target) for (const role of ROLES) {
     progress(`gol.gg · ${p} · ${role}`);
     const body = new URLSearchParams({ patch: `${p}.`, role, side: 'ALL', draft: 'ALL', cbtournament: 'ALL', leaguePost: 'true' });
     stats.push(...parseGolStats((await http.page(url, body,ttl)).html, champions, p, role));
   }
-  if(!options.stats)await publish(`golgg-stats-S${patch.split('.')[0]}`,{stats,pairs:[],games:[]});
+  if(!options.stats&&!options.leagueScope)await publish(`golgg-stats-S${patch.split('.')[0]}`,{stats,pairs:[],games:[]});
   if (!maxGames) return { stats, pairs: [], games };
   const indexUrl='https://gol.gg/tournament/ajax.trlist.php',indexBody=new URLSearchParams({season:`S${patch.split('.')[0]}`});
   let priorCounts=options.tournamentCounts;
@@ -160,10 +168,17 @@ export async function scrapeGol(http: ScrapeHttp, champions: Champion[], patch: 
   if(!options.tournamentCounts)options.rememberBaseline?.(priorCounts??{});
   const tournaments=JSON.parse((await http.page(indexUrl,indexBody,ttl)).html) as {trname:string;nbgames:string}[];
   if(!Array.isArray(tournaments)||!tournaments.length||tournaments.some(t=>typeof t.trname!=='string'||!/^\d+$/.test(String(t.nbgames))))throw new Error('gol.gg tournament index changed');
-  const links=new Set<string>(),visited=new Set<string>(),known=new Map(existingGames.filter(g=>target.includes(g.patch)).map(g=>[g.id,g]));
-  const publishGames=async()=>{const retained=[...known.values()];await publish(`golgg-games-S${patch.split('.')[0]}`,{stats:[],pairs:gamePairs(retained,stats),games:retained});};
+  const links=new Set<string>(),visited=new Set<string>(),expectedSeriesGames=new Map<string,number>(),known=new Map((options.leagueScope?scopedProGames(existingGames):existingGames).filter(g=>target.includes(g.patch)).map(g=>[g.id,g]));
+  const relatedGames=(html:string,id:string)=>{
+    const related=golGameLinks(html,'https://gol.gg/game/'),expected=expectedSeriesGames.get(id);
+    if(expected!==undefined)for(const link of related)expectedSeriesGames.set(/\/stats\/(\d+)\//.exec(link)![1],expected);
+    return related;
+  };
+  const retainedData=()=>{const retained=options.leagueScope?scopedProGames([...known.values()]):[...known.values()],populationStats=options.leagueScope?proStatsFromGames(retained):stats;return {stats:populationStats,pairs:gamePairs(retained,populationStats),games:retained};};
+  const publishGames=async()=>{const rows=retainedData();await publish(`golgg-${options.leagueScope?'coach':'games'}-S${patch.split('.')[0]}`,{...rows,stats:options.leagueScope?rows.stats:[]});};
   let completed=0,skipped=0,consecutiveFailures=0;
   for(const tournament of tournaments){
+    if(options.leagueScope&&!coachProLeague(tournament.trname))continue;
     if(completed>=maxGames)break;
     const changed=priorCounts?.[tournament.trname]!==String(tournament.nbgames);
     progress(`gol.gg · tournois ${tournament.trname} · ${games.length} games (${target.join(' / ')})`);
@@ -172,7 +187,10 @@ export async function scrapeGol(http: ScrapeHttp, champions: Champion[], patch: 
     // Match lists expose the game's patch. Skip unplayed fixtures and obsolete patches before visiting games.
     for(const tr of $('table').last().find('tr').toArray()){
       const cells=$(tr).children('td');if(!cells.toArray().some(c=>target.includes($(c).text().trim())))continue;
-      for(const link of golGameLinks($.html(tr),'https://gol.gg/tournament/'))links.add(link);
+      const score=cells.toArray().map(c=>/^\s*(\d+)\s*-\s*(\d+)\s*$/.exec($(c).text())).find(Boolean);
+      for(const link of golGameLinks($.html(tr),'https://gol.gg/tournament/')){
+        links.add(link);if(score)expectedSeriesGames.set(/\/stats\/(\d+)\//.exec(link)![1],Number(score[1])+Number(score[2]));
+      }
     }
     while(links.size){
       const link=links.values().next().value!;
@@ -181,15 +199,18 @@ export async function scrapeGol(http: ScrapeHttp, champions: Champion[], patch: 
       const existing=known.get(`gol-${id}`);
       if(existing&&!options.force){
         games.push(existing);completed++;consecutiveFailures=0;
-        // Only changed tournament series need a fresh page to discover games played since our last visit.
-        const saved=options.revalidate&&changed?await http.page(link,undefined,0):await http.peek(link);
-        if(saved)for(const related of golGameLinks(saved.html,'https://gol.gg/game/'))if(!visited.has(/\/stats\/(\d+)\//.exec(related)![1]))links.add(related);
+        // A changed tournament must not refetch every finished series. The match
+        // list score tells us whether the cached tabs already expose all games.
+        const cached=options.leagueScope||!(options.revalidate&&changed)?await http.peek?.(link):undefined,expected=expectedSeriesGames.get(id);
+        const completeTabs=options.leagueScope&&cached&&expected!==undefined&&relatedGames(cached.html,id).length>=expected;
+        const saved=options.revalidate&&changed&&!completeTabs?await http.page(link,undefined,0):cached;
+        if(saved)for(const related of relatedGames(saved.html,id))if(!visited.has(/\/stats\/(\d+)\//.exec(related)![1]))links.add(related);
         continue;
       }
       progress(`gol.gg · ${games.length+1} matchs · ${id}`);
       let game:HistoricalGame;
       let gameHtml:string;
-      try { gameHtml=(await http.page(link,undefined,options.force||options.revalidate?0:30*86400000)).html;game=parseGolGame(gameHtml,champions,id);consecutiveFailures=0; }
+      try { gameHtml=(await http.page(link,undefined,options.force||(!options.leagueScope&&options.revalidate)?0:30*86400000)).html;game=parseGolGame(gameHtml,champions,id);consecutiveFailures=0; }
       catch(error){
         if(error instanceof AccessError)throw error;
         known.delete(`gol-${id}`);
@@ -198,13 +219,13 @@ export async function scrapeGol(http: ScrapeHttp, champions: Champion[], patch: 
         continue;
       }
       // Series summaries link all constituent games; filter each game's actual patch and result.
-      if(target.includes(game.patch)){games.push(game);known.set(game.id,game);}else known.delete(game.id);completed++;
-      for(const related of golGameLinks(gameHtml,'https://gol.gg/game/'))if(!visited.has(/\/stats\/(\d+)\//.exec(related)![1]))links.add(related);
-      if(games.length&&games.length%25===0)await publishGames();
+      if(target.includes(game.patch)&&(!options.leagueScope||coachProLeague(game.tournament))){games.push(game);known.set(game.id,game);}else known.delete(game.id);completed++;
+      for(const related of relatedGames(gameHtml,id))if(!visited.has(/\/stats\/(\d+)\//.exec(related)![1]))links.add(related);
+      if(options.leagueScope||games.length&&games.length%25===0)await publishGames();
     }
   }
   await publishGames();
   if(skipped)throw new Error(`${skipped} invalid or unavailable games excluded; valid games were imported`);
   if(maxGames===Infinity)options.rememberCounts?.(Object.fromEntries(tournaments.map(t=>[t.trname,String(t.nbgames)])));
-  const retained=[...known.values()];return { stats, pairs: gamePairs(retained,stats), games:retained };
+  return retainedData();
 }

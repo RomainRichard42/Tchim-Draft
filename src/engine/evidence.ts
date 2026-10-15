@@ -2,6 +2,7 @@ import type { EngineInput, Stat, PairStat, Side, Role, Champion } from '../share
 import { opposite, PRO_ORDER } from '../shared/draft';
 import { posterior, wilson } from './math';
 import { latestPatches } from '../shared/patches';
+import {proEvidence} from './pro-evidence';
 interface Prepared {
   stats: Map<string, Stat[]>; pairs: Map<string, PairStat[]>; roles: Map<string, Set<Role>>;
   aggregates: Map<string, ReturnType<typeof aggregate>>;
@@ -12,19 +13,20 @@ interface Prepared {
 }
 const preparedCache = new WeakMap<Stat[], Prepared>();
 export function prepare(input: EngineInput): Prepared {
-  const configuration=`${input.draft.league}|${input.settings.oldPatchDecay}`;
+  const configuration=JSON.stringify([input.draft.league,input.settings.oldPatchDecay,input.settings.proView,input.settings.proRules,input.settings.teamStrengthCorrection,input.draft.series?.format,input.draft.series?.fearless]);
   const counts=`${input.stats.length}|${input.pairs.length}|${input.games?.length??0}`;
   const existing = preparedCache.get(input.stats); if (existing?.configuration===configuration&&existing.pairsInput===input.pairs&&existing.gamesInput===input.games&&existing.counts===counts) return existing;
   const patches=(source:'solo'|'pro')=>{const stat=input.stats.filter(s=>s.source===source&&(source==='pro'||s.rank==='MASTER_PLUS'||s.rank==='all'));return latestPatches((stat.length?stat:input.pairs.filter(p=>p.source===source)).map(s=>s.patch));};
   const data: Prepared = { stats: new Map(), pairs: new Map(), roles: new Map(), aggregates: new Map(), historical: new Map(),windows:{solo:patches('solo'),pro:patches('pro')},configuration,pairsInput:input.pairs,gamesInput:input.games,counts };
-  for (const row of input.stats) {
+  const pro=proEvidence(input);
+  for (const row of [...input.stats.filter(s=>s.source!=='pro'),...pro.stats]) {
     const key = `${row.championId}|${row.role}`, values = data.stats.get(key) ?? []; values.push(row); data.stats.set(key, values);
     const roles = data.roles.get(row.championId) ?? new Set<Role>(); roles.add(row.role); data.roles.set(row.championId, roles);
   }
-  for (const row of input.pairs) {
+  for (const row of [...input.pairs.filter(s=>s.source!=='pro'),...pro.pairs]) {
     const key = `${row.kind}|${row.championId}|${row.role}|${row.otherId}|${row.otherRole}`, values = data.pairs.get(key) ?? []; values.push(row); data.pairs.set(key, values);
   }
-  for (const game of input.games ?? []) {
+  for (const game of pro.games) {
     if (game.draftOrderKnown === false) continue;
     const age = data.windows.pro.indexOf(game.patch);
     if (age < 0 || (game.league !== input.draft.league && input.draft.league !== 'all')) continue;

@@ -23,14 +23,14 @@ async function dataset(){
     const stat={...base.stats.find(s=>s.source===source)!,source,patch,rank:source==='solo'?'MASTER_PLUS':'all'};
     f.storage.importPack({...base,id:`${source==='solo'?'lolalytics':'golgg'}-${patch}`,stats:[stat],pairs:[],games:[],provenance:{...base.provenance,demo:false}});
   }
-  const output=path.join(f.directory,'export'),manifest=await exportDataset(f.storage.db,output);
+  const output=path.join(f.directory,'export'),manifest=await exportDataset(f.storage.db,output,undefined,{proScope:'all'});
   const fetcher=vi.fn<Download>(async url=>({body:await readFile(path.join(output,new URL(url).pathname.split('/').at(-1)!)),etag:'"fixture"'}));
   return {...f,output,manifest,fetcher};
 }
 describe('Shared dataset distribution',()=>{
   it('exports only public data and three source patches, deterministically, without changing the editor database',async()=>{
     const f=await dataset(),signature=f.storage.db.prepare('SELECT * FROM packs ORDER BY id').all();
-    const first=JSON.stringify(f.manifest),again=await exportDataset(f.storage.db,f.output);
+    const first=JSON.stringify(f.manifest),again=await exportDataset(f.storage.db,f.output,undefined,{proScope:'all'});
     expect(again).toEqual(f.manifest);expect(first).not.toMatch(/PRIVATE_|settings|riotId|teams|sessions/);
     expect(f.manifest.coverage.every(c=>c.patches.join(',')==='16.20,16.19,16.18')).toBe(true);
     for(const part of f.manifest.parts){const bytes=await readFile(path.join(f.output,`${part.sha256}.json.gz`));expect(sha256(bytes)).toBe(part.sha256);}
@@ -38,7 +38,7 @@ describe('Shared dataset distribution',()=>{
   });
   it('reuses exported content when only the source collection timestamps change',async()=>{
     const f=await dataset();for(const pack of f.storage.packs())f.storage.importPack({...pack,createdAt:'2026-10-08T20:00:00.000Z'});
-    const again=await exportDataset(f.storage.db,f.output);expect(again.parts).toEqual(f.manifest.parts);expect(again.revision).toBe(f.manifest.revision);expect(again.createdAt).toBe('2026-10-08T20:00:00.000Z');
+    const again=await exportDataset(f.storage.db,f.output,undefined,{proScope:'all'});expect(again.parts).toEqual(f.manifest.parts);expect(again.revision).toBe(f.manifest.revision);expect(again.createdAt).toBe('2026-10-08T20:00:00.000Z');
   });
   it('imports into fresh SQLite, preserves user data, and downloads only changed files on later clicks',async()=>{
     const f=await dataset(),client=await fixture();client.storage.settings.pool.Ahri=5;client.storage.draft.side='red';client.storage.draft.patch='16.20';client.storage.persist();client.storage.saveSession('My series');

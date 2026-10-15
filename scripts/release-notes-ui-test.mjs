@@ -17,7 +17,7 @@ const capture=async(name,page)=>{
 try{
  let page=await launch();
  await expect(page.getByRole('dialog',{name:'Nouveautés de Tchim Draft',exact:true})).toBeVisible();
- await expect(page.getByTestId('release-notes')).toContainText('Plus de choix, plus lisibles et expliqués');
+ await expect(page.getByTestId('release-notes')).toContainText('La méta expliquée, le plan de jeu et ton avis');
  await expect(page.locator('.release-entry')).toHaveCount(1);
  const before=await page.evaluate(()=>window.draftApi.snapshot());
  // Keyboard cannot edit the underlying draft while the introduction is open.
@@ -30,7 +30,7 @@ try{
  const layout=await page.getByRole('dialog').evaluate(el=>{const bounds=el.getBoundingClientRect();const close=el.querySelector('[data-testid=release-notes-close]').getBoundingClientRect();return {x:bounds.x,y:bounds.y,right:bounds.right,bottom:bounds.bottom,width:innerWidth,height:innerHeight,closeBottom:close.bottom};});
  expect(layout.x).toBeGreaterThanOrEqual(0);expect(layout.y).toBeGreaterThanOrEqual(0);expect(layout.right).toBeLessThanOrEqual(layout.width);expect(layout.bottom).toBeLessThanOrEqual(layout.height);expect(layout.closeBottom).toBeLessThanOrEqual(layout.height);report.minimumLayout=layout;
  // Plain-text history includes the simulation update, without technical changelog jargon.
- await page.getByRole('button',{name:'Voir l’historique',exact:true}).click();await expect(page.locator('.release-entry')).toHaveCount(12);await expect(page.getByTestId('release-notes')).toContainText('48 drafts différentes');
+ await page.getByRole('button',{name:'Voir l’historique',exact:true}).click();await expect(page.locator('.release-entry')).toHaveCount(13);await expect(page.getByTestId('release-notes')).toContainText('48 drafts différentes');
  await page.getByTestId('release-notes-close').click();await expect(page.getByTestId('release-notes')).toHaveCount(0);
  expect((await page.evaluate(()=>window.draftApi.releaseNotes())).pending).toBe(false);
  expect(await page.evaluate(()=>window.draftApi.snapshot())).toEqual(before);
@@ -40,7 +40,7 @@ try{
  await page.getByRole('button',{name:'Réglages',exact:true}).click();await page.getByTestId('open-release-notes').click();await expect(page.getByTestId('release-notes')).toBeVisible();
  await page.keyboard.press('Escape');await expect(page.getByTestId('release-notes')).toHaveCount(0);
  await page.getByRole('button',{name:'English',exact:true}).click();await page.getByTestId('open-release-notes').click();
- await expect(page.getByRole('dialog',{name:'What is new in Tchim Draft',exact:true})).toBeVisible();await expect(page.getByTestId('release-notes')).toContainText('More readable choices with draft explanations');
+ await expect(page.getByRole('dialog',{name:'What is new in Tchim Draft',exact:true})).toBeVisible();await expect(page.getByTestId('release-notes')).toContainText('Explained meta, team duties and your feedback');
  await page.getByTestId('release-notes-close').click();
  // Overlay never shows the introduction.
  const next=desktop.waitForEvent('window');await page.evaluate(()=>window.draftApi.overlay());const overlay=await next;await expect(overlay.getByTestId('app')).toBeVisible();await expect(overlay.getByTestId('release-notes')).toHaveCount(0);await page.evaluate(()=>window.draftApi.overlay());
@@ -48,7 +48,7 @@ try{
  await desktop.close();desktop=undefined;
  // Simulate a real user who last read 0.9.0 and skips directly to the current build.
  const file=path.join(root,'tchim.sqlite'),db=new Database(file);db.prepare('UPDATE kv SET value=? WHERE key=?').run(JSON.stringify('0.9.0'),'releaseNotesSeenVersion');db.close();
- page=await launch();await expect(page.getByTestId('release-notes')).toBeVisible();await expect(page.locator('.release-entry')).toHaveCount(11);await expect(page.getByTestId('release-notes')).toContainText('since version 0.9.0');
+ page=await launch();await expect(page.getByTestId('release-notes')).toBeVisible();await expect(page.locator('.release-entry')).toHaveCount(12);await expect(page.getByTestId('release-notes')).toContainText('since version 0.9.0');
  await page.keyboard.press('Escape');await expect(page.getByTestId('release-notes')).toHaveCount(0);
  expect((await page.evaluate(()=>window.draftApi.releaseNotes())).lastSeenVersion).toBe(version);
  expect(errors).toEqual([]);report.errors=errors;report.persistentAcknowledgement=true;report.skippedVersions=true;report.overlaySuppressed=true;

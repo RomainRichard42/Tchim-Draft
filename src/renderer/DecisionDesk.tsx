@@ -8,11 +8,12 @@ import { Portrait } from './ChampionPortrait';
 import { DraftGauge } from './DraftAssessment';
 import { translations } from './i18n';
 
-export function DecisionDesk({ list, focused, champions, language, side, isBan, disabled, pending, step, complete, contextKey, choose, preview, inspect,expand }: {
+export function DecisionDesk({ list, focused, champions, language, side, isBan, disabled, pending, step, complete, contextKey, choose, preview, inspect,expand,review }: {
   list: Recommendation[]; focused?: Recommendation; champions: Map<string, Champion>; language: 'fr' | 'en'; side: Side; isBan: boolean;
   disabled: boolean; pending: boolean; step: number; complete: boolean; contextKey:string;
   choose: (r: Recommendation) => void; preview: (r: Recommendation) => void; inspect: (r: Recommendation) => void;
   expand?:()=>void;
+  review?:(rec:Recommendation)=>void;
 }) {
   const desk=useRef<HTMLDivElement>(null),hover=usePickHover(contextKey,!isBan&&!disabled&&!pending),[view,setView]=useState<'list'|'card'>(isBan?'card':'list');
   useEffect(()=>{if(desk.current)desk.current.scrollTop=0;setView(isBan?'card':'list');},[step,isBan]);
@@ -58,7 +59,7 @@ export function DecisionDesk({ list, focused, champions, language, side, isBan, 
       </article>;
     }}/>
     {r && rank !== 1 && <button className="return-best" onClick={() => compare(list[0])} disabled={disabled}>{fr ? 'Revenir au premier choix' : 'Return to top choice'}<ArrowRight size={16}/></button>}
-    {hover.value&&<PickHoverCard hover={hover.value} champions={champions} language={language} side={side} contextKey={contextKey} keep={hover.keep} leave={hover.leave} close={hover.close} details={inspect}/>}
+    {hover.value&&<PickHoverCard hover={hover.value} champions={champions} language={language} side={side} contextKey={contextKey} keep={hover.keep} leave={hover.leave} close={hover.close} details={inspect} review={review}/>}
     {complete && <button className="primary" data-testid="face-confirm" disabled>{fr ? 'Draft terminée' : 'Draft complete'}</button>}
   </div>;
 }

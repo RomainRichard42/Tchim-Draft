@@ -1,6 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type { DesktopApi } from '../shared/types';
 const api: DesktopApi = {
+  feedback:all=>ipcRenderer.invoke('feedback:list',all??false),
+  saveFeedback:request=>ipcRenderer.invoke('feedback:save',request),
+  deleteFeedback:id=>ipcRenderer.invoke('feedback:delete',id),
   pickInsight:request=>ipcRenderer.invoke('draft:pick-insight',request),
   matches:()=>ipcRenderer.invoke('match:list'),
   createMatch:setup=>ipcRenderer.invoke('match:create',setup),

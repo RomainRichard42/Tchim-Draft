@@ -1,0 +1,3684 @@
+{
+  "schema": 1,
+  "datasetRevision": "f9056aa7da5f052a3cc019d6118a3bf5d057907ebb6b5ca23e62f416eda2bf03",
+  "games": {
+    "gol-83583": {
+      "seriesId": "gol-series-83583",
+      "index": 1,
+      "gameIds": [
+        "gol-83583",
+        "gol-83584",
+        "gol-83585"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83558": {
+      "seriesId": "gol-series-83558",
+      "index": 1,
+      "gameIds": [
+        "gol-83558",
+        "gol-83559",
+        "gol-83560"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83553": {
+      "seriesId": "gol-series-83553",
+      "index": 1,
+      "gameIds": [
+        "gol-83553",
+        "gol-83554",
+        "gol-83555",
+        "gol-83556"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83548": {
+      "seriesId": "gol-series-83548",
+      "index": 1,
+      "gameIds": [
+        "gol-83548",
+        "gol-83549",
+        "gol-83550"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83543": {
+      "seriesId": "gol-series-83543",
+      "index": 1,
+      "gameIds": [
+        "gol-83543",
+        "gol-83544",
+        "gol-83545",
+        "gol-83546"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83584": {
+      "seriesId": "gol-series-83583",
+      "index": 2,
+      "gameIds": [
+        "gol-83583",
+        "gol-83584",
+        "gol-83585"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83585": {
+      "seriesId": "gol-series-83583",
+      "index": 3,
+      "gameIds": [
+        "gol-83583",
+        "gol-83584",
+        "gol-83585"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83559": {
+      "seriesId": "gol-series-83558",
+      "index": 2,
+      "gameIds": [
+        "gol-83558",
+        "gol-83559",
+        "gol-83560"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83560": {
+      "seriesId": "gol-series-83558",
+      "index": 3,
+      "gameIds": [
+        "gol-83558",
+        "gol-83559",
+        "gol-83560"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83554": {
+      "seriesId": "gol-series-83553",
+      "index": 2,
+      "gameIds": [
+        "gol-83553",
+        "gol-83554",
+        "gol-83555",
+        "gol-83556"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83555": {
+      "seriesId": "gol-series-83553",
+      "index": 3,
+      "gameIds": [
+        "gol-83553",
+        "gol-83554",
+        "gol-83555",
+        "gol-83556"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83556": {
+      "seriesId": "gol-series-83553",
+      "index": 4,
+      "gameIds": [
+        "gol-83553",
+        "gol-83554",
+        "gol-83555",
+        "gol-83556"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83549": {
+      "seriesId": "gol-series-83548",
+      "index": 2,
+      "gameIds": [
+        "gol-83548",
+        "gol-83549",
+        "gol-83550"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83550": {
+      "seriesId": "gol-series-83548",
+      "index": 3,
+      "gameIds": [
+        "gol-83548",
+        "gol-83549",
+        "gol-83550"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83544": {
+      "seriesId": "gol-series-83543",
+      "index": 2,
+      "gameIds": [
+        "gol-83543",
+        "gol-83544",
+        "gol-83545",
+        "gol-83546"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83545": {
+      "seriesId": "gol-series-83543",
+      "index": 3,
+      "gameIds": [
+        "gol-83543",
+        "gol-83544",
+        "gol-83545",
+        "gol-83546"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83546": {
+      "seriesId": "gol-series-83543",
+      "index": 4,
+      "gameIds": [
+        "gol-83543",
+        "gol-83544",
+        "gol-83545",
+        "gol-83546"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83588": {
+      "seriesId": "gol-series-83588",
+      "index": 1,
+      "gameIds": [
+        "gol-83588",
+        "gol-83589",
+        "gol-83590",
+        "gol-83591"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83589": {
+      "seriesId": "gol-series-83588",
+      "index": 2,
+      "gameIds": [
+        "gol-83588",
+        "gol-83589",
+        "gol-83590",
+        "gol-83591"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83590": {
+      "seriesId": "gol-series-83588",
+      "index": 3,
+      "gameIds": [
+        "gol-83588",
+        "gol-83589",
+        "gol-83590",
+        "gol-83591"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83591": {
+      "seriesId": "gol-series-83588",
+      "index": 4,
+      "gameIds": [
+        "gol-83588",
+        "gol-83589",
+        "gol-83590",
+        "gol-83591"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83515": {
+      "seriesId": "gol-series-83515",
+      "index": 1,
+      "gameIds": [
+        "gol-83515",
+        "gol-83516",
+        "gol-83517",
+        "gol-83518"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83510": {
+      "seriesId": "gol-series-83510",
+      "index": 1,
+      "gameIds": [
+        "gol-83510",
+        "gol-83511",
+        "gol-83512",
+        "gol-83513",
+        "gol-83514"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83505": {
+      "seriesId": "gol-series-83505",
+      "index": 1,
+      "gameIds": [
+        "gol-83505",
+        "gol-83506",
+        "gol-83507"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83500": {
+      "seriesId": "gol-series-83500",
+      "index": 1,
+      "gameIds": [
+        "gol-83500",
+        "gol-83501",
+        "gol-83502",
+        "gol-83503",
+        "gol-83504"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83495": {
+      "seriesId": "gol-series-83495",
+      "index": 1,
+      "gameIds": [
+        "gol-83495",
+        "gol-83496",
+        "gol-83497"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83490": {
+      "seriesId": "gol-series-83490",
+      "index": 1,
+      "gameIds": [
+        "gol-83490",
+        "gol-83491",
+        "gol-83492"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83485": {
+      "seriesId": "gol-series-83485",
+      "index": 1,
+      "gameIds": [
+        "gol-83485",
+        "gol-83486",
+        "gol-83487",
+        "gol-83488"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83480": {
+      "seriesId": "gol-series-83480",
+      "index": 1,
+      "gameIds": [
+        "gol-83480",
+        "gol-83481",
+        "gol-83482"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83471": {
+      "seriesId": "gol-series-83471",
+      "index": 1,
+      "gameIds": [
+        "gol-83471",
+        "gol-83472",
+        "gol-83473",
+        "gol-83474",
+        "gol-83475"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83432": {
+      "seriesId": "gol-series-83432",
+      "index": 1,
+      "gameIds": [
+        "gol-83432",
+        "gol-83433",
+        "gol-83434"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83427": {
+      "seriesId": "gol-series-83427",
+      "index": 1,
+      "gameIds": [
+        "gol-83427",
+        "gol-83428",
+        "gol-83429"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83425": {
+      "seriesId": "gol-series-83425",
+      "index": 1,
+      "gameIds": [
+        "gol-83425",
+        "gol-83426"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83422": {
+      "seriesId": "gol-series-83422",
+      "index": 1,
+      "gameIds": [
+        "gol-83422",
+        "gol-83423"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83419": {
+      "seriesId": "gol-series-83419",
+      "index": 1,
+      "gameIds": [
+        "gol-83419",
+        "gol-83420"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83416": {
+      "seriesId": "gol-series-83416",
+      "index": 1,
+      "gameIds": [
+        "gol-83416",
+        "gol-83417"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83413": {
+      "seriesId": "gol-series-83413",
+      "index": 1,
+      "gameIds": [
+        "gol-83413",
+        "gol-83414"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83411": {
+      "seriesId": "gol-series-83411",
+      "index": 1,
+      "gameIds": [
+        "gol-83411",
+        "gol-83412"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83408": {
+      "seriesId": "gol-series-83408",
+      "index": 1,
+      "gameIds": [
+        "gol-83408",
+        "gol-83409",
+        "gol-83410"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83405": {
+      "seriesId": "gol-series-83405",
+      "index": 1,
+      "gameIds": [
+        "gol-83405",
+        "gol-83406"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83402": {
+      "seriesId": "gol-series-83402",
+      "index": 1,
+      "gameIds": [
+        "gol-83402",
+        "gol-83403"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83399": {
+      "seriesId": "gol-series-83399",
+      "index": 1,
+      "gameIds": [
+        "gol-83399",
+        "gol-83400"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83396": {
+      "seriesId": "gol-series-83396",
+      "index": 1,
+      "gameIds": [
+        "gol-83396",
+        "gol-83397"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83393": {
+      "seriesId": "gol-series-83393",
+      "index": 1,
+      "gameIds": [
+        "gol-83393",
+        "gol-83394",
+        "gol-83395"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83390": {
+      "seriesId": "gol-series-83390",
+      "index": 1,
+      "gameIds": [
+        "gol-83390",
+        "gol-83391"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83387": {
+      "seriesId": "gol-series-83387",
+      "index": 1,
+      "gameIds": [
+        "gol-83387",
+        "gol-83388",
+        "gol-83389"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83384": {
+      "seriesId": "gol-series-83384",
+      "index": 1,
+      "gameIds": [
+        "gol-83384",
+        "gol-83385",
+        "gol-83386"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83380": {
+      "seriesId": "gol-series-83380",
+      "index": 1,
+      "gameIds": [
+        "gol-83380",
+        "gol-83381",
+        "gol-83382"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83377": {
+      "seriesId": "gol-series-83377",
+      "index": 1,
+      "gameIds": [
+        "gol-83377",
+        "gol-83378",
+        "gol-83379"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83374": {
+      "seriesId": "gol-series-83374",
+      "index": 1,
+      "gameIds": [
+        "gol-83374",
+        "gol-83375"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83371": {
+      "seriesId": "gol-series-83371",
+      "index": 1,
+      "gameIds": [
+        "gol-83371",
+        "gol-83372",
+        "gol-83373"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83368": {
+      "seriesId": "gol-series-83368",
+      "index": 1,
+      "gameIds": [
+        "gol-83368",
+        "gol-83369"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83365": {
+      "seriesId": "gol-series-83365",
+      "index": 1,
+      "gameIds": [
+        "gol-83365",
+        "gol-83366"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83362": {
+      "seriesId": "gol-series-83362",
+      "index": 1,
+      "gameIds": [
+        "gol-83362",
+        "gol-83363"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83361": {
+      "seriesId": "gol-series-83361",
+      "index": 1,
+      "gameIds": [
+        "gol-83361"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83360": {
+      "seriesId": "gol-series-83360",
+      "index": 1,
+      "gameIds": [
+        "gol-83360"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83359": {
+      "seriesId": "gol-series-83359",
+      "index": 1,
+      "gameIds": [
+        "gol-83359"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83358": {
+      "seriesId": "gol-series-83358",
+      "index": 1,
+      "gameIds": [
+        "gol-83358"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83357": {
+      "seriesId": "gol-series-83357",
+      "index": 1,
+      "gameIds": [
+        "gol-83357"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83356": {
+      "seriesId": "gol-series-83356",
+      "index": 1,
+      "gameIds": [
+        "gol-83356"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83349": {
+      "seriesId": "gol-series-83349",
+      "index": 1,
+      "gameIds": [
+        "gol-83349",
+        "gol-83350"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83346": {
+      "seriesId": "gol-series-83346",
+      "index": 1,
+      "gameIds": [
+        "gol-83346",
+        "gol-83347",
+        "gol-83348"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83343": {
+      "seriesId": "gol-series-83343",
+      "index": 1,
+      "gameIds": [
+        "gol-83343",
+        "gol-83344",
+        "gol-83345"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83340": {
+      "seriesId": "gol-series-83340",
+      "index": 1,
+      "gameIds": [
+        "gol-83340",
+        "gol-83341"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83339": {
+      "seriesId": "gol-series-83339",
+      "index": 1,
+      "gameIds": [
+        "gol-83339"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83338": {
+      "seriesId": "gol-series-83338",
+      "index": 1,
+      "gameIds": [
+        "gol-83338"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83337": {
+      "seriesId": "gol-series-83337",
+      "index": 1,
+      "gameIds": [
+        "gol-83337"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83336": {
+      "seriesId": "gol-series-83336",
+      "index": 1,
+      "gameIds": [
+        "gol-83336"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83335": {
+      "seriesId": "gol-series-83335",
+      "index": 1,
+      "gameIds": [
+        "gol-83335"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83334": {
+      "seriesId": "gol-series-83334",
+      "index": 1,
+      "gameIds": [
+        "gol-83334"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83333": {
+      "seriesId": "gol-series-83333",
+      "index": 1,
+      "gameIds": [
+        "gol-83333"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83332": {
+      "seriesId": "gol-series-83332",
+      "index": 1,
+      "gameIds": [
+        "gol-83332"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83331": {
+      "seriesId": "gol-series-83331",
+      "index": 1,
+      "gameIds": [
+        "gol-83331"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83330": {
+      "seriesId": "gol-series-83330",
+      "index": 1,
+      "gameIds": [
+        "gol-83330"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83329": {
+      "seriesId": "gol-series-83329",
+      "index": 1,
+      "gameIds": [
+        "gol-83329"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83328": {
+      "seriesId": "gol-series-83328",
+      "index": 1,
+      "gameIds": [
+        "gol-83328"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83317": {
+      "seriesId": "gol-series-83317",
+      "index": 1,
+      "gameIds": [
+        "gol-83317"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83316": {
+      "seriesId": "gol-series-83316",
+      "index": 1,
+      "gameIds": [
+        "gol-83316"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83315": {
+      "seriesId": "gol-series-83315",
+      "index": 1,
+      "gameIds": [
+        "gol-83315"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83314": {
+      "seriesId": "gol-series-83314",
+      "index": 1,
+      "gameIds": [
+        "gol-83314"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83313": {
+      "seriesId": "gol-series-83313",
+      "index": 1,
+      "gameIds": [
+        "gol-83313"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83312": {
+      "seriesId": "gol-series-83312",
+      "index": 1,
+      "gameIds": [
+        "gol-83312"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83311": {
+      "seriesId": "gol-series-83311",
+      "index": 1,
+      "gameIds": [
+        "gol-83311"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83310": {
+      "seriesId": "gol-series-83310",
+      "index": 1,
+      "gameIds": [
+        "gol-83310"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83309": {
+      "seriesId": "gol-series-83309",
+      "index": 1,
+      "gameIds": [
+        "gol-83309"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83308": {
+      "seriesId": "gol-series-83308",
+      "index": 1,
+      "gameIds": [
+        "gol-83308"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83307": {
+      "seriesId": "gol-series-83307",
+      "index": 1,
+      "gameIds": [
+        "gol-83307"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83306": {
+      "seriesId": "gol-series-83306",
+      "index": 1,
+      "gameIds": [
+        "gol-83306"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83305": {
+      "seriesId": "gol-series-83305",
+      "index": 1,
+      "gameIds": [
+        "gol-83305"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83304": {
+      "seriesId": "gol-series-83304",
+      "index": 1,
+      "gameIds": [
+        "gol-83304"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83303": {
+      "seriesId": "gol-series-83303",
+      "index": 1,
+      "gameIds": [
+        "gol-83303"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83302": {
+      "seriesId": "gol-series-83302",
+      "index": 1,
+      "gameIds": [
+        "gol-83302"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83266": {
+      "seriesId": "gol-series-83266",
+      "index": 1,
+      "gameIds": [
+        "gol-83266"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83265": {
+      "seriesId": "gol-series-83265",
+      "index": 1,
+      "gameIds": [
+        "gol-83265"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83264": {
+      "seriesId": "gol-series-83264",
+      "index": 1,
+      "gameIds": [
+        "gol-83264"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83263": {
+      "seriesId": "gol-series-83263",
+      "index": 1,
+      "gameIds": [
+        "gol-83263"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83262": {
+      "seriesId": "gol-series-83262",
+      "index": 1,
+      "gameIds": [
+        "gol-83262"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83261": {
+      "seriesId": "gol-series-83261",
+      "index": 1,
+      "gameIds": [
+        "gol-83261"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83260": {
+      "seriesId": "gol-series-83260",
+      "index": 1,
+      "gameIds": [
+        "gol-83260"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83259": {
+      "seriesId": "gol-series-83259",
+      "index": 1,
+      "gameIds": [
+        "gol-83259"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83258": {
+      "seriesId": "gol-series-83258",
+      "index": 1,
+      "gameIds": [
+        "gol-83258"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83257": {
+      "seriesId": "gol-series-83257",
+      "index": 1,
+      "gameIds": [
+        "gol-83257"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83256": {
+      "seriesId": "gol-series-83256",
+      "index": 1,
+      "gameIds": [
+        "gol-83256"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83255": {
+      "seriesId": "gol-series-83255",
+      "index": 1,
+      "gameIds": [
+        "gol-83255"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83254": {
+      "seriesId": "gol-series-83254",
+      "index": 1,
+      "gameIds": [
+        "gol-83254"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83253": {
+      "seriesId": "gol-series-83253",
+      "index": 1,
+      "gameIds": [
+        "gol-83253"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83252": {
+      "seriesId": "gol-series-83252",
+      "index": 1,
+      "gameIds": [
+        "gol-83252"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83251": {
+      "seriesId": "gol-series-83251",
+      "index": 1,
+      "gameIds": [
+        "gol-83251"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83228": {
+      "seriesId": "gol-series-83228",
+      "index": 1,
+      "gameIds": [
+        "gol-83228"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83227": {
+      "seriesId": "gol-series-83227",
+      "index": 1,
+      "gameIds": [
+        "gol-83227"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83226": {
+      "seriesId": "gol-series-83226",
+      "index": 1,
+      "gameIds": [
+        "gol-83226"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83225": {
+      "seriesId": "gol-series-83225",
+      "index": 1,
+      "gameIds": [
+        "gol-83225"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83224": {
+      "seriesId": "gol-series-83224",
+      "index": 1,
+      "gameIds": [
+        "gol-83224"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83223": {
+      "seriesId": "gol-series-83223",
+      "index": 1,
+      "gameIds": [
+        "gol-83223"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83222": {
+      "seriesId": "gol-series-83222",
+      "index": 1,
+      "gameIds": [
+        "gol-83222"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83220": {
+      "seriesId": "gol-series-83220",
+      "index": 1,
+      "gameIds": [
+        "gol-83220"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83219": {
+      "seriesId": "gol-series-83219",
+      "index": 1,
+      "gameIds": [
+        "gol-83219"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83218": {
+      "seriesId": "gol-series-83218",
+      "index": 1,
+      "gameIds": [
+        "gol-83218"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83217": {
+      "seriesId": "gol-series-83217",
+      "index": 1,
+      "gameIds": [
+        "gol-83217"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83216": {
+      "seriesId": "gol-series-83216",
+      "index": 1,
+      "gameIds": [
+        "gol-83216"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83215": {
+      "seriesId": "gol-series-83215",
+      "index": 1,
+      "gameIds": [
+        "gol-83215"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83214": {
+      "seriesId": "gol-series-83214",
+      "index": 1,
+      "gameIds": [
+        "gol-83214"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83213": {
+      "seriesId": "gol-series-83213",
+      "index": 1,
+      "gameIds": [
+        "gol-83213"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83516": {
+      "seriesId": "gol-series-83515",
+      "index": 2,
+      "gameIds": [
+        "gol-83515",
+        "gol-83516",
+        "gol-83517",
+        "gol-83518"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83517": {
+      "seriesId": "gol-series-83515",
+      "index": 3,
+      "gameIds": [
+        "gol-83515",
+        "gol-83516",
+        "gol-83517",
+        "gol-83518"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83518": {
+      "seriesId": "gol-series-83515",
+      "index": 4,
+      "gameIds": [
+        "gol-83515",
+        "gol-83516",
+        "gol-83517",
+        "gol-83518"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83511": {
+      "seriesId": "gol-series-83510",
+      "index": 2,
+      "gameIds": [
+        "gol-83510",
+        "gol-83511",
+        "gol-83512",
+        "gol-83513",
+        "gol-83514"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83512": {
+      "seriesId": "gol-series-83510",
+      "index": 3,
+      "gameIds": [
+        "gol-83510",
+        "gol-83511",
+        "gol-83512",
+        "gol-83513",
+        "gol-83514"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83513": {
+      "seriesId": "gol-series-83510",
+      "index": 4,
+      "gameIds": [
+        "gol-83510",
+        "gol-83511",
+        "gol-83512",
+        "gol-83513",
+        "gol-83514"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83514": {
+      "seriesId": "gol-series-83510",
+      "index": 5,
+      "gameIds": [
+        "gol-83510",
+        "gol-83511",
+        "gol-83512",
+        "gol-83513",
+        "gol-83514"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83506": {
+      "seriesId": "gol-series-83505",
+      "index": 2,
+      "gameIds": [
+        "gol-83505",
+        "gol-83506",
+        "gol-83507"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83507": {
+      "seriesId": "gol-series-83505",
+      "index": 3,
+      "gameIds": [
+        "gol-83505",
+        "gol-83506",
+        "gol-83507"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83501": {
+      "seriesId": "gol-series-83500",
+      "index": 2,
+      "gameIds": [
+        "gol-83500",
+        "gol-83501",
+        "gol-83502",
+        "gol-83503",
+        "gol-83504"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83502": {
+      "seriesId": "gol-series-83500",
+      "index": 3,
+      "gameIds": [
+        "gol-83500",
+        "gol-83501",
+        "gol-83502",
+        "gol-83503",
+        "gol-83504"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83503": {
+      "seriesId": "gol-series-83500",
+      "index": 4,
+      "gameIds": [
+        "gol-83500",
+        "gol-83501",
+        "gol-83502",
+        "gol-83503",
+        "gol-83504"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83504": {
+      "seriesId": "gol-series-83500",
+      "index": 5,
+      "gameIds": [
+        "gol-83500",
+        "gol-83501",
+        "gol-83502",
+        "gol-83503",
+        "gol-83504"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83496": {
+      "seriesId": "gol-series-83495",
+      "index": 2,
+      "gameIds": [
+        "gol-83495",
+        "gol-83496",
+        "gol-83497"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83497": {
+      "seriesId": "gol-series-83495",
+      "index": 3,
+      "gameIds": [
+        "gol-83495",
+        "gol-83496",
+        "gol-83497"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83491": {
+      "seriesId": "gol-series-83490",
+      "index": 2,
+      "gameIds": [
+        "gol-83490",
+        "gol-83491",
+        "gol-83492"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83492": {
+      "seriesId": "gol-series-83490",
+      "index": 3,
+      "gameIds": [
+        "gol-83490",
+        "gol-83491",
+        "gol-83492"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83486": {
+      "seriesId": "gol-series-83485",
+      "index": 2,
+      "gameIds": [
+        "gol-83485",
+        "gol-83486",
+        "gol-83487",
+        "gol-83488"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83487": {
+      "seriesId": "gol-series-83485",
+      "index": 3,
+      "gameIds": [
+        "gol-83485",
+        "gol-83486",
+        "gol-83487",
+        "gol-83488"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83488": {
+      "seriesId": "gol-series-83485",
+      "index": 4,
+      "gameIds": [
+        "gol-83485",
+        "gol-83486",
+        "gol-83487",
+        "gol-83488"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83481": {
+      "seriesId": "gol-series-83480",
+      "index": 2,
+      "gameIds": [
+        "gol-83480",
+        "gol-83481",
+        "gol-83482"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83482": {
+      "seriesId": "gol-series-83480",
+      "index": 3,
+      "gameIds": [
+        "gol-83480",
+        "gol-83481",
+        "gol-83482"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83472": {
+      "seriesId": "gol-series-83471",
+      "index": 2,
+      "gameIds": [
+        "gol-83471",
+        "gol-83472",
+        "gol-83473",
+        "gol-83474",
+        "gol-83475"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83473": {
+      "seriesId": "gol-series-83471",
+      "index": 3,
+      "gameIds": [
+        "gol-83471",
+        "gol-83472",
+        "gol-83473",
+        "gol-83474",
+        "gol-83475"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83474": {
+      "seriesId": "gol-series-83471",
+      "index": 4,
+      "gameIds": [
+        "gol-83471",
+        "gol-83472",
+        "gol-83473",
+        "gol-83474",
+        "gol-83475"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83475": {
+      "seriesId": "gol-series-83471",
+      "index": 5,
+      "gameIds": [
+        "gol-83471",
+        "gol-83472",
+        "gol-83473",
+        "gol-83474",
+        "gol-83475"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83433": {
+      "seriesId": "gol-series-83432",
+      "index": 2,
+      "gameIds": [
+        "gol-83432",
+        "gol-83433",
+        "gol-83434"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83434": {
+      "seriesId": "gol-series-83432",
+      "index": 3,
+      "gameIds": [
+        "gol-83432",
+        "gol-83433",
+        "gol-83434"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83428": {
+      "seriesId": "gol-series-83427",
+      "index": 2,
+      "gameIds": [
+        "gol-83427",
+        "gol-83428",
+        "gol-83429"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83429": {
+      "seriesId": "gol-series-83427",
+      "index": 3,
+      "gameIds": [
+        "gol-83427",
+        "gol-83428",
+        "gol-83429"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83426": {
+      "seriesId": "gol-series-83425",
+      "index": 2,
+      "gameIds": [
+        "gol-83425",
+        "gol-83426"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83423": {
+      "seriesId": "gol-series-83422",
+      "index": 2,
+      "gameIds": [
+        "gol-83422",
+        "gol-83423"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83420": {
+      "seriesId": "gol-series-83419",
+      "index": 2,
+      "gameIds": [
+        "gol-83419",
+        "gol-83420"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83417": {
+      "seriesId": "gol-series-83416",
+      "index": 2,
+      "gameIds": [
+        "gol-83416",
+        "gol-83417"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83414": {
+      "seriesId": "gol-series-83413",
+      "index": 2,
+      "gameIds": [
+        "gol-83413",
+        "gol-83414"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83412": {
+      "seriesId": "gol-series-83411",
+      "index": 2,
+      "gameIds": [
+        "gol-83411",
+        "gol-83412"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83409": {
+      "seriesId": "gol-series-83408",
+      "index": 2,
+      "gameIds": [
+        "gol-83408",
+        "gol-83409",
+        "gol-83410"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83410": {
+      "seriesId": "gol-series-83408",
+      "index": 3,
+      "gameIds": [
+        "gol-83408",
+        "gol-83409",
+        "gol-83410"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83406": {
+      "seriesId": "gol-series-83405",
+      "index": 2,
+      "gameIds": [
+        "gol-83405",
+        "gol-83406"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83403": {
+      "seriesId": "gol-series-83402",
+      "index": 2,
+      "gameIds": [
+        "gol-83402",
+        "gol-83403"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83400": {
+      "seriesId": "gol-series-83399",
+      "index": 2,
+      "gameIds": [
+        "gol-83399",
+        "gol-83400"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83397": {
+      "seriesId": "gol-series-83396",
+      "index": 2,
+      "gameIds": [
+        "gol-83396",
+        "gol-83397"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83394": {
+      "seriesId": "gol-series-83393",
+      "index": 2,
+      "gameIds": [
+        "gol-83393",
+        "gol-83394",
+        "gol-83395"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83395": {
+      "seriesId": "gol-series-83393",
+      "index": 3,
+      "gameIds": [
+        "gol-83393",
+        "gol-83394",
+        "gol-83395"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83391": {
+      "seriesId": "gol-series-83390",
+      "index": 2,
+      "gameIds": [
+        "gol-83390",
+        "gol-83391"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83388": {
+      "seriesId": "gol-series-83387",
+      "index": 2,
+      "gameIds": [
+        "gol-83387",
+        "gol-83388",
+        "gol-83389"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83389": {
+      "seriesId": "gol-series-83387",
+      "index": 3,
+      "gameIds": [
+        "gol-83387",
+        "gol-83388",
+        "gol-83389"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83385": {
+      "seriesId": "gol-series-83384",
+      "index": 2,
+      "gameIds": [
+        "gol-83384",
+        "gol-83385",
+        "gol-83386"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83386": {
+      "seriesId": "gol-series-83384",
+      "index": 3,
+      "gameIds": [
+        "gol-83384",
+        "gol-83385",
+        "gol-83386"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83381": {
+      "seriesId": "gol-series-83380",
+      "index": 2,
+      "gameIds": [
+        "gol-83380",
+        "gol-83381",
+        "gol-83382"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83382": {
+      "seriesId": "gol-series-83380",
+      "index": 3,
+      "gameIds": [
+        "gol-83380",
+        "gol-83381",
+        "gol-83382"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83378": {
+      "seriesId": "gol-series-83377",
+      "index": 2,
+      "gameIds": [
+        "gol-83377",
+        "gol-83378",
+        "gol-83379"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83379": {
+      "seriesId": "gol-series-83377",
+      "index": 3,
+      "gameIds": [
+        "gol-83377",
+        "gol-83378",
+        "gol-83379"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83375": {
+      "seriesId": "gol-series-83374",
+      "index": 2,
+      "gameIds": [
+        "gol-83374",
+        "gol-83375"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83372": {
+      "seriesId": "gol-series-83371",
+      "index": 2,
+      "gameIds": [
+        "gol-83371",
+        "gol-83372",
+        "gol-83373"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83373": {
+      "seriesId": "gol-series-83371",
+      "index": 3,
+      "gameIds": [
+        "gol-83371",
+        "gol-83372",
+        "gol-83373"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83369": {
+      "seriesId": "gol-series-83368",
+      "index": 2,
+      "gameIds": [
+        "gol-83368",
+        "gol-83369"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83366": {
+      "seriesId": "gol-series-83365",
+      "index": 2,
+      "gameIds": [
+        "gol-83365",
+        "gol-83366"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83363": {
+      "seriesId": "gol-series-83362",
+      "index": 2,
+      "gameIds": [
+        "gol-83362",
+        "gol-83363"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83350": {
+      "seriesId": "gol-series-83349",
+      "index": 2,
+      "gameIds": [
+        "gol-83349",
+        "gol-83350"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83347": {
+      "seriesId": "gol-series-83346",
+      "index": 2,
+      "gameIds": [
+        "gol-83346",
+        "gol-83347",
+        "gol-83348"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83348": {
+      "seriesId": "gol-series-83346",
+      "index": 3,
+      "gameIds": [
+        "gol-83346",
+        "gol-83347",
+        "gol-83348"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83344": {
+      "seriesId": "gol-series-83343",
+      "index": 2,
+      "gameIds": [
+        "gol-83343",
+        "gol-83344",
+        "gol-83345"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83345": {
+      "seriesId": "gol-series-83343",
+      "index": 3,
+      "gameIds": [
+        "gol-83343",
+        "gol-83344",
+        "gol-83345"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83341": {
+      "seriesId": "gol-series-83340",
+      "index": 2,
+      "gameIds": [
+        "gol-83340",
+        "gol-83341"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83211": {
+      "seriesId": "gol-series-83211",
+      "index": 1,
+      "gameIds": [
+        "gol-83211",
+        "gol-83212"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83208": {
+      "seriesId": "gol-series-83208",
+      "index": 1,
+      "gameIds": [
+        "gol-83208",
+        "gol-83209",
+        "gol-83210"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83205": {
+      "seriesId": "gol-series-83205",
+      "index": 1,
+      "gameIds": [
+        "gol-83205",
+        "gol-83206",
+        "gol-83207"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83202": {
+      "seriesId": "gol-series-83202",
+      "index": 1,
+      "gameIds": [
+        "gol-83202",
+        "gol-83203"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83193": {
+      "seriesId": "gol-series-83193",
+      "index": 1,
+      "gameIds": [
+        "gol-83193",
+        "gol-83194"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83190": {
+      "seriesId": "gol-series-83190",
+      "index": 1,
+      "gameIds": [
+        "gol-83190",
+        "gol-83191"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83187": {
+      "seriesId": "gol-series-83187",
+      "index": 1,
+      "gameIds": [
+        "gol-83187",
+        "gol-83188"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83184": {
+      "seriesId": "gol-series-83184",
+      "index": 1,
+      "gameIds": [
+        "gol-83184",
+        "gol-83185",
+        "gol-83186"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83181": {
+      "seriesId": "gol-series-83181",
+      "index": 1,
+      "gameIds": [
+        "gol-83181",
+        "gol-83182"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83178": {
+      "seriesId": "gol-series-83178",
+      "index": 1,
+      "gameIds": [
+        "gol-83178",
+        "gol-83179"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83175": {
+      "seriesId": "gol-series-83175",
+      "index": 1,
+      "gameIds": [
+        "gol-83175",
+        "gol-83176"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83172": {
+      "seriesId": "gol-series-83172",
+      "index": 1,
+      "gameIds": [
+        "gol-83172",
+        "gol-83173",
+        "gol-83174"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83121": {
+      "seriesId": "gol-series-83121",
+      "index": 1,
+      "gameIds": [
+        "gol-83121",
+        "gol-83122"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83118": {
+      "seriesId": "gol-series-83118",
+      "index": 1,
+      "gameIds": [
+        "gol-83118",
+        "gol-83119"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83115": {
+      "seriesId": "gol-series-83115",
+      "index": 1,
+      "gameIds": [
+        "gol-83115",
+        "gol-83116",
+        "gol-83117"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83112": {
+      "seriesId": "gol-series-83112",
+      "index": 1,
+      "gameIds": [
+        "gol-83112",
+        "gol-83113"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83109": {
+      "seriesId": "gol-series-83109",
+      "index": 1,
+      "gameIds": [
+        "gol-83109",
+        "gol-83110",
+        "gol-83111"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83106": {
+      "seriesId": "gol-series-83106",
+      "index": 1,
+      "gameIds": [
+        "gol-83106",
+        "gol-83107"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83103": {
+      "seriesId": "gol-series-83103",
+      "index": 1,
+      "gameIds": [
+        "gol-83103",
+        "gol-83104"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83100": {
+      "seriesId": "gol-series-83100",
+      "index": 1,
+      "gameIds": [
+        "gol-83100",
+        "gol-83101",
+        "gol-83102"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83212": {
+      "seriesId": "gol-series-83211",
+      "index": 2,
+      "gameIds": [
+        "gol-83211",
+        "gol-83212"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83209": {
+      "seriesId": "gol-series-83208",
+      "index": 2,
+      "gameIds": [
+        "gol-83208",
+        "gol-83209",
+        "gol-83210"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83210": {
+      "seriesId": "gol-series-83208",
+      "index": 3,
+      "gameIds": [
+        "gol-83208",
+        "gol-83209",
+        "gol-83210"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83206": {
+      "seriesId": "gol-series-83205",
+      "index": 2,
+      "gameIds": [
+        "gol-83205",
+        "gol-83206",
+        "gol-83207"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83207": {
+      "seriesId": "gol-series-83205",
+      "index": 3,
+      "gameIds": [
+        "gol-83205",
+        "gol-83206",
+        "gol-83207"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83203": {
+      "seriesId": "gol-series-83202",
+      "index": 2,
+      "gameIds": [
+        "gol-83202",
+        "gol-83203"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83194": {
+      "seriesId": "gol-series-83193",
+      "index": 2,
+      "gameIds": [
+        "gol-83193",
+        "gol-83194"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83191": {
+      "seriesId": "gol-series-83190",
+      "index": 2,
+      "gameIds": [
+        "gol-83190",
+        "gol-83191"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83188": {
+      "seriesId": "gol-series-83187",
+      "index": 2,
+      "gameIds": [
+        "gol-83187",
+        "gol-83188"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83185": {
+      "seriesId": "gol-series-83184",
+      "index": 2,
+      "gameIds": [
+        "gol-83184",
+        "gol-83185",
+        "gol-83186"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83186": {
+      "seriesId": "gol-series-83184",
+      "index": 3,
+      "gameIds": [
+        "gol-83184",
+        "gol-83185",
+        "gol-83186"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83182": {
+      "seriesId": "gol-series-83181",
+      "index": 2,
+      "gameIds": [
+        "gol-83181",
+        "gol-83182"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83179": {
+      "seriesId": "gol-series-83178",
+      "index": 2,
+      "gameIds": [
+        "gol-83178",
+        "gol-83179"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83176": {
+      "seriesId": "gol-series-83175",
+      "index": 2,
+      "gameIds": [
+        "gol-83175",
+        "gol-83176"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83173": {
+      "seriesId": "gol-series-83172",
+      "index": 2,
+      "gameIds": [
+        "gol-83172",
+        "gol-83173",
+        "gol-83174"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83174": {
+      "seriesId": "gol-series-83172",
+      "index": 3,
+      "gameIds": [
+        "gol-83172",
+        "gol-83173",
+        "gol-83174"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83122": {
+      "seriesId": "gol-series-83121",
+      "index": 2,
+      "gameIds": [
+        "gol-83121",
+        "gol-83122"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83119": {
+      "seriesId": "gol-series-83118",
+      "index": 2,
+      "gameIds": [
+        "gol-83118",
+        "gol-83119"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83116": {
+      "seriesId": "gol-series-83115",
+      "index": 2,
+      "gameIds": [
+        "gol-83115",
+        "gol-83116",
+        "gol-83117"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83117": {
+      "seriesId": "gol-series-83115",
+      "index": 3,
+      "gameIds": [
+        "gol-83115",
+        "gol-83116",
+        "gol-83117"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83113": {
+      "seriesId": "gol-series-83112",
+      "index": 2,
+      "gameIds": [
+        "gol-83112",
+        "gol-83113"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83110": {
+      "seriesId": "gol-series-83109",
+      "index": 2,
+      "gameIds": [
+        "gol-83109",
+        "gol-83110",
+        "gol-83111"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83111": {
+      "seriesId": "gol-series-83109",
+      "index": 3,
+      "gameIds": [
+        "gol-83109",
+        "gol-83110",
+        "gol-83111"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83107": {
+      "seriesId": "gol-series-83106",
+      "index": 2,
+      "gameIds": [
+        "gol-83106",
+        "gol-83107"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83104": {
+      "seriesId": "gol-series-83103",
+      "index": 2,
+      "gameIds": [
+        "gol-83103",
+        "gol-83104"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83101": {
+      "seriesId": "gol-series-83100",
+      "index": 2,
+      "gameIds": [
+        "gol-83100",
+        "gol-83101",
+        "gol-83102"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83102": {
+      "seriesId": "gol-series-83100",
+      "index": 3,
+      "gameIds": [
+        "gol-83100",
+        "gol-83101",
+        "gol-83102"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "gol-83476": {
+      "seriesId": "gol-series-83476",
+      "index": 1,
+      "gameIds": [
+        "gol-83476",
+        "gol-83477",
+        "gol-83478",
+        "gol-83479"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83292": {
+      "seriesId": "gol-series-83292",
+      "index": 1,
+      "gameIds": [
+        "gol-83292",
+        "gol-83293",
+        "gol-83294",
+        "gol-83295"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83243": {
+      "seriesId": "gol-series-83243",
+      "index": 1,
+      "gameIds": [
+        "gol-83243",
+        "gol-83244",
+        "gol-83245",
+        "gol-83246"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83238": {
+      "seriesId": "gol-series-83238",
+      "index": 1,
+      "gameIds": [
+        "gol-83238",
+        "gol-83239",
+        "gol-83240",
+        "gol-83241"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83095": {
+      "seriesId": "gol-series-83095",
+      "index": 1,
+      "gameIds": [
+        "gol-83095",
+        "gol-83096",
+        "gol-83097",
+        "gol-83098",
+        "gol-83099"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82997": {
+      "seriesId": "gol-series-82997",
+      "index": 1,
+      "gameIds": [
+        "gol-82997",
+        "gol-82998",
+        "gol-82999"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82992": {
+      "seriesId": "gol-series-82992",
+      "index": 1,
+      "gameIds": [
+        "gol-82992",
+        "gol-82993",
+        "gol-82994",
+        "gol-82995"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82987": {
+      "seriesId": "gol-series-82987",
+      "index": 1,
+      "gameIds": [
+        "gol-82987",
+        "gol-82988",
+        "gol-82989",
+        "gol-82990",
+        "gol-82991"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82770": {
+      "seriesId": "gol-series-82770",
+      "index": 1,
+      "gameIds": [
+        "gol-82770",
+        "gol-82771",
+        "gol-82772"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82765": {
+      "seriesId": "gol-series-82765",
+      "index": 1,
+      "gameIds": [
+        "gol-82765",
+        "gol-82766",
+        "gol-82767"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83477": {
+      "seriesId": "gol-series-83476",
+      "index": 2,
+      "gameIds": [
+        "gol-83476",
+        "gol-83477",
+        "gol-83478",
+        "gol-83479"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83478": {
+      "seriesId": "gol-series-83476",
+      "index": 3,
+      "gameIds": [
+        "gol-83476",
+        "gol-83477",
+        "gol-83478",
+        "gol-83479"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83479": {
+      "seriesId": "gol-series-83476",
+      "index": 4,
+      "gameIds": [
+        "gol-83476",
+        "gol-83477",
+        "gol-83478",
+        "gol-83479"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83293": {
+      "seriesId": "gol-series-83292",
+      "index": 2,
+      "gameIds": [
+        "gol-83292",
+        "gol-83293",
+        "gol-83294",
+        "gol-83295"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83294": {
+      "seriesId": "gol-series-83292",
+      "index": 3,
+      "gameIds": [
+        "gol-83292",
+        "gol-83293",
+        "gol-83294",
+        "gol-83295"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83295": {
+      "seriesId": "gol-series-83292",
+      "index": 4,
+      "gameIds": [
+        "gol-83292",
+        "gol-83293",
+        "gol-83294",
+        "gol-83295"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83244": {
+      "seriesId": "gol-series-83243",
+      "index": 2,
+      "gameIds": [
+        "gol-83243",
+        "gol-83244",
+        "gol-83245",
+        "gol-83246"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83245": {
+      "seriesId": "gol-series-83243",
+      "index": 3,
+      "gameIds": [
+        "gol-83243",
+        "gol-83244",
+        "gol-83245",
+        "gol-83246"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83246": {
+      "seriesId": "gol-series-83243",
+      "index": 4,
+      "gameIds": [
+        "gol-83243",
+        "gol-83244",
+        "gol-83245",
+        "gol-83246"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83239": {
+      "seriesId": "gol-series-83238",
+      "index": 2,
+      "gameIds": [
+        "gol-83238",
+        "gol-83239",
+        "gol-83240",
+        "gol-83241"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83240": {
+      "seriesId": "gol-series-83238",
+      "index": 3,
+      "gameIds": [
+        "gol-83238",
+        "gol-83239",
+        "gol-83240",
+        "gol-83241"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83241": {
+      "seriesId": "gol-series-83238",
+      "index": 4,
+      "gameIds": [
+        "gol-83238",
+        "gol-83239",
+        "gol-83240",
+        "gol-83241"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83096": {
+      "seriesId": "gol-series-83095",
+      "index": 2,
+      "gameIds": [
+        "gol-83095",
+        "gol-83096",
+        "gol-83097",
+        "gol-83098",
+        "gol-83099"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83097": {
+      "seriesId": "gol-series-83095",
+      "index": 3,
+      "gameIds": [
+        "gol-83095",
+        "gol-83096",
+        "gol-83097",
+        "gol-83098",
+        "gol-83099"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83098": {
+      "seriesId": "gol-series-83095",
+      "index": 4,
+      "gameIds": [
+        "gol-83095",
+        "gol-83096",
+        "gol-83097",
+        "gol-83098",
+        "gol-83099"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83099": {
+      "seriesId": "gol-series-83095",
+      "index": 5,
+      "gameIds": [
+        "gol-83095",
+        "gol-83096",
+        "gol-83097",
+        "gol-83098",
+        "gol-83099"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82998": {
+      "seriesId": "gol-series-82997",
+      "index": 2,
+      "gameIds": [
+        "gol-82997",
+        "gol-82998",
+        "gol-82999"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82999": {
+      "seriesId": "gol-series-82997",
+      "index": 3,
+      "gameIds": [
+        "gol-82997",
+        "gol-82998",
+        "gol-82999"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82993": {
+      "seriesId": "gol-series-82992",
+      "index": 2,
+      "gameIds": [
+        "gol-82992",
+        "gol-82993",
+        "gol-82994",
+        "gol-82995"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82994": {
+      "seriesId": "gol-series-82992",
+      "index": 3,
+      "gameIds": [
+        "gol-82992",
+        "gol-82993",
+        "gol-82994",
+        "gol-82995"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82995": {
+      "seriesId": "gol-series-82992",
+      "index": 4,
+      "gameIds": [
+        "gol-82992",
+        "gol-82993",
+        "gol-82994",
+        "gol-82995"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82988": {
+      "seriesId": "gol-series-82987",
+      "index": 2,
+      "gameIds": [
+        "gol-82987",
+        "gol-82988",
+        "gol-82989",
+        "gol-82990",
+        "gol-82991"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82989": {
+      "seriesId": "gol-series-82987",
+      "index": 3,
+      "gameIds": [
+        "gol-82987",
+        "gol-82988",
+        "gol-82989",
+        "gol-82990",
+        "gol-82991"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82990": {
+      "seriesId": "gol-series-82987",
+      "index": 4,
+      "gameIds": [
+        "gol-82987",
+        "gol-82988",
+        "gol-82989",
+        "gol-82990",
+        "gol-82991"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82991": {
+      "seriesId": "gol-series-82987",
+      "index": 5,
+      "gameIds": [
+        "gol-82987",
+        "gol-82988",
+        "gol-82989",
+        "gol-82990",
+        "gol-82991"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82771": {
+      "seriesId": "gol-series-82770",
+      "index": 2,
+      "gameIds": [
+        "gol-82770",
+        "gol-82771",
+        "gol-82772"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82772": {
+      "seriesId": "gol-series-82770",
+      "index": 3,
+      "gameIds": [
+        "gol-82770",
+        "gol-82771",
+        "gol-82772"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82766": {
+      "seriesId": "gol-series-82765",
+      "index": 2,
+      "gameIds": [
+        "gol-82765",
+        "gol-82766",
+        "gol-82767"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-82767": {
+      "seriesId": "gol-series-82765",
+      "index": 3,
+      "gameIds": [
+        "gol-82765",
+        "gol-82766",
+        "gol-82767"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "gol-83082": {
+      "seriesId": "gol-series-83082",
+      "index": 1,
+      "gameIds": [
+        "gol-83082",
+        "gol-83083",
+        "gol-83084"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-83074": {
+      "seriesId": "gol-series-83074",
+      "index": 1,
+      "gameIds": [
+        "gol-83074",
+        "gol-83075",
+        "gol-83076"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82972": {
+      "seriesId": "gol-series-82972",
+      "index": 1,
+      "gameIds": [
+        "gol-82972",
+        "gol-82973",
+        "gol-82974",
+        "gol-82975"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82740": {
+      "seriesId": "gol-series-82740",
+      "index": 1,
+      "gameIds": [
+        "gol-82740",
+        "gol-82741",
+        "gol-82742",
+        "gol-82743",
+        "gol-82744"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82735": {
+      "seriesId": "gol-series-82735",
+      "index": 1,
+      "gameIds": [
+        "gol-82735",
+        "gol-82736",
+        "gol-82737",
+        "gol-82738",
+        "gol-82739"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82730": {
+      "seriesId": "gol-series-82730",
+      "index": 1,
+      "gameIds": [
+        "gol-82730",
+        "gol-82731",
+        "gol-82732",
+        "gol-82733"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82471": {
+      "seriesId": "gol-series-82471",
+      "index": 1,
+      "gameIds": [
+        "gol-82471",
+        "gol-82472",
+        "gol-82473",
+        "gol-82474"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82466": {
+      "seriesId": "gol-series-82466",
+      "index": 1,
+      "gameIds": [
+        "gol-82466",
+        "gol-82467",
+        "gol-82468"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-83083": {
+      "seriesId": "gol-series-83082",
+      "index": 2,
+      "gameIds": [
+        "gol-83082",
+        "gol-83083",
+        "gol-83084"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-83084": {
+      "seriesId": "gol-series-83082",
+      "index": 3,
+      "gameIds": [
+        "gol-83082",
+        "gol-83083",
+        "gol-83084"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-83075": {
+      "seriesId": "gol-series-83074",
+      "index": 2,
+      "gameIds": [
+        "gol-83074",
+        "gol-83075",
+        "gol-83076"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-83076": {
+      "seriesId": "gol-series-83074",
+      "index": 3,
+      "gameIds": [
+        "gol-83074",
+        "gol-83075",
+        "gol-83076"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82973": {
+      "seriesId": "gol-series-82972",
+      "index": 2,
+      "gameIds": [
+        "gol-82972",
+        "gol-82973",
+        "gol-82974",
+        "gol-82975"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82974": {
+      "seriesId": "gol-series-82972",
+      "index": 3,
+      "gameIds": [
+        "gol-82972",
+        "gol-82973",
+        "gol-82974",
+        "gol-82975"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82975": {
+      "seriesId": "gol-series-82972",
+      "index": 4,
+      "gameIds": [
+        "gol-82972",
+        "gol-82973",
+        "gol-82974",
+        "gol-82975"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82741": {
+      "seriesId": "gol-series-82740",
+      "index": 2,
+      "gameIds": [
+        "gol-82740",
+        "gol-82741",
+        "gol-82742",
+        "gol-82743",
+        "gol-82744"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82742": {
+      "seriesId": "gol-series-82740",
+      "index": 3,
+      "gameIds": [
+        "gol-82740",
+        "gol-82741",
+        "gol-82742",
+        "gol-82743",
+        "gol-82744"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82743": {
+      "seriesId": "gol-series-82740",
+      "index": 4,
+      "gameIds": [
+        "gol-82740",
+        "gol-82741",
+        "gol-82742",
+        "gol-82743",
+        "gol-82744"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82744": {
+      "seriesId": "gol-series-82740",
+      "index": 5,
+      "gameIds": [
+        "gol-82740",
+        "gol-82741",
+        "gol-82742",
+        "gol-82743",
+        "gol-82744"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82736": {
+      "seriesId": "gol-series-82735",
+      "index": 2,
+      "gameIds": [
+        "gol-82735",
+        "gol-82736",
+        "gol-82737",
+        "gol-82738",
+        "gol-82739"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82737": {
+      "seriesId": "gol-series-82735",
+      "index": 3,
+      "gameIds": [
+        "gol-82735",
+        "gol-82736",
+        "gol-82737",
+        "gol-82738",
+        "gol-82739"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82738": {
+      "seriesId": "gol-series-82735",
+      "index": 4,
+      "gameIds": [
+        "gol-82735",
+        "gol-82736",
+        "gol-82737",
+        "gol-82738",
+        "gol-82739"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82739": {
+      "seriesId": "gol-series-82735",
+      "index": 5,
+      "gameIds": [
+        "gol-82735",
+        "gol-82736",
+        "gol-82737",
+        "gol-82738",
+        "gol-82739"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82731": {
+      "seriesId": "gol-series-82730",
+      "index": 2,
+      "gameIds": [
+        "gol-82730",
+        "gol-82731",
+        "gol-82732",
+        "gol-82733"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82732": {
+      "seriesId": "gol-series-82730",
+      "index": 3,
+      "gameIds": [
+        "gol-82730",
+        "gol-82731",
+        "gol-82732",
+        "gol-82733"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82733": {
+      "seriesId": "gol-series-82730",
+      "index": 4,
+      "gameIds": [
+        "gol-82730",
+        "gol-82731",
+        "gol-82732",
+        "gol-82733"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82472": {
+      "seriesId": "gol-series-82471",
+      "index": 2,
+      "gameIds": [
+        "gol-82471",
+        "gol-82472",
+        "gol-82473",
+        "gol-82474"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82473": {
+      "seriesId": "gol-series-82471",
+      "index": 3,
+      "gameIds": [
+        "gol-82471",
+        "gol-82472",
+        "gol-82473",
+        "gol-82474"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82474": {
+      "seriesId": "gol-series-82471",
+      "index": 4,
+      "gameIds": [
+        "gol-82471",
+        "gol-82472",
+        "gol-82473",
+        "gol-82474"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82467": {
+      "seriesId": "gol-series-82466",
+      "index": 2,
+      "gameIds": [
+        "gol-82466",
+        "gol-82467",
+        "gol-82468"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82468": {
+      "seriesId": "gol-series-82466",
+      "index": 3,
+      "gameIds": [
+        "gol-82466",
+        "gol-82467",
+        "gol-82468"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "gol-82463": {
+      "seriesId": "gol-series-82463",
+      "index": 1,
+      "gameIds": [
+        "gol-82463",
+        "gol-82464"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82460": {
+      "seriesId": "gol-series-82460",
+      "index": 1,
+      "gameIds": [
+        "gol-82460",
+        "gol-82461"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82457": {
+      "seriesId": "gol-series-82457",
+      "index": 1,
+      "gameIds": [
+        "gol-82457",
+        "gol-82458"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82454": {
+      "seriesId": "gol-series-82454",
+      "index": 1,
+      "gameIds": [
+        "gol-82454",
+        "gol-82455"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82165": {
+      "seriesId": "gol-series-82165",
+      "index": 1,
+      "gameIds": [
+        "gol-82165",
+        "gol-82166",
+        "gol-82167"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82162": {
+      "seriesId": "gol-series-82162",
+      "index": 1,
+      "gameIds": [
+        "gol-82162",
+        "gol-82163"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82159": {
+      "seriesId": "gol-series-82159",
+      "index": 1,
+      "gameIds": [
+        "gol-82159",
+        "gol-82160"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82156": {
+      "seriesId": "gol-series-82156",
+      "index": 1,
+      "gameIds": [
+        "gol-82156",
+        "gol-82157",
+        "gol-82158"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82464": {
+      "seriesId": "gol-series-82463",
+      "index": 2,
+      "gameIds": [
+        "gol-82463",
+        "gol-82464"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82461": {
+      "seriesId": "gol-series-82460",
+      "index": 2,
+      "gameIds": [
+        "gol-82460",
+        "gol-82461"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82458": {
+      "seriesId": "gol-series-82457",
+      "index": 2,
+      "gameIds": [
+        "gol-82457",
+        "gol-82458"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82455": {
+      "seriesId": "gol-series-82454",
+      "index": 2,
+      "gameIds": [
+        "gol-82454",
+        "gol-82455"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82166": {
+      "seriesId": "gol-series-82165",
+      "index": 2,
+      "gameIds": [
+        "gol-82165",
+        "gol-82166",
+        "gol-82167"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82167": {
+      "seriesId": "gol-series-82165",
+      "index": 3,
+      "gameIds": [
+        "gol-82165",
+        "gol-82166",
+        "gol-82167"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82163": {
+      "seriesId": "gol-series-82162",
+      "index": 2,
+      "gameIds": [
+        "gol-82162",
+        "gol-82163"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82160": {
+      "seriesId": "gol-series-82159",
+      "index": 2,
+      "gameIds": [
+        "gol-82159",
+        "gol-82160"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82157": {
+      "seriesId": "gol-series-82156",
+      "index": 2,
+      "gameIds": [
+        "gol-82156",
+        "gol-82157",
+        "gol-82158"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82158": {
+      "seriesId": "gol-series-82156",
+      "index": 3,
+      "gameIds": [
+        "gol-82156",
+        "gol-82157",
+        "gol-82158"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "gol-82220": {
+      "seriesId": "gol-series-82220",
+      "index": 1,
+      "gameIds": [
+        "gol-82220",
+        "gol-82221",
+        "gol-82222"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82217": {
+      "seriesId": "gol-series-82217",
+      "index": 1,
+      "gameIds": [
+        "gol-82217",
+        "gol-82218"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82214": {
+      "seriesId": "gol-series-82214",
+      "index": 1,
+      "gameIds": [
+        "gol-82214",
+        "gol-82215"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82211": {
+      "seriesId": "gol-series-82211",
+      "index": 1,
+      "gameIds": [
+        "gol-82211",
+        "gol-82212",
+        "gol-82213"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82208": {
+      "seriesId": "gol-series-82208",
+      "index": 1,
+      "gameIds": [
+        "gol-82208",
+        "gol-82209"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82205": {
+      "seriesId": "gol-series-82205",
+      "index": 1,
+      "gameIds": [
+        "gol-82205",
+        "gol-82206",
+        "gol-82207"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82202": {
+      "seriesId": "gol-series-82202",
+      "index": 1,
+      "gameIds": [
+        "gol-82202",
+        "gol-82203"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82221": {
+      "seriesId": "gol-series-82220",
+      "index": 2,
+      "gameIds": [
+        "gol-82220",
+        "gol-82221",
+        "gol-82222"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82222": {
+      "seriesId": "gol-series-82220",
+      "index": 3,
+      "gameIds": [
+        "gol-82220",
+        "gol-82221",
+        "gol-82222"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82218": {
+      "seriesId": "gol-series-82217",
+      "index": 2,
+      "gameIds": [
+        "gol-82217",
+        "gol-82218"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82215": {
+      "seriesId": "gol-series-82214",
+      "index": 2,
+      "gameIds": [
+        "gol-82214",
+        "gol-82215"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82212": {
+      "seriesId": "gol-series-82211",
+      "index": 2,
+      "gameIds": [
+        "gol-82211",
+        "gol-82212",
+        "gol-82213"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82213": {
+      "seriesId": "gol-series-82211",
+      "index": 3,
+      "gameIds": [
+        "gol-82211",
+        "gol-82212",
+        "gol-82213"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82209": {
+      "seriesId": "gol-series-82208",
+      "index": 2,
+      "gameIds": [
+        "gol-82208",
+        "gol-82209"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82206": {
+      "seriesId": "gol-series-82205",
+      "index": 2,
+      "gameIds": [
+        "gol-82205",
+        "gol-82206",
+        "gol-82207"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82207": {
+      "seriesId": "gol-series-82205",
+      "index": 3,
+      "gameIds": [
+        "gol-82205",
+        "gol-82206",
+        "gol-82207"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    },
+    "gol-82203": {
+      "seriesId": "gol-series-82202",
+      "index": 2,
+      "gameIds": [
+        "gol-82202",
+        "gol-82203"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    }
+  },
+  "tournaments": {
+    "EMEA Masters 2026 Summer Main Event": {
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "EMEA Masters 2026 Summer LCQ": {
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
+    },
+    "LCS 2026 Summer Playoffs": {
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer%20Playoffs/"
+    },
+    "LEC 2026 Summer Playoffs": {
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "LCS 2026 Summer": {
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LCS%202026%20Summer/"
+    },
+    "LEC 2026 Summer Season": {
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Season/"
+    }
+  }
+}

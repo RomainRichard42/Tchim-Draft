@@ -7,6 +7,7 @@ import './focus.css';
 import './face.css';
 import './constructivist.css';
 import './theme.css';
+import './coaching.css';
 import './coach.css';
 import './knowledge.css';
 import './workspace.css';
