@@ -46,4 +46,4 @@ Une requête authentifiée `draft_context_slice` renvoie 340 matchs, les 21 game
 
 Le test dans **l’application Windows 0.13.1 packagée** ouvre un compte temporaire, crée une préparation de match et prépare les données. L’application retrouve la révision publiée et les deux couvertures attendues, sans lancer de collecte de sites ni incident du renderer. Les comptes et préparations de test sont supprimés à la fin. Rapport : `artifacts/published-pro-scope-20261015-report.json`.
 
-Le code du collecteur et cette documentation restent locaux ; aucun push GitHub, tag ou installeur supplémentaire n’est publié.
+À l’issue de cette publication de données, le code du collecteur et cette documentation étaient encore locaux. Ils ont ensuite été publiés avec [l’application 0.14.0, après la demande explicite suivante](VALIDATION-PUBLICATION-0.14.0.md).

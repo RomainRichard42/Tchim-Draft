@@ -1,6 +1,6 @@
 # Tchim Draft 0.14.0 — validation locale du 15 octobre 2026
 
-Validation Windows réalisée avant publication. Les contrôles ci-dessous décrivent le jeu statistique et les métadonnées avant la demande explicite de publication du 15 octobre. Le raccourci `Lancer Tchim Draft.cmd` ouvre la version 0.14.0 et conserve le dossier de données existant. La publication et ses vérifications distantes font l’objet d’un rapport séparé.
+Validation Windows réalisée avant publication. Les contrôles ci-dessous décrivent le jeu statistique et les métadonnées avant la demande explicite de publication du 15 octobre. Le raccourci `Lancer Tchim Draft.cmd` ouvre la version 0.14.0 et conserve le dossier de données existant. [La publication et ses vérifications distantes](VALIDATION-PUBLICATION-0.14.0.md) font l’objet d’un rapport séparé.
 
 ## Fonctions livrées
 

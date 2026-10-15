@@ -1,4 +1,4 @@
-# Supabase — Tchim Draft 0.13.0
+# Supabase — Tchim Draft 0.14.0
 
 Le projet `hnpqecujmueyivafhzsx` héberge les statistiques communes, les comptes, les brouillons et les résultats. L’application reste un programme Electron Windows ; elle accède à Supabase depuis le processus principal. Les statistiques sont consultées automatiquement. Aucun utilisateur ne collecte gol.gg ou Lolalytics à l’ouverture.
 
@@ -41,7 +41,7 @@ Pour installer de futures migrations, utiliser `npm.cmd run supabase:setup`. Pou
 
 Les migrations 14 et 15 ajoutent les avis privés `draft_coach_feedback` et les métadonnées publiques `draft_pro_context`. Elles ont été appliquées sans changer le jeu statistique actif ni publier l’application. Les avis sont lisibles/modifiables par leur auteur approuvé, et lisibles par l’administrateur ; les autres comptes et les visiteurs anonymes n’y ont pas accès. La suppression d’un avis utilise un marqueur synchronisé pour éviter sa réapparition sur un autre poste. Les observations restent limitées à l’équipe, au roster et au contexte concerné, avec un ajustement de score borné à ±3 points. Elles ne deviennent pas des résultats de match.
 
-Le contexte pro décrit le format documenté et l’ordre des manches d’une série. Il permet de retirer les champions déjà consommés des dénominateurs Fearless. La version locale 0.14.0 embarque le contexte public des 340 matchs actuels ; aucune nouvelle publication de statistiques n’a été faite pour l’ajouter. Les réglages personnels de format signalent qu’une URL saisie par un coach n’est pas vérifiée automatiquement.
+Le contexte pro décrit le format documenté et l’ordre des manches d’une série. Il permet de retirer les champions déjà consommés des dénominateurs Fearless. Le 15 octobre 2026, après demande explicite, le contexte des 340 matchs a été publié sur Supabase avec la révision statistique existante : les 73 blocs déjà présents ont été réutilisés, sans nouvelle collecte. La version 0.14.0 reçoit ce contexte depuis Supabase et conserve sa copie embarquée comme solution de repli. Une vérification dans Electron a confirmé que les 340 contextes distants parviennent au moteur, avec 3 371 lignes statistiques et 340 matchs. Les réglages personnels de format signalent qu’une URL saisie par un coach n’est pas vérifiée automatiquement.
 
 Pour une future publication expressément autorisée, `scripts/publish-supabase.mjs --publish --context=chemin/pro-context.json` valide le document et lie contexte et statistiques dans la même transaction via `draft_publish_with_context`. Un contexte invalide ou un changement concurrent de révision annule l’opération. Sans `--publish`, le script ne publie rien. Les clients approuvés peuvent seulement lire ce contexte ; l’écriture et la fonction de publication restent réservées au service éditeur.
 
