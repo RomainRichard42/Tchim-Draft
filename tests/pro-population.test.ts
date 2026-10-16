@@ -20,7 +20,8 @@ async function game(id='1',tournament='LEC 2026 Summer Playoffs'):Promise<Histor
 describe('Selected professional competition population',()=>{
  it('recognises the requested main competitions and rejects similarly named minor events',()=>{
   for(const [name,league] of Object.entries({'LFL 2026 Summer Split':'LFL','EMEA Masters 2026 Summer Main Event':'EMEA MASTERS','LCK 2026 Season Playoffs':'LCK','LCK Cup 2026':'LCK','LCS 2026 Summer':'LCS','LTA North 2025 Split 3':'LCS','LEC 2026 Summer Playoffs':'LEC','Worlds 2026 Main Event':'WORLDS'}))expect(coachProLeague(name)).toBe(league);
-  for(const name of ['LCK CL 2026 Playoffs','LFL Division 2 2026 Summer','NACL 2026 Summer','LTA South 2025','LPL 2026 Summer','2026 World Star Challengers Invitational','Demacia Cup Global Invitational 2026','EMEA Masters Academy 2026','Worlds Academy 2026'])expect(coachProLeague(name)).toBeNull();
+  expect(coachProLeague('LPL 2026 Summer')).toBe('LPL');
+  for(const name of ['LCK CL 2026 Playoffs','LPL Academy 2026','LDL 2026 Summer','LFL Division 2 2026 Summer','NACL 2026 Summer','LTA South 2025','2026 World Star Challengers Invitational','Demacia Cup Global Invitational 2026','EMEA Masters Academy 2026','Worlds Academy 2026'])expect(coachProLeague(name)).toBeNull();
  });
  it('uses tournament identity, removes excluded leagues and deduplicates games',async()=>{
   const kept=await game(),outside=await game('2','LCK CL 2026 Playoffs');outside.league='LCK';

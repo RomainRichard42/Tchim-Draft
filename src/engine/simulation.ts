@@ -5,6 +5,9 @@ import { validateSimulation } from '../shared/simulation';
 import { banCandidates, draftBalance, rankCandidates } from './index';
 import { gamePlan } from './gameplan';
 import { guidedContext, guidedRosterIssues } from '../shared/guided-simulation';
+import { appendWithRoleChanges } from '../shared/placements';
+import { interaction } from './evidence';
+import { ROLES, type Side } from '../shared/types';
 
 /** One real turn, not a precomputed completed draft. Recompute after every coach decision. */
 export function simulationTurn(input:EngineInput,request:SimulationTurnRequest):SimulationTurn {
@@ -28,14 +31,14 @@ export function simulationTurn(input:EngineInput,request:SimulationTurnRequest):
   return {options,balance:draftBalance(state),plans:{ally:gamePlan(ally,allies.map(p=>p.role),enemy,enemies.map(p=>p.role),state.settings.language),enemy:gamePlan(enemy,enemies.map(p=>p.role),ally,allies.map(p=>p.role),state.settings.language)},warnings};
 }
 
-export function simulationOptions(input:EngineInput,pins:SimulationPin[]):Recommendation[] {
+export function simulationOptions(input:EngineInput,pins:SimulationPin[],domains?:Record<Side,ReadonlySet<string>>):Recommendation[] {
   const index=input.draft.history.length, sequence=order(input.draft), action=sequence[index];
   if(!action)return [];
   const reserved=new Set(pins.filter(p=>p.index>index).flatMap(p=>p.selection.championId?[p.selection.championId]:[]));
   const roles=new Set(pins.filter(p=>p.index>index&&sequence[p.index]?.side===action.side&&sequence[p.index]?.kind==='pick').map(p=>p.selection.role));
   const restrict=action.kind==='pick'?input.draft.targetRole:'AUTO';
-  const options=action.kind==='pick'?rankCandidates(input,action.side,restrict,true):banCandidates(input,action.side);
-  const filtered=options.filter(r=>!reserved.has(r.championId)&&(action.kind==='ban'||!roles.has(r.role)));
+  const options=action.kind==='pick'?rankCandidates(input,action.side,restrict,true,true,domains?.[action.side]):banCandidates(input,action.side,'AUTO',false,domains?.[opposite(action.side)],domains?.[action.side]);
+  const filtered=options.filter(r=>!reserved.has(r.championId)&&(action.kind==='ban'||!roles.has(r.role)&&!r.reassignments?.some(p=>roles.has(p.role))));
   if(action.kind==='pick'&&action.side!==input.draft.side){const policy=choicePolicy(input,action.side,filtered),position=new Map(policy.map((r,i)=>[r.championId+':'+r.role,i]));return filtered.sort((a,b)=>(position.get(a.championId+':'+a.role)??999)-(position.get(b.championId+':'+b.role)??999));}
   return filtered;
 }
@@ -57,6 +60,20 @@ export function simulateDrafts(input:EngineInput,request:SimulationRequest,progr
   if(input.demo)warnings.push(fr?'DONNÉES FICTIVES : démonstration uniquement.':'SYNTHETIC DATA: demonstration only.');
   if(!sequence.length)return {branches,requested:request.count,attempts,elapsedMs:Date.now()-started,generatedAt:new Date().toISOString(),context,warnings:[...warnings,fr?'La série est terminée.':'The series is finished.']};
   const maxAttempts=request.count===1?1:request.count*3;
+  // Multi-draft generation uses a diverse beam; interactive choices keep the
+  // complete list. Reserve enough alternatives per role, including every style.
+  const domains=request.count>1?Object.fromEntries((['blue','red'] as const).map(side=>{
+    const ranked=rankCandidates(input,side,'AUTO',true),ids=new Set<string>();
+    for(const role of ROLES){
+      const options=ranked.filter(r=>r.role===role);
+      for(const r of options.slice(0,8))ids.add(r.championId);
+      for(const axis of ['frontline','engage','peel','poke','early','scaling'] as const){
+        const best=[...options].sort((a,b)=>(input.champions.find(c=>c.id===b.championId)?.traits[axis]??0)-(input.champions.find(c=>c.id===a.championId)?.traits[axis]??0))[0];if(best)ids.add(best.championId);
+      }
+    }
+    return [side,ids];
+  })) as Record<Side,Set<string>>:undefined;
+  if(domains)warnings.push(fr?'Lots de simulations : présélection diversifiée par rôle et plan, élargie pour les counters documentés et si un rôle manque.':'Simulation batches use a diverse role and plan shortlist, widened for documented counters and missing roles.');
   // Return partial branches when restrictions prevent completion, instead of fabricating a lineup.
   while(branches.length<request.count&&attempts<maxAttempts){
     const attempt=attempts++;
@@ -77,7 +94,13 @@ export function simulateDrafts(input:EngineInput,request:SimulationRequest,progr
       // Explicit manual locks do not require scoring every available option.
       if(pin)options=[];
       else {
-        options=memo.get(key)??simulationOptions(state,request.pins);
+        const narrowed=domains?{blue:new Set(domains.blue),red:new Set(domains.red)}:undefined;
+        if(narrowed&&input.pairs.length)for(const side of action.kind==='ban'?['blue','red'] as const:[action.side])for(const target of picks(state.draft,opposite(side))){
+          const counters=input.champions.map(c=>({id:c.id,delta:interaction(state,c.id,target.role,target.championId!,target.role,side,'matchup')?.delta??0})).filter(c=>c.delta>.005).sort((a,b)=>b.delta-a.delta).slice(0,3);
+          for(const c of counters)narrowed[side].add(c.id);
+        }
+        options=memo.get(key)??simulationOptions(state,request.pins,narrowed);
+        if(!options.length&&narrowed&&action.kind==='pick')options=simulationOptions(state,request.pins);
         if(memo.size<1200)memo.set(key,options);
       }
       let selection=pin, choice:Recommendation|undefined;
@@ -105,7 +128,7 @@ export function simulateDrafts(input:EngineInput,request:SimulationRequest,progr
         }
       }
       steps.push({index,selection,automatic:!pin,score:choice?.score??null,reasons:pin?[fr?'Choix imposé par le coach ; peut dépasser le pool connu.':'Coach choice; may override the known pool.']:choice?.reasons.slice(0,3)??[fr?'Aucun ban compatible restant.':'No compatible ban remains.']});
-      state={...state,draft:{...state.draft,history:[...state.draft.history,selection],targetRole:'AUTO'}};
+      state={...state,draft:appendWithRoleChanges(state.draft,{...selection,...(pin&&action.kind==='pick'?{roleLocked:true}:{})},choice?.reassignments)};
     }
     const fingerprint=JSON.stringify(state.draft.history);
     if(fingerprints.has(fingerprint))continue;

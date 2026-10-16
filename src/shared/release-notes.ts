@@ -3,6 +3,20 @@ import type { ReleaseNote, ReleaseNotesStatus } from './types';
 // User-facing copy shipped with the app: plain text, no remote HTML or network dependency.
 export const RELEASE_NOTES:ReleaseNote[]=[
   {
+    version:'0.15.0',title:{fr:'Des flexs jouables et des bans qui préparent la suite',en:'Playable flexes and bans that shape the next picks'},
+    summary:{fr:'Compare les placements possibles et les réponses adverses avec une évaluation plus cohérente des drafts incomplètes.',en:'Compare possible role placements and enemy replies with a more consistent evaluation of incomplete drafts.'},
+    sections:[{kind:'fixed',items:[
+      {fr:'Les éléments encore inconnus restent neutres : un seul matchup de blind ne prend plus le poids de tout le plan d’équipe. Les champions ajoutés dans une simulation comptent aussi pour les interactions de sorts et de patch.',en:'Unknown information stays neutral: a single blind matchup no longer takes the entire team-plan weight. Champions added in a simulation also count for spell and patch interactions.'},
+      {fr:'La priorité observée dans les bans est distincte des victoires du champion. Une ou deux parties ne suffisent toujours pas à lui donner un bonus de victoire ou à certifier un nouveau rôle.',en:'Observed ban priority is separate from champion wins. One or two games still cannot award a win-rate bonus or establish a new role.'}
+    ]},{kind:'new',items:[
+      {fr:'Un flex déjà choisi peut libérer un rôle si ses autres placements sont documentés et compatibles avec les joueurs. Les déplacements sont expliqués ; Fixer ce rôle interdit une réaffectation, et Annuler restaure les placements précédents.',en:'A previously picked flex can free a role when its other placements are documented and compatible with the players. Moves are explained; Lock this role prevents reassignment, and Undo restores previous placements.'},
+      {fr:'Les bans explorés vont jusqu’aux prochains picks des deux camps et à notre réponse. Compare les remplacements et le coût pour notre équipe dans Réponses adverses ; les bans suivants restent une estimation limitée.',en:'Explored bans extend through both teams’ next picks and our response. Compare replacements and our opportunity cost in Enemy replies; subsequent bans remain a bounded estimate.'}
+    ]},{kind:'improved',items:[
+      {fr:'La collecte pro inclut désormais la LPL et conserve la fenêtre de trois patchs. Les matchs Worlds disponibles peuvent être analysés avec leur contexte de série ; l’actualisation et la publication des données restent manuelles.',en:'Pro collection now includes the LPL and retains the three-patch window. Available Worlds games can be analyzed with their series context; data refresh and publication remain manual.'},
+      {fr:'La draft en direct réutilise les branches explorées pour les doubles picks. Les simulations complètes se lancent depuis l’atelier, sans en recalculer trois inutilisées à chaque décision.',en:'Live drafting reuses explored branches for consecutive picks. Full simulations run from the workshop instead of recomputing three unused drafts at every decision.'}
+    ]}]
+  },
+  {
     version:'0.14.0',title:{fr:'La méta expliquée, le plan de jeu et ton avis',en:'Explained meta, team duties and your feedback'},
     summary:{fr:'Compare les formats de draft, comprends les données derrière les priorités et précise ce qui fonctionne pour ton équipe.',en:'Compare draft formats, understand the evidence behind priorities and record what works for your team.'},
     sections:[{kind:'new',items:[

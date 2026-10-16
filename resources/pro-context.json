@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "datasetRevision": "f9056aa7da5f052a3cc019d6118a3bf5d057907ebb6b5ca23e62f416eda2bf03",
+  "datasetRevision": "0ff207db31d782a25ea85dc899642c6be76608d5d7a786a7a237c04ce4300c61",
   "games": {
     "gol-83583": {
       "seriesId": "gol-series-83583",
@@ -244,6 +244,104 @@
       ],
       "format": "fearless",
       "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
+    },
+    "gol-83598": {
+      "seriesId": "gol-series-83598",
+      "index": 1,
+      "gameIds": [
+        "gol-83598",
+        "gol-83599",
+        "gol-83600",
+        "gol-83601",
+        "gol-83602"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/Worlds%202026%20Play-In/"
+    },
+    "gol-83593": {
+      "seriesId": "gol-series-83593",
+      "index": 1,
+      "gameIds": [
+        "gol-83593",
+        "gol-83594",
+        "gol-83595"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/Worlds%202026%20Play-In/"
+    },
+    "gol-83599": {
+      "seriesId": "gol-series-83598",
+      "index": 2,
+      "gameIds": [
+        "gol-83598",
+        "gol-83599",
+        "gol-83600",
+        "gol-83601",
+        "gol-83602"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/Worlds%202026%20Play-In/"
+    },
+    "gol-83600": {
+      "seriesId": "gol-series-83598",
+      "index": 3,
+      "gameIds": [
+        "gol-83598",
+        "gol-83599",
+        "gol-83600",
+        "gol-83601",
+        "gol-83602"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/Worlds%202026%20Play-In/"
+    },
+    "gol-83601": {
+      "seriesId": "gol-series-83598",
+      "index": 4,
+      "gameIds": [
+        "gol-83598",
+        "gol-83599",
+        "gol-83600",
+        "gol-83601",
+        "gol-83602"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/Worlds%202026%20Play-In/"
+    },
+    "gol-83602": {
+      "seriesId": "gol-series-83598",
+      "index": 5,
+      "gameIds": [
+        "gol-83598",
+        "gol-83599",
+        "gol-83600",
+        "gol-83601",
+        "gol-83602"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/Worlds%202026%20Play-In/"
+    },
+    "gol-83594": {
+      "seriesId": "gol-series-83593",
+      "index": 2,
+      "gameIds": [
+        "gol-83593",
+        "gol-83594",
+        "gol-83595"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/Worlds%202026%20Play-In/"
+    },
+    "gol-83595": {
+      "seriesId": "gol-series-83593",
+      "index": 3,
+      "gameIds": [
+        "gol-83593",
+        "gol-83594",
+        "gol-83595"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/Worlds%202026%20Play-In/"
     },
     "gol-83515": {
       "seriesId": "gol-series-83515",
@@ -3289,6 +3387,749 @@
       "format": "fearless",
       "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
     },
+    "gol-83064": {
+      "seriesId": "gol-series-83064",
+      "index": 1,
+      "gameIds": [
+        "gol-83064",
+        "gol-83065",
+        "gol-83066",
+        "gol-83067"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-83019": {
+      "seriesId": "gol-series-83019",
+      "index": 1,
+      "gameIds": [
+        "gol-83019",
+        "gol-83020",
+        "gol-83021",
+        "gol-83022"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-83014": {
+      "seriesId": "gol-series-83014",
+      "index": 1,
+      "gameIds": [
+        "gol-83014",
+        "gol-83015",
+        "gol-83016",
+        "gol-83017"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-83065": {
+      "seriesId": "gol-series-83064",
+      "index": 2,
+      "gameIds": [
+        "gol-83064",
+        "gol-83065",
+        "gol-83066",
+        "gol-83067"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-83066": {
+      "seriesId": "gol-series-83064",
+      "index": 3,
+      "gameIds": [
+        "gol-83064",
+        "gol-83065",
+        "gol-83066",
+        "gol-83067"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-83067": {
+      "seriesId": "gol-series-83064",
+      "index": 4,
+      "gameIds": [
+        "gol-83064",
+        "gol-83065",
+        "gol-83066",
+        "gol-83067"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-83020": {
+      "seriesId": "gol-series-83019",
+      "index": 2,
+      "gameIds": [
+        "gol-83019",
+        "gol-83020",
+        "gol-83021",
+        "gol-83022"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-83021": {
+      "seriesId": "gol-series-83019",
+      "index": 3,
+      "gameIds": [
+        "gol-83019",
+        "gol-83020",
+        "gol-83021",
+        "gol-83022"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-83022": {
+      "seriesId": "gol-series-83019",
+      "index": 4,
+      "gameIds": [
+        "gol-83019",
+        "gol-83020",
+        "gol-83021",
+        "gol-83022"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-83015": {
+      "seriesId": "gol-series-83014",
+      "index": 2,
+      "gameIds": [
+        "gol-83014",
+        "gol-83015",
+        "gol-83016",
+        "gol-83017"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-83016": {
+      "seriesId": "gol-series-83014",
+      "index": 3,
+      "gameIds": [
+        "gol-83014",
+        "gol-83015",
+        "gol-83016",
+        "gol-83017"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-83017": {
+      "seriesId": "gol-series-83014",
+      "index": 4,
+      "gameIds": [
+        "gol-83014",
+        "gol-83015",
+        "gol-83016",
+        "gol-83017"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "gol-82967": {
+      "seriesId": "gol-series-82967",
+      "index": 1,
+      "gameIds": [
+        "gol-82967",
+        "gol-82968",
+        "gol-82969",
+        "gol-82970"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82836": {
+      "seriesId": "gol-series-82836",
+      "index": 1,
+      "gameIds": [
+        "gol-82836",
+        "gol-82837",
+        "gol-82838",
+        "gol-82839",
+        "gol-82840"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82793": {
+      "seriesId": "gol-series-82793",
+      "index": 1,
+      "gameIds": [
+        "gol-82793",
+        "gol-82794",
+        "gol-82795"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82725": {
+      "seriesId": "gol-series-82725",
+      "index": 1,
+      "gameIds": [
+        "gol-82725",
+        "gol-82726",
+        "gol-82727"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82720": {
+      "seriesId": "gol-series-82720",
+      "index": 1,
+      "gameIds": [
+        "gol-82720",
+        "gol-82721",
+        "gol-82722",
+        "gol-82723",
+        "gol-82724"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82715": {
+      "seriesId": "gol-series-82715",
+      "index": 1,
+      "gameIds": [
+        "gol-82715",
+        "gol-82716",
+        "gol-82717",
+        "gol-82718"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82429": {
+      "seriesId": "gol-series-82429",
+      "index": 1,
+      "gameIds": [
+        "gol-82429",
+        "gol-82430",
+        "gol-82431"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82424": {
+      "seriesId": "gol-series-82424",
+      "index": 1,
+      "gameIds": [
+        "gol-82424",
+        "gol-82425",
+        "gol-82426",
+        "gol-82427",
+        "gol-82428"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82439": {
+      "seriesId": "gol-series-82439",
+      "index": 1,
+      "gameIds": [
+        "gol-82439",
+        "gol-82440",
+        "gol-82441",
+        "gol-82442"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82434": {
+      "seriesId": "gol-series-82434",
+      "index": 1,
+      "gameIds": [
+        "gol-82434",
+        "gol-82435",
+        "gol-82436",
+        "gol-82437"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82183": {
+      "seriesId": "gol-series-82183",
+      "index": 1,
+      "gameIds": [
+        "gol-82183",
+        "gol-82184",
+        "gol-82185",
+        "gol-82186"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82178": {
+      "seriesId": "gol-series-82178",
+      "index": 1,
+      "gameIds": [
+        "gol-82178",
+        "gol-82179",
+        "gol-82180",
+        "gol-82181",
+        "gol-82182"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82968": {
+      "seriesId": "gol-series-82967",
+      "index": 2,
+      "gameIds": [
+        "gol-82967",
+        "gol-82968",
+        "gol-82969",
+        "gol-82970"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82969": {
+      "seriesId": "gol-series-82967",
+      "index": 3,
+      "gameIds": [
+        "gol-82967",
+        "gol-82968",
+        "gol-82969",
+        "gol-82970"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82970": {
+      "seriesId": "gol-series-82967",
+      "index": 4,
+      "gameIds": [
+        "gol-82967",
+        "gol-82968",
+        "gol-82969",
+        "gol-82970"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82837": {
+      "seriesId": "gol-series-82836",
+      "index": 2,
+      "gameIds": [
+        "gol-82836",
+        "gol-82837",
+        "gol-82838",
+        "gol-82839",
+        "gol-82840"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82838": {
+      "seriesId": "gol-series-82836",
+      "index": 3,
+      "gameIds": [
+        "gol-82836",
+        "gol-82837",
+        "gol-82838",
+        "gol-82839",
+        "gol-82840"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82839": {
+      "seriesId": "gol-series-82836",
+      "index": 4,
+      "gameIds": [
+        "gol-82836",
+        "gol-82837",
+        "gol-82838",
+        "gol-82839",
+        "gol-82840"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82840": {
+      "seriesId": "gol-series-82836",
+      "index": 5,
+      "gameIds": [
+        "gol-82836",
+        "gol-82837",
+        "gol-82838",
+        "gol-82839",
+        "gol-82840"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82794": {
+      "seriesId": "gol-series-82793",
+      "index": 2,
+      "gameIds": [
+        "gol-82793",
+        "gol-82794",
+        "gol-82795"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82795": {
+      "seriesId": "gol-series-82793",
+      "index": 3,
+      "gameIds": [
+        "gol-82793",
+        "gol-82794",
+        "gol-82795"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82726": {
+      "seriesId": "gol-series-82725",
+      "index": 2,
+      "gameIds": [
+        "gol-82725",
+        "gol-82726",
+        "gol-82727"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82727": {
+      "seriesId": "gol-series-82725",
+      "index": 3,
+      "gameIds": [
+        "gol-82725",
+        "gol-82726",
+        "gol-82727"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82721": {
+      "seriesId": "gol-series-82720",
+      "index": 2,
+      "gameIds": [
+        "gol-82720",
+        "gol-82721",
+        "gol-82722",
+        "gol-82723",
+        "gol-82724"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82722": {
+      "seriesId": "gol-series-82720",
+      "index": 3,
+      "gameIds": [
+        "gol-82720",
+        "gol-82721",
+        "gol-82722",
+        "gol-82723",
+        "gol-82724"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82723": {
+      "seriesId": "gol-series-82720",
+      "index": 4,
+      "gameIds": [
+        "gol-82720",
+        "gol-82721",
+        "gol-82722",
+        "gol-82723",
+        "gol-82724"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82724": {
+      "seriesId": "gol-series-82720",
+      "index": 5,
+      "gameIds": [
+        "gol-82720",
+        "gol-82721",
+        "gol-82722",
+        "gol-82723",
+        "gol-82724"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82716": {
+      "seriesId": "gol-series-82715",
+      "index": 2,
+      "gameIds": [
+        "gol-82715",
+        "gol-82716",
+        "gol-82717",
+        "gol-82718"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82717": {
+      "seriesId": "gol-series-82715",
+      "index": 3,
+      "gameIds": [
+        "gol-82715",
+        "gol-82716",
+        "gol-82717",
+        "gol-82718"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82718": {
+      "seriesId": "gol-series-82715",
+      "index": 4,
+      "gameIds": [
+        "gol-82715",
+        "gol-82716",
+        "gol-82717",
+        "gol-82718"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82430": {
+      "seriesId": "gol-series-82429",
+      "index": 2,
+      "gameIds": [
+        "gol-82429",
+        "gol-82430",
+        "gol-82431"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82431": {
+      "seriesId": "gol-series-82429",
+      "index": 3,
+      "gameIds": [
+        "gol-82429",
+        "gol-82430",
+        "gol-82431"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82425": {
+      "seriesId": "gol-series-82424",
+      "index": 2,
+      "gameIds": [
+        "gol-82424",
+        "gol-82425",
+        "gol-82426",
+        "gol-82427",
+        "gol-82428"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82426": {
+      "seriesId": "gol-series-82424",
+      "index": 3,
+      "gameIds": [
+        "gol-82424",
+        "gol-82425",
+        "gol-82426",
+        "gol-82427",
+        "gol-82428"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82427": {
+      "seriesId": "gol-series-82424",
+      "index": 4,
+      "gameIds": [
+        "gol-82424",
+        "gol-82425",
+        "gol-82426",
+        "gol-82427",
+        "gol-82428"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82428": {
+      "seriesId": "gol-series-82424",
+      "index": 5,
+      "gameIds": [
+        "gol-82424",
+        "gol-82425",
+        "gol-82426",
+        "gol-82427",
+        "gol-82428"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82440": {
+      "seriesId": "gol-series-82439",
+      "index": 2,
+      "gameIds": [
+        "gol-82439",
+        "gol-82440",
+        "gol-82441",
+        "gol-82442"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82441": {
+      "seriesId": "gol-series-82439",
+      "index": 3,
+      "gameIds": [
+        "gol-82439",
+        "gol-82440",
+        "gol-82441",
+        "gol-82442"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82442": {
+      "seriesId": "gol-series-82439",
+      "index": 4,
+      "gameIds": [
+        "gol-82439",
+        "gol-82440",
+        "gol-82441",
+        "gol-82442"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82435": {
+      "seriesId": "gol-series-82434",
+      "index": 2,
+      "gameIds": [
+        "gol-82434",
+        "gol-82435",
+        "gol-82436",
+        "gol-82437"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82436": {
+      "seriesId": "gol-series-82434",
+      "index": 3,
+      "gameIds": [
+        "gol-82434",
+        "gol-82435",
+        "gol-82436",
+        "gol-82437"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82437": {
+      "seriesId": "gol-series-82434",
+      "index": 4,
+      "gameIds": [
+        "gol-82434",
+        "gol-82435",
+        "gol-82436",
+        "gol-82437"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82184": {
+      "seriesId": "gol-series-82183",
+      "index": 2,
+      "gameIds": [
+        "gol-82183",
+        "gol-82184",
+        "gol-82185",
+        "gol-82186"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82185": {
+      "seriesId": "gol-series-82183",
+      "index": 3,
+      "gameIds": [
+        "gol-82183",
+        "gol-82184",
+        "gol-82185",
+        "gol-82186"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82186": {
+      "seriesId": "gol-series-82183",
+      "index": 4,
+      "gameIds": [
+        "gol-82183",
+        "gol-82184",
+        "gol-82185",
+        "gol-82186"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82179": {
+      "seriesId": "gol-series-82178",
+      "index": 2,
+      "gameIds": [
+        "gol-82178",
+        "gol-82179",
+        "gol-82180",
+        "gol-82181",
+        "gol-82182"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82180": {
+      "seriesId": "gol-series-82178",
+      "index": 3,
+      "gameIds": [
+        "gol-82178",
+        "gol-82179",
+        "gol-82180",
+        "gol-82181",
+        "gol-82182"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82181": {
+      "seriesId": "gol-series-82178",
+      "index": 4,
+      "gameIds": [
+        "gol-82178",
+        "gol-82179",
+        "gol-82180",
+        "gol-82181",
+        "gol-82182"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
+    "gol-82182": {
+      "seriesId": "gol-series-82178",
+      "index": 5,
+      "gameIds": [
+        "gol-82178",
+        "gol-82179",
+        "gol-82180",
+        "gol-82181",
+        "gol-82182"
+      ],
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
+    },
     "gol-82463": {
       "seriesId": "gol-series-82463",
       "index": 1,
@@ -3660,6 +4501,10 @@
       "format": "fearless",
       "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20Main%20Event/"
     },
+    "Worlds 2026 Play-In": {
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/Worlds%202026%20Play-In/"
+    },
     "EMEA Masters 2026 Summer LCQ": {
       "format": "fearless",
       "source": "https://gol.gg/tournament/tournament-stats/EMEA%20Masters%202026%20Summer%20LCQ/"
@@ -3671,6 +4516,14 @@
     "LEC 2026 Summer Playoffs": {
       "format": "fearless",
       "source": "https://gol.gg/tournament/tournament-stats/LEC%202026%20Summer%20Playoffs/"
+    },
+    "LPL 2026 Regional Finals": {
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Regional%20Finals/"
+    },
+    "LPL 2026 Grand Finals": {
+      "format": "fearless",
+      "source": "https://gol.gg/tournament/tournament-stats/LPL%202026%20Grand%20Finals/"
     },
     "LCS 2026 Summer": {
       "format": "fearless",

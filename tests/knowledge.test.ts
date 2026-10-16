@@ -3,7 +3,9 @@ import { describe,it,expect } from 'vitest';
 import { knowledgeSchema,championKit } from '../src/shared/knowledge';
 import { classifyChange,parsePatchNotes } from '../src/collector/patch-notes';
 import { detectCapabilities,enrichKitParameters } from '../src/collector/champion-knowledge';
-import { changeImplications,kitInteractions,patchPrior,relevantChanges } from '../src/engine/kit-matchups';
+import { changeImplications,kitInteractions,relevantChanges } from '../src/engine/kit-matchups';
+import {patchPrior} from '../src/engine/patch-prior';
+import { evaluateMatch, members } from '../src/engine/evaluation';
 import { DEFAULT_SETTINGS,SEED_CHAMPIONS } from '../src/shared/champions';
 import { newDraft } from '../src/shared/draft';
 import type { EngineInput,Stat } from '../src/shared/types';
@@ -27,6 +29,21 @@ describe('conditional matchup and patch effects',()=>{
  it('connects Poppy W to a dash and keeps an explicit condition instead of declaring a hard counter',()=>{const edge=kitInteractions(kit('Poppy'),kit('Camille')).find(e=>e.kind==='antiDash');expect(edge).toBeDefined();expect(edge?.fromSlot).toBe('W');expect(edge?.condition).toContain('imparables');});
  it('does not make a wind wall block every spell: Ahri projectile yes, Lux beam no',()=>{expect(kitInteractions(kit('Yasuo'),kit('Ahri')).some(e=>e.kind==='projectileBlock')).toBe(true);const lux=structuredClone(kit('Lux'));lux.abilities= lux.abilities.filter(a=>a.slot==='R') as typeof lux.abilities;expect(kitInteractions(kit('Yasuo'),lux).some(e=>e.kind==='projectileBlock')).toBe(false);});
  it('does not apply a patch buff twice when both statistical sources already cover it',()=>{const state=input();state.stats=[row('16.20','pro'),row('16.20','solo')];expect(patchPrior(state,'Swain','MID').value).toBe(0);});
+ it('does not let another champion or role mark this champion’s patch changes as absorbed',()=>{
+  const state=input(),copy=structuredClone(data);
+  copy.patches[0].changes=[{...copy.patches[0].changes[0],championId:'Swain',direction:'buff',axis:'damage',magnitude:.2}];state.knowledge=copy;
+  state.stats=[row('16.18','pro'),{...row('16.20','pro'),championId:'Ahri'},{...row('16.20','pro'),role:'SUPPORT'}];
+  expect(patchPrior(state,'Swain','MID').value).toBeGreaterThan(0);
+  state.stats=[...state.stats,row('16.20','pro')];expect(patchPrior(state,'Swain','MID').value).toBe(0);
+ });
+ it('evaluates the exact same hypothetical picks, abilities and patch context through either entry point',()=>{
+  const state=input();state.draft.history=[...Array.from({length:6},()=>({championId:null})),{championId:'Ahri',role:'MID'},{championId:'Tristana',role:'ADC'},{championId:'LeeSin',role:'JUNGLE'}];
+  const lineups={blue:[...members(state,'blue'),{champion:state.champions.find(c=>c.id==='Poppy')!,role:'TOP' as const}],red:members(state,'red')};
+  const hypothetical=evaluateMatch(state,lineups);
+  state.draft.history.push({championId:'Poppy',role:'TOP'});
+  expect(hypothetical).toEqual(evaluateMatch(state));
+  expect(hypothetical.reasons.some(r=>r.includes('Interactions de sorts'))).toBe(true);
+ });
  it('uses a bounded prior only for lagging sources and never for a future or missing kit patch',()=>{const state=input(),value=patchPrior(state,'Swain','MID');expect(value.unseenShare).toBeLessThanOrEqual(.55);expect(Math.abs(value.value)).toBeLessThanOrEqual(2);state.draft.patch='16.18';expect(patchPrior(state,'Swain','MID').value).toBe(0);state.draft.patch='16.17';expect(patchPrior(state,'Swain','MID').value).toBe(0);});
  it('limits a monster buff to jungle and explains that magic resistance does not stop true damage',()=>{const state=input();expect(patchPrior(state,'Kindred','ADC').changes.some(c=>c.axis==='jungle')).toBe(false);const mr=data.patches[0].changes.find(c=>c.championId==='Swain'&&c.axis==='magicDefense')!;expect(changeImplications(mr,kit('Ahri')).join(' ')).toContain('dégâts bruts');});
  it('changes the patch interpretation with the revealed damage type instead of treating MR as universally useful',()=>{const state=input(),copy=structuredClone(data),magic=copy.patches[0].kits.find(k=>k.id==='Ahri')!;for(const ability of magic.abilities)ability.capabilities=['magicDamage'];const physical=copy.patches[0].kits.find(k=>k.id==='Riven')!;for(const ability of physical.abilities)ability.capabilities=['physicalDamage'];copy.patches[0].changes=copy.patches[0].changes.filter(c=>c.championId==='Swain'&&c.axis==='magicDefense');state.knowledge=copy;state.draft.history=[...Array.from({length:6},()=>({championId:null})),{championId:'Swain',role:'MID'},{championId:'Ahri',role:'MID'}];const ap=patchPrior(state,'Swain','MID').value;state.draft.history[7]={championId:'Riven',role:'MID'};expect(patchPrior(state,'Swain','MID').value).toBeLessThan(ap);});

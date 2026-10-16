@@ -59,6 +59,12 @@ describe('competitive role context', () => {
     expect(result.parts.find(p => p.key === 'bot')!.score).toBeGreaterThan(50);
     expect(result.parts.filter(p => p.key !== 'bot').every(p => p.score === 50)).toBe(true);
   });
+  it('does not present an enemy flex into mid as a confirmed bot duo',()=>{
+    const input=fixture('SUPPORT');
+    const context=roleContext({...input,enemyRoles:{EnemyADC:['ADC','MID']}});
+    expect(context.parts.find(p=>p.key==='bot')!.coverage).toBeCloseTo(2/3);
+    expect(context.partial).toBe(true);
+  });
   it('gives mid/jungle and ADC/support synergies more influence than unrelated allies', () => {
     for (const [role, useful, other] of [['JUNGLE', 'MID', 'TOP'], ['MID', 'JUNGLE', 'TOP'], ['ADC', 'SUPPORT', 'TOP']] as const) {
       const input = fixture(role);
@@ -80,10 +86,24 @@ describe('competitive role context', () => {
   });
   it('adjusts support emphasis as the game is revealed and preserves the base profile', () => {
     const input = fixture('SUPPORT'); input.enemies = input.enemies.filter(p => p.role === 'ADC' || p.role === 'SUPPORT');
-    const early = roleContext(input); expect(early.parts.find(p => p.key === 'bot')!.weight).toBeGreaterThan(40);
+    const early = roleContext(input); expect(early.parts.find(p => p.key === 'bot')!.weight).toBeCloseTo(40);
     input.enemies = fixture('SUPPORT').enemies;
     const late = roleContext(input); expect(late.parts.find(p => p.key === 'opposition')!.weight).toBeGreaterThan(early.parts.find(p => p.key === 'opposition')!.weight);
     expect(late.parts.map(p => p.baseWeight)).toEqual([40, 40, 20]);
+  });
+  it('reserves the unrevealed budget instead of amplifying the only known lane', () => {
+    const input = fixture('TOP'); input.allies=[]; input.enemies=input.enemies.filter(p=>p.role==='TOP');
+    input.pair=()=>({delta:.1,usable:true});
+    const context=roleContext(input);
+    expect(context.parts.find(p=>p.key==='lane')!.weight).toBe(40);
+    expect(context.score).toBe(66); // 50 + (90-50) * 40%, not 90.
+  });
+  it('keeps an undocumented opening neutral for every role and does not count blind uncertainty twice', () => {
+    for(const role of ROLES){
+      const input=fixture(role);input.allies=[];input.enemies=[];
+      const context=roleContext({...input,blind:{score:38,statisticalScore:50,uncertaintyPenalty:12,developmentPenalty:0,coverage:0,assessed:0,available:10,threats:[]}});
+      expect(context.score).toBe(50);expect(context.parts.every(p=>p.coverage===0&&p.weight===0)).toBe(true);
+    }
   });
   it('respects customized sliders and removes pair effects when their criterion is disabled', () => {
     const input = fixture('SUPPORT'); input.pair = () => ({ delta: .1, usable: true });

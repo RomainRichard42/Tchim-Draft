@@ -27,7 +27,7 @@ describe('interactive draft exploration',()=>{
     const base=input(),pins:SimulationPin[]=[{index:19,selection:{championId:'Ahri',role:'MID'}},{index:15,selection:{championId:'Malphite'}}];
     const result=simulateDrafts(base,request(base,pins,12));
     for(const branch of result.branches){
-      expect(branch.status).toBe('complete');expect(branch.history[19]).toEqual(pins[0].selection);expect(branch.history[15]).toEqual(pins[1].selection);
+      expect(branch.status).toBe('complete');expect(branch.history[19]).toMatchObject({...pins[0].selection,roleLocked:true});expect(branch.history[15]).toEqual(pins[1].selection);
       expect(branch.history.slice(0,19).some(s=>s.championId==='Ahri')).toBe(false);
       expect(picks({...base.draft,history:branch.history.slice(0,19)},'red').some(s=>s.role==='MID')).toBe(false);
       expect(branch.steps.find(s=>s.index===19)?.automatic).toBe(false);

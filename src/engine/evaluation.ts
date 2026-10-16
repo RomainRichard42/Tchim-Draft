@@ -1,9 +1,10 @@
 import type { Champion, DraftBalance, EngineInput, MatchAxis, MatchEvaluation, Role, Side } from '../shared/types';
-import { picks } from '../shared/draft';
+import { picks, order } from '../shared/draft';
 import { clamp } from './math';
 import { evidence, interaction } from './evidence';
 import { mechanics } from './mechanics';
-import { compositionKitEdge,patchPrior } from './kit-matchups';
+import { compositionKitEdge } from './kit-matchups';
+import {patchPrior} from './patch-prior';
 
 import { damageShare } from './teamplay';
 
@@ -37,6 +38,15 @@ export function confrontationFeatures(blue:Member[],red:Member[]):Record<string,
  return features;
 }
 export function evaluateMatch(input:EngineInput,lineups?:Record<Side,Member[]>):MatchEvaluation {
+ // Materialize the counterfactual for every consumer (abilities, patch changes,
+ // statistics and features), including picks not yet present in the real draft.
+ if(lineups){
+  const queues={blue:[...lineups.blue],red:[...lineups.red]};
+  input={...input,draft:{...input.draft,history:order(input.draft).map((action,index)=>{
+   if(action.kind==='ban')return input.draft.history[index]??{championId:null};
+   const member=queues[action.side].shift();return member?{championId:member.champion.id,role:member.role}:{championId:null};
+  })}};
+ }
  const blue=lineups?.blue??members(input,'blue'),red=lineups?.red??members(input,'red'),features=confrontationFeatures(blue,red);
  const base=(side:Side,list:Member[])=>avg(list.map(m=>evidence(input,m.champion.id,m.role,side)?.delta??0));
  const synergies=(side:Side,list:Member[])=>{const values:number[]=[];for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++)values.push(interaction(input,list[i].champion.id,list[i].role,list[j].champion.id,list[j].role,side,'synergy')?.delta??0);return avg(values);};

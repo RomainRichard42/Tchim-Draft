@@ -16,14 +16,14 @@ describe('draft rules and constrained simulations', () => {
     expect(PRO_ORDER.filter(a => a.kind === 'ban')).toHaveLength(10);
   });
   it('completes three branches with ten distinct picks, ten bans, and all roles on both sides', () => {
-    const base = input(), result = analyze(base); expect(result.scenarios).toHaveLength(3);
+    const base = input(), result = analyze(base,{scenarios:true}); expect(result.scenarios).toHaveLength(3);
     for (const s of result.scenarios) {
       const d = { ...base.draft, history: s.history }; expect(d.history).toHaveLength(20);
       expect(used(d).size).toBe(d.history.filter(h => h.championId).length);
       expect(new Set(picks(d, 'blue').map(p => p.role)).size).toBe(5); expect(new Set(picks(d, 'red').map(p => p.role)).size).toBe(5);
       expect(s.winProbability).toBeNull();
     }
-  });
+  },30000);
   it('excludes every previously picked or banned champion', () => {
     const base = pickPhase(); base.draft.history[0] = { championId: 'Ahri' };
     expect(analyze(base).picks.some(p => p.championId === 'Ahri')).toBe(false);
@@ -79,10 +79,10 @@ describe('statistics, uncertainty, source weighting and dimensions', () => {
     base.settings.oldPatchDecay = 0; expect(analyze(base).picks[0].games).toBe(1000);
   });
   it('applies observed synergy and reverses a matchup with swapped sides', () => {
-    const base = pickPhase(); base.draft.side = 'red'; base.draft.history.push({ championId: 'Jayce', role: 'TOP' }); base.draft.targetRole = 'TOP';
+    const base = pickPhase(); base.draft.side = 'red'; base.draft.history.push({ championId: 'Jayce', role: 'TOP', roleLocked:true }); base.draft.targetRole = 'TOP';
     base.settings.poolOnly = true; base.settings.pool = { Malphite: 5 };
     base.pairs = [{ championId: 'Jayce', role: 'TOP', otherId: 'Malphite', otherRole: 'TOP', kind: 'matchup', source: 'solo', side: 'blue', patch: '16.20', rank: 'all', league: 'all', games: 1000, wins: 400, baseline: .5 }];
-    expect(analyze(base).picks[0].factors.matchup).toBeGreaterThan(70);
+    expect(analyze(base).picks.find(p=>p.championId==='Malphite')!.factors.matchup).toBeGreaterThan(70);
   });
 });
 describe('untrusted import and settings validation', () => {

@@ -2,7 +2,7 @@ import type { EngineInput, Prediction, Recommendation, Side } from '../shared/ty
 import { evidence } from './evidence';
 
 /** Choice likelihood is a preference heuristic. It does not estimate game outcomes. */
-export function choicePolicy(input:EngineInput,side:Side,candidates:Recommendation[]):Prediction[] {
+function choiceMasses(input:EngineInput,side:Side,candidates:Recommendation[]) {
  const team=input.teams?.[side===input.draft.side?'ally':'enemy'];
  const rated=candidates.map(rec=>{
   const players=team?.players.filter(p=>p.role===rec.role||p.role==='AUTO')??[];
@@ -16,7 +16,18 @@ export function choicePolicy(input:EngineInput,side:Side,candidates:Recommendati
   const mass=confidence*pool*(.8+comfort*.4)+(1-confidence)*(popularity>0?popularity:.005)+(declared&&games===0?.04:0);
   return {...rec,mass,basis:(games>0||declared?'pool':meta?'meta':'fallback') as Prediction['basis']};
  });
- // A flex champion consumes one pick, so combine role probabilities before selecting its likely role.
+ return rated;
+}
+
+/** Joint champion/role preferences for search; do not reveal a flex's seat early. */
+export function choiceRolePolicy(input:EngineInput,side:Side,candidates:Recommendation[]):Prediction[] {
+ const rows=choiceMasses(input,side,candidates),total=rows.reduce((n,r)=>n+r.mass,0);
+ return rows.map(r=>({championId:r.championId,role:r.role,preference:total?r.mass/total:0,basis:r.basis,quality:r.score})).sort((a,b)=>b.preference-a.preference||a.championId.localeCompare(b.championId)||a.role.localeCompare(b.role));
+}
+
+export function choicePolicy(input:EngineInput,side:Side,candidates:Recommendation[]):Prediction[] {
+ const rated=choiceMasses(input,side,candidates);
+ // A flex champion consumes one pick, so combine role probabilities for the compact UI.
  const unique=new Map<string,typeof rated[number]>();
  for(const rec of rated){const old=unique.get(rec.championId);if(!old)unique.set(rec.championId,rec);else {const best=rec.mass>old.mass?rec:old;unique.set(rec.championId,{...best,mass:old.mass+rec.mass});}}
  const ordered=[...unique.values()].sort((a,b)=>b.mass-a.mass||b.score-a.score||a.championId.localeCompare(b.championId));

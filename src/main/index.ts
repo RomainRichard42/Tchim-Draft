@@ -7,7 +7,9 @@ import { pickInsightSchema } from '../shared/validation';
 import { KnowledgeService } from './knowledge';
 import { sourceUrlSchema } from '../shared/knowledge';
 import { interaction,evidence } from '../engine/evidence';
-import { patchPrior } from '../engine/kit-matchups';
+import { rankCandidates } from '../engine';
+import { appendWithRoleChanges, rewindDraft } from '../shared/placements';
+import { patchPrior } from '../engine/patch-prior';
 import { app, BrowserWindow, clipboard, dialog, globalShortcut, ipcMain, nativeTheme, net, protocol, screen, session, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { Worker } from 'node:worker_threads';
@@ -115,7 +117,7 @@ function bind(channel: string, handler: (value?: unknown) => unknown) {
     if (!win || ![mainWindow, overlayWindow].includes(win) || event.senderFrame !== event.sender.mainFrame || !parsed ||
       !((parsed.protocol === 'tchim:' && parsed.hostname === 'app') || (developmentUrl && parsed.origin === developmentUrl))) throw new Error('Unauthorized IPC sender');
     if(!channel.startsWith('cloud:')&&!['draft:snapshot','app:release-notes','app:acknowledge-release-notes'].includes(channel))cloud?.requireAccess();
-    if(storage?.match?.archived&&['draft:configure','draft:select','draft:undo','draft:reset','draft:series','draft:scout','draft:teams'].includes(channel))throw new Error('Ce match est archivé. Restaure-le depuis Matchs / Restore this archived match from Matches');
+    if(storage?.match?.archived&&['draft:configure','draft:select','draft:lock-role','draft:undo','draft:reset','draft:series','draft:scout','draft:teams'].includes(channel))throw new Error('Ce match est archivé. Restaure-le depuis Matchs / Restore this archived match from Matches');
     const actor=cloud?.state.userId;const result=handler(value);
     if(result&&typeof (result as Promise<unknown>).then==='function'&&!channel.startsWith('cloud:'))return (result as Promise<unknown>).then(value=>{if(cloud?.state.configured&&actor!==cloud.state.userId)throw new Error('Account changed');return value;});
     return result;
@@ -160,10 +162,13 @@ function handlers() {
   bind('draft:select', value => {
     const selected = selectionSchema.parse(value), action = order(storage.draft)[storage.draft.history.length];
     if (!action) throw new Error('Draft is complete');
-    if (action.kind === 'pick' && (!selected.championId || !selected.role || !freeRoles(storage.draft, action.side).includes(selected.role))) throw new Error('Choose a free role');
-    storage.draft = validateHistory({ ...storage.draft, history: [...storage.draft.history, action.kind === 'ban' ? { championId: selected.championId } : selected] }); return changed();
+    if (action.kind === 'pick' && (!selected.championId || !selected.role)) throw new Error('Choose a role');
+    const rec=action.kind==='pick'?rankCandidates(storage.engineInput(),action.side,selected.role!,false,true,selected.championId!)[0]:undefined;
+    if(action.kind==='pick'&&!rec)throw Error('Ce rôle ne peut pas être libéré avec les flexs et pools connus / No feasible flex assignment for this role');
+    storage.draft = validateHistory(appendWithRoleChanges(storage.draft,action.kind==='ban'?{championId:selected.championId}:{championId:selected.championId,role:selected.role,...(selected.roleLocked?{roleLocked:true}:{})},rec?.reassignments)); return changed();
   });
-  bind('draft:undo', value => { const index = value === undefined ? Math.max(0, storage.draft.history.length - 1) : z.number().int().min(0).max(storage.draft.history.length).parse(value); storage.draft.history = storage.draft.history.slice(0, index); return changed() });
+  bind('draft:lock-role',value=>{const {index,locked}=z.object({index:z.number().int().min(0).max(19),locked:z.boolean()}).strict().parse(value);const selection=storage.draft.history[index];if(!selection?.championId||order(storage.draft)[index]?.kind!=='pick')throw Error('Pick required');storage.draft={...storage.draft,history:storage.draft.history.map((p,i)=>i===index?{...p,roleLocked:locked}:p)};return changed();});
+  bind('draft:undo', value => { const index = value === undefined ? Math.max(0, storage.draft.history.length - 1) : z.number().int().min(0).max(storage.draft.history.length).parse(value); storage.draft = validateHistory(rewindDraft(storage.draft,index)); return changed() });
   bind('draft:reset', () => { storage.draft = { ...storage.draft, history: [], targetRole: 'AUTO' }; return changed() });
   bind('draft:series', async value => {
     const request=z.object({command:z.enum(['next','previous','reset']),winner:z.enum(['blue','red']).optional()}).strict().parse(value);
@@ -187,7 +192,7 @@ function handlers() {
   bind('draft:analyze', () => runAnalysis());
   bind('draft:pick-insight',async value=>{
     const request=pickInsightSchema.parse(value),input=storage.engineInput(),actor=cloud.state.userId,draftKey=JSON.stringify([storage.draft,storage.settings,storage.teams]);
-    if(!input.champions.some(champ=>champ.id===request.championId)||!freeRoles(input.draft,request.side).includes(request.role))throw new Error('Pick unavailable');
+    if(!input.champions.some(champ=>champ.id===request.championId))throw new Error('Pick unavailable');
     const current=()=>actor===cloud.state.userId&&draftKey===JSON.stringify([storage.draft,storage.settings,storage.teams])&&(!cloud.state.configured||cloud.state.authorized);
     const revision=`${actor}|${storage.dataRevision}|${storage.knowledge?.revision??''}`;
     return pickInsights.inspect(input,revision,request,()=>cloud.state.configured?cloud.pickPairs(request.championId):Promise.resolve(input.pairs.filter(pair=>pair.championId===request.championId||pair.otherId===request.championId)),current);

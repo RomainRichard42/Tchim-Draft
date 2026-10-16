@@ -1,6 +1,7 @@
 import type { Draft, Lang, Selection, Settings, SimulationContext, Teams } from './types';
 import { ROLES } from './types';
 import { validateSimulation } from './simulation';
+import { appendWithRoleChanges, type RoleChange } from './placements';
 
 /** A guided scrim must know both complete rosters, rather than inventing player pools. */
 export function guidedRosterIssues(teams:Teams|undefined,language:Lang='fr'):string[] {
@@ -25,8 +26,8 @@ export function guidedContext(settings:Settings,teams:Teams):SimulationContext {
   return context;
 }
 
-export function appendGuidedChoice(draft:Draft,selection:Selection,known:Set<string>):Draft {
-  const next={...draft,history:[...draft.history,selection],targetRole:'AUTO' as const};
+export function appendGuidedChoice(draft:Draft,selection:Selection,known:Set<string>,changes:RoleChange[]=[]):Draft {
+  const next=appendWithRoleChanges(draft,selection,changes);
   validateSimulation(next,[],known);
   return next;
 }

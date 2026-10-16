@@ -3,8 +3,8 @@ import {proEvidence} from './pro-evidence';
 import {coachAdjustment} from './coach-feedback';
 import { choicePolicy } from './policy';
 import { exploreStrategy } from './strategy';
-import type { StrategyRequest } from '../shared/types';
-import { prepare, aggregate, pairRows } from './evidence';
+import type { StrategyRequest, StrategyReport } from '../shared/types';
+import { prepare, aggregate, pairRows, interaction } from './evidence';
 import type { Analysis, Champion, Composition, Draft, DraftBalance, Duo, EngineInput, PairStat, Prediction, Recommendation, Role, Scenario, Side, Stat, Weights } from '../shared/types';
 import { fearlessUsed, freeRoles, opposite, order, picks, used, PRO_ORDER } from '../shared/draft';
 import { clamp, patchDistance, posterior, softmax, wilson } from './math';
@@ -15,8 +15,10 @@ import { gamePlan } from './gameplan';
 import { banConsequences } from './ban-impact';
 import { contextualRisk, contextualScore, roleContext } from './role-context';
 import { assessBlind, blindDevelopment } from './blind';
-import { patchPrior } from './kit-matchups';
+import { patchPrior } from './patch-prior';
 import { metaProfiles, playableFlex } from './meta';
+import { observedRoles, teamAssignments } from './assignments';
+import { applyRoleChanges, appendWithRoleChanges } from '../shared/placements';
 
 function text(input: EngineInput, fr: string, en: string): string { return input.settings.language === 'fr' ? fr : en }
 export function composition(champions: Champion[], language = 'fr',roles:Role[]=[]): Composition {
@@ -36,13 +38,36 @@ export function composition(champions: Champion[], language = 'fr',roles:Role[]=
   return { count, adShare, frontline, engage, peel, poke, early, scaling, archetype, strengths, weaknesses, quality };
 }
 function team(input: EngineInput, side: Side): Champion[] { return picks(input.draft, side).flatMap(p => input.champions.find(c => c.id === p.championId) ?? []) }
-export function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AUTO' = 'AUTO', usePool = true, useFamiliarity = true, candidateId?:string): Recommendation[] {
+type CandidateFilter=string|ReadonlySet<string>;
+export function rankCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AUTO' = 'AUTO', usePool = true, useFamiliarity = true, candidateId?:CandidateFilter): Recommendation[] {
+  const current=picks(input.draft,side),best=new Map<string,Recommendation>();
+  const opponents=picks(input.draft,opposite(side)),enemyPlacements=teamAssignments(input,opposite(side));
+  const enemyRoles=Object.fromEntries(opponents.map(p=>[p.championId!,[...new Set(enemyPlacements.flatMap(rows=>rows.filter(other=>other.championId===p.championId).map(other=>other.role!)))]]));
+  for(const placement of teamAssignments(input,side)){
+    const changes=placement.filter(p=>p.role!==current.find(c=>c.championId===p.championId)?.role).map(p=>({championId:p.championId!,role:p.role!}));
+    const state=changes.length?{...input,draft:applyRoleChanges(input.draft,side,changes)}:input;
+    for(const rec of rankFixedCandidates(state,side,restrictRole,usePool,useFamiliarity,candidateId,enemyRoles)){
+      const key=rec.championId+':'+rec.role,previous=best.get(key);
+      if(previous&&(previous.score>rec.score||previous.score===rec.score&&(previous.reassignments?.length??0)<=changes.length))continue;
+      const fr=input.settings.language==='fr';
+      const explanation=changes.map(p=>(input.champions.find(c=>c.id===p.championId)?.name??p.championId)+' → '+p.role).join(' · ');
+      best.set(key,changes.length?{...rec,reassignments:changes,reasons:[(fr?'Réaffectation flex : ':'Flex reassignment: ')+explanation,...rec.reasons],summary:(fr?'Flex : ':'Flex: ')+explanation+'. '+(rec.summary??'')}:rec);
+    }
+  }
+  const results=[...best.values()],feasible=new Map<string,Set<Role>>();
+  for(const rec of results){const roles=feasible.get(rec.championId)??new Set<Role>();for(const role of rec.viableRoles??[])roles.add(role);feasible.set(rec.championId,roles);}
+  return results.map(r=>({...r,viableRoles:[...feasible.get(r.championId)??[]]})).sort((a,b)=>b.score-a.score||a.championId.localeCompare(b.championId)||a.role.localeCompare(b.role));
+}
+
+function rankFixedCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AUTO', usePool: boolean, useFamiliarity: boolean, candidateId:CandidateFilter|undefined,enemyRoles:Record<string,Role[]>): Recommendation[] {
+  const forced=typeof candidateId==='string';
   const availableRoles = freeRoles(input.draft, side), locked = new Set([...used(input.draft),...fearlessUsed(input.draft)]), allies = picks(input.draft, side), enemies = picks(input.draft, opposite(side));
   const allyTeam = team(input, side), before = composition(allyTeam,'fr',allies.map(a=>a.role)), enemyTeam = team(input, opposite(side));
   const pickIndex = allies.length, early = pickIndex < 2, last = pickIndex === 4;
   const beforePlan=gamePlan(allyTeam,allies.map(a=>a.role),enemyTeam,enemies.map(e=>e.role),input.settings.language);
   const beforeOwnPlan=input.draft.mode==='pro'?gamePlan(allyTeam,allies.map(a=>a.role),[],[],input.settings.language):null;
   const results: Recommendation[] = [], prepared = prepare(input);
+  const proCovered=proEvidence(input).report.games>=100||input.stats.some(s=>s.source==='pro'&&s.games>=100);
   const scout=input.teams?.[side===input.draft.side?'ally':'enemy'];
   const summary = (key: string, rows: (Stat | PairStat)[], targetSide:Side=side) => {
     const cacheKey = `${targetSide}|${input.draft.mode}|${input.draft.patch}|${input.draft.rank}|${input.draft.league}|${input.settings.oldPatchDecay}|${key}`;
@@ -56,7 +81,8 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
     const players=enemyScout?.players.filter(p=>p.role===role||(p.role==='AUTO'&&!enemyScout.players.some(other=>other.role===role)))??[];
     const restricted=enemyScout?.poolOnly&&players.length&&players.every(p=>p.pool.length>0);
     const options=input.champions.flatMap(champion=>{
-      if(locked.has(champion.id))return [];
+      const revealed=enemies.some(p=>p.championId===champion.id&&enemyRoles[champion.id]?.includes(role));
+      if(locked.has(champion.id)&&!revealed)return [];
       const declared=players.some(p=>p.pool.some(ch=>ch.championId===champion.id&&(!ch.role||ch.role===role)&&(ch.games>=3||(ch.games===0&&p.status==='manual'))));
       if(restricted&&!declared)return [];
       // Response viability/popularity use the opponent's side, not the candidate's side.
@@ -64,27 +90,27 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
       const roleStats=[...prepared.roles.get(champion.id)??[]].flatMap(r=>summary(`stat|${champion.id}|${r}`,prepared.stats.get(`${champion.id}|${r}`)??[],opponent)?.groups??[]);
       const observed=stat?.groups.some(g=>g.usable&&g.pickRate>=.005&&g.n/Math.max(1,roleStats.filter(s=>s.source===g.source).reduce((sum,s)=>sum+s.n,0))>=.1);
       const explicitRole=players.some(p=>p.pool.some(ch=>ch.championId===champion.id&&ch.role===role&&(ch.games>=3||(ch.games===0&&p.status==='manual'))));
-      if(!observed&&!explicitRole)return [];
+      if(!observed&&!explicitRole&&!revealed)return [];
       const comfort=scoutingBan(enemyScout,champion.id,role,100);
       return [{champion,popularity:stat?.pickRate??.01,familiarity:comfort?comfort.score/100*comfort.appliedWeight/100:0}];
     });
     responseCache.set(role,options);return options;
   };
   for (const c of input.champions) {
-    if (locked.has(c.id)||(candidateId&&c.id!==candidateId)) continue;
-    for (const role of availableRoles.filter(r => (restrictRole === 'AUTO' || r === restrictRole) && (candidateId||c.roles.includes(r) || prepared.roles.get(c.id)?.has(r)))) {
+    if (locked.has(c.id)||(candidateId&&(forced?c.id!==candidateId:!candidateId.has(c.id)))) continue;
+    for (const role of availableRoles.filter(r => (restrictRole === 'AUTO' || r === restrictRole) && (forced||c.roles.includes(r) || prepared.roles.get(c.id)?.has(r)||observedRoles(input,c.id,side).includes(r)))) {
       const players=scout?.players.filter(p=>p.role===role||(p.role==='AUTO'&&!scout.players.some(other=>other.role===role)))??[];
       const playerOptions=players.flatMap(p=>p.pool.filter(ch=>ch.championId===c.id&&(!ch.role||ch.role===role)&&(ch.games>=3||(ch.games===0&&p.status==='manual'))).map(ch=>({player:p,games:ch.games})));
       const familiarity=playerOptions.sort((a,b)=>b.games-a.games)[0];
-      if(!candidateId&&scout?.poolOnly&&players.length&&players.every(p=>p.pool.length>0)&&!familiarity)continue;
+      if(!forced&&scout?.poolOnly&&players.length&&players.every(p=>p.pool.length>0)&&!familiarity)continue;
       if (usePool && side === input.draft.side && input.draft.mode==='solo'&&input.settings.poolOnly && role === input.draft.role && !(input.settings.pool[c.id] > 0)) continue;
       const stats = summary(`stat|${c.id}|${role}`, prepared.stats.get(`${c.id}|${role}`) ?? []);
       const pro=stats?.groups.find(g=>g.source==='pro');
       const championPro=[...prepared.roles.get(c.id)??[]].reduce((n,r)=>n+(summary(`stat|${c.id}|${r}`,prepared.stats.get(`${c.id}|${r}`)??[])?.groups.find(g=>g.source==='pro')?.n??0),0);
       const championSolo=[...prepared.roles.get(c.id)??[]].reduce((n,r)=>n+(summary(`stat|${c.id}|${r}`,prepared.stats.get(`${c.id}|${r}`)??[])?.groups.find(g=>g.source==='solo')?.n??0),0);
       const observedRole=(s:typeof stats)=>s?.groups.some(g=>g.usable&&g.pickRate>=.005&&g.n/Math.max(1,g.source==='pro'?championPro:championSolo)>=.1);
-      if(input.stats.length&&!candidateId){
-        if(!observedRole(stats)&&!(familiarity?.player.pool.some(p=>p.championId===c.id&&p.role===role)))continue;
+      if(input.stats.length&&!forced){
+        if(!observedRole(stats)&&!observedRoles(input,c.id,side).includes(role))continue;
       }
       const matchups = enemies.flatMap(e => summary(`matchup|${c.id}|${role}|${e.championId}|${e.role}`, pairRows(input, c, role, e, 'matchup')) ?? []);
       const synergies = allies.flatMap(a => summary(`synergy|${c.id}|${role}|${a.championId}|${a.role}`, pairRows(input, c, role, a, 'synergy')) ?? []);
@@ -94,7 +120,7 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
       const afterPlan=gamePlan([...allyTeam,c],[...allies.map(a=>a.role),role],enemyTeam,enemies.map(e=>e.role),input.settings.language);
       const planContribution=allies.length?clamp(50+(afterPlan.score-beforePlan.score)*1.5):50;
       const synergy=clamp(statisticalSynergy+(contextual.synergy-50)*.5),comp=clamp(contextual.score*.65+planContribution*.35);
-      const opponentLane = enemies.find(e => e.role === role);
+      const opponentLane = enemies.find(e => enemyRoles[e.championId!]?.length===1&&enemyRoles[e.championId!][0]===role);
       const blind=input.draft.mode==='pro'&&role!=='SUPPORT'&&!opponentLane&&input.stats.length
         ?assessBlind(replies(role).filter(reply=>reply.champion.id!==c.id).map(reply=>({championId:reply.champion.id,
           popularity:reply.popularity,familiarity:reply.familiarity,
@@ -102,9 +128,13 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
       if(blind&&role==='TOP'){blind.developmentPenalty=blindDevelopment(c);blind.score=clamp(blind.score-blind.developmentPenalty);}
       const ownAfter=beforeOwnPlan?gamePlan([...allyTeam,c],[...allies.map(a=>a.role),role],[],[],input.settings.language):null;
       const context=ownAfter&&beforeOwnPlan?roleContext({candidate:c,role,allies,enemies,champions:input.champions,
-        language:input.settings.language,weights:input.settings.weights,blind,
+        language:input.settings.language,weights:input.settings.weights,blind,enemyRoles,
         ownPlan:allies.length?clamp(50+(ownAfter.score-beforeOwnPlan.score)*1.5):50,
-        pair:(candidate,candidateRole,target,kind)=>summary(`${kind}|${candidate.id}|${candidateRole}|${target.championId}|${target.role}`,pairRows(input,candidate,candidateRole,target,kind))}):undefined;
+        pair:(candidate,candidateRole,target,kind)=>{
+          const roles=kind==='matchup'?enemyRoles[target.championId!]??[target.role]:[target.role];
+          const rows=roles.map(targetRole=>summary(`${kind}|${candidate.id}|${candidateRole}|${target.championId}|${targetRole}`,pairRows(input,candidate,candidateRole,{...target,role:targetRole},kind)));
+          return rows.some(r=>r?.usable)?{usable:true,delta:rows.reduce((n,r)=>n+(r?.usable?r.delta:0),0)/roles.length}:null;
+        }}):undefined;
       // Unseen lanes imply risk: early selections reward role ambiguity and protection.
       const flex=playableFlex(input,c.id,side),viableRoles=flex.roles;
       const meta=metaProfiles(input,side).get(c.id),priority=meta?.rolePriority[role]??35;
@@ -129,11 +159,12 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
       const knownComfort=familiarity?.games?familiarity.games/(familiarity.games+40)*((familiarity.player.pool.find(p=>p.championId===c.id&&(!p.role||p.role===role))?.comfort??3)/5):0;
       // A well-covered pro dataset does not certify every strong solo offrole as an opening blind.
       // This is a disclosed uncertainty cost, never a fabricated negative matchup statistic.
-      const openingUncertainty=input.draft.mode==='pro'&&early&&!opponentLane&&input.stats.some(s=>s.source==='pro'&&s.games>=100)
+      const openingUncertainty=input.draft.mode==='pro'&&early&&!opponentLane&&proCovered
         ?6*(1-(pro?.usable?pro.support:0))*(1-knownComfort*.6):0;
       const coach=coachAdjustment(input,c.id,role,side);
       const score = clamp(contextualScore(factors, weights, context)+prior.value-openingUncertainty+coach.value);
       const reasons: string[] = [];
+      if(input.draft.mode==='pro')for(const enemy of enemies.filter(p=>(enemyRoles[p.championId!]?.length??0)>1))reasons.push(text(input,`Flex adverse non fixé : ${input.champions.find(c=>c.id===enemy.championId)?.name??enemy.championId} (${enemyRoles[enemy.championId!].join(' / ')}). Les paires de contexte sont moyennées entre ces placements ; le vis-à-vis n’est pas certain.`,`Unfixed enemy flex: ${input.champions.find(c=>c.id===enemy.championId)?.name??enemy.championId} (${enemyRoles[enemy.championId!].join(' / ')}). Context pairs are averaged across those placements; the opposing lane is uncertain.`));
       if(openingUncertainty>.5)reasons.push(text(input,`Ouverture : prudence de ${openingUncertainty.toFixed(1)} points pour une position encore peu étayée en pro ; le confort renseigné réduit ce coût. Ce n’est pas un malus de matchup mesuré.`,`Opening: ${openingUncertainty.toFixed(1)} points of caution for a role with limited pro support; known comfort reduces this cost. This is not a measured matchup penalty.`));
       if(input.draft.mode==='pro'&&meta&&(meta.proRoleGames[role]??0)<10)reasons.push(text(input,`Position ${role} peu documentée en pro (${Math.round(meta.proRoleGames[role]??0)} apparitions pondérées). La présence du champion dans ses autres rôles ne certifie pas ce blind ; les données Master+ restent une indication.`,`Limited pro evidence for ${role} (${Math.round(meta.proRoleGames[role]??0)} weighted appearances). Presence in other roles does not certify this blind; Master+ data remains an indication.`));
       if(input.draft.mode==='pro'&&opening)reasons.push(text(input,`Ordre pro connu : ${opening.games} apparitions pondérées · premier choix de ce camp ${(opening.firstShare*100).toFixed(0)} % · phase 1 ${(opening.earlyShare*100).toFixed(0)} %. Fréquences lissées, pas des taux de victoire en blind.`,`Known pro order: ${opening.games} weighted appearances · this side’s opening pick ${(opening.firstShare*100).toFixed(0)}% · phase 1 ${(opening.earlyShare*100).toFixed(0)}%. Smoothed frequencies, not blind-pick win rates.`));
@@ -155,7 +186,7 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
         if(role==='SUPPORT')reasons.push(text(input,'Botlane : approximation du 2v2 par les quatre paires adverses, la synergie ADC/support et des règles qualitatives. Les statistiques mesurent des victoires de partie, pas la domination de lane.','Bot lane: 2v2 approximated from four opposing pairs, ADC/support synergy and qualitative rules. Statistics measure game wins, not lane dominance.'));
       }
       if(allies.length>=2)reasons.push(text(input,`Plan de jeu : ${afterPlan.title}. ${afterPlan.conditions[0]??afterPlan.timing}`,`Game plan: ${afterPlan.title}. ${afterPlan.conditions[0]??afterPlan.timing}`));
-      if(stats)for(const g of stats.groups.filter(g=>!g.usable))reasons.push(text(input,`${g.source} : ${Math.round(g.n)} parties pondérées, échantillon insuffisant (minimum ${g.source==='pro'?10:200}). Winrate et priorité méta neutralisés pour cette source.`,`${g.source}: ${Math.round(g.n)} weighted games, insufficient sample (minimum ${g.source==='pro'?10:200}). Win-rate and meta effects neutralized for this source.`));
+      if(stats)for(const g of stats.groups.filter(g=>!g.usable))reasons.push(text(input,`${g.source} : ${Math.round(g.n)} parties pondérées, échantillon insuffisant (minimum ${g.source==='pro'?10:200}). Winrate neutralisé ; la priorité de présence dépend séparément du nombre de drafts observées.`,`${g.source}: ${Math.round(g.n)} weighted games, insufficient sample (minimum ${g.source==='pro'?10:200}). Win-rate effect neutralized; presence priority depends separately on observed draft opportunities.`));
       const unsupportedPairs=[...matchups,...synergies].filter(m=>!m.usable).length;
       if(unsupportedPairs)reasons.push(text(input,`${unsupportedPairs} matchup(s) ou synergie(s) sans échantillon suffisant : aucun bonus statistique.`,`${unsupportedPairs} matchup or synergy samples below the minimum: no statistical bonus.`));
       if(stats)reasons.push(text(input,`Écart au niveau moyen : ${(stats.delta*100).toFixed(2)} points ; mix ${stats.groups.map(g=>`${g.source} ${Math.round(100*g.mixture/stats.groups.reduce((s,x)=>s+x.mixture,0))}%`).join(' / ')} ajusté à la fiabilité.`,`Baseline-adjusted edge: ${(stats.delta*100).toFixed(2)} points; reliability-weighted source blend.`));
@@ -179,19 +210,24 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
   }
   return results.sort((a, b) => b.score - a.score || a.championId.localeCompare(b.championId) || a.role.localeCompare(b.role));
 }
-function unique(recs: Recommendation[]): Recommendation[] { const seen = new Set<string>(); return recs.filter(r => !seen.has(r.championId) && !!seen.add(r.championId)).map(r=>({...r,alternatives:recs.filter(other=>other.championId===r.championId).map(other=>({role:other.role,score:other.score,blindScore:other.blind?.score}))})); }
+function unique(recs: Recommendation[]): Recommendation[] { const seen = new Set<string>(); return recs.filter(r => !seen.has(r.championId) && !!seen.add(r.championId)).map(r=>({...r,alternatives:recs.filter(other=>other.championId===r.championId).map(other=>({role:other.role,score:other.score,blindScore:other.blind?.score,reassignments:other.reassignments}))})); }
 function predict(input: EngineInput, side: Side): Prediction[] {
   return choicePolicy(input,side,rankCandidates(input,side,'AUTO',true)).slice(0,5);
 }
 function append(input: EngineInput, rec: Recommendation | Prediction): EngineInput {
-  return { ...input, draft: { ...input.draft, targetRole: 'AUTO', history: [...input.draft.history, { championId: rec.championId, role: rec.role }] } };
+  return { ...input, draft: appendWithRoleChanges(input.draft,{championId:rec.championId,role:rec.role},'reassignments' in rec?rec.reassignments:[]) };
 }
-export function banCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AUTO' = 'AUTO'): Recommendation[] {
+export function banCandidates(input: EngineInput, side: Side, restrictRole: Role | 'AUTO' = 'AUTO', continuation=false, domain?:ReadonlySet<string>, ownDomain?:ReadonlySet<string>): Recommendation[] {
   // Bans target opponent options; the user's playable pool must never restrict them.
   const enemy = opposite(side);
   const scout=input.teams?.[enemy===input.draft.side?'ally':'enemy'];
-  const candidates = rankCandidates(input, enemy, restrictRole, false, false);
-  const impacts=banConsequences(input,side,candidates,rankCandidates(input,side,'AUTO',false,false));
+  const candidates = rankCandidates(input, enemy, restrictRole, false, false,domain);
+  // Future bans are a disclosed greedy policy, not another nested ban search.
+  if(continuation)return unique(candidates.map(r=>{
+    const scoutValue=scoutingBan(scout,r.championId,r.role,input.settings.banScoutingWeight??35),weight=(scoutValue?.appliedWeight??0)/100,base=r.score*.8+r.factors.meta*.2;
+    return {...r,score:base*(1-weight)+(scoutValue?.score??base)*weight,banScouting:scoutValue};
+  }).sort((a,b)=>b.score-a.score||a.championId.localeCompare(b.championId)));
+  const impacts=banConsequences(input,side,candidates,rankCandidates(input,side,'AUTO',false,false,ownDomain));
   return unique(candidates.map(r => {
     const base=r.score*.8+r.factors.meta*.2,banScouting=scoutingBan(scout,r.championId,r.role,input.settings.banScoutingWeight??35);
     const weight=(banScouting?.appliedWeight??0)/100,impact=impacts.get(`${r.championId}:${r.role}`)!;
@@ -210,10 +246,24 @@ export function banCandidates(input: EngineInput, side: Side, restrictRole: Role
     return {...r,score:Math.round(score*10)/10,reasons,banScouting,banImpact:impact,summary:impact.net>1?text(input,`Réduit leurs options ${r.role} · remplacement : ${replacement}.`,`Reduces their ${r.role} options · replacement: ${replacement}.`):impact.net< -1?text(input,`Coût pour notre plan : ${impact.ownLoss.toFixed(1)} points · alternative adverse : ${replacement}.`,`Cost to our plan: ${impact.ownLoss.toFixed(1)} points · enemy replacement: ${replacement}.`):summary};
   }).sort((a,b)=>b.score-a.score||a.championId.localeCompare(b.championId)||a.role.localeCompare(b.role)));
 }
-function duos(input: EngineInput, recs: Recommendation[]): Duo[] {
+function duos(input: EngineInput, recs: Recommendation[], strategy?:StrategyReport): Duo[] {
   const index = input.draft.history.length, sequence = order(input.draft), current = sequence[index], next = sequence[index + 1];
   if (input.draft.mode !== 'pro' || current?.kind !== 'pick' || next?.kind !== 'pick' || current.side !== next.side || current.side !== input.draft.side) return [];
   const combos: Duo[] = [];
+  if(strategy){
+    for(const first of strategy.options){
+      const root=first.outlook?.nodes[0];if(!root)continue;
+      const state=append(input,first);
+      for(const node of root.children.filter(n=>!n.blocked&&n.side===current.side&&n.kind==='pick').sort((a,b)=>b.value-a.value).slice(0,2)){
+        const second=rankCandidates(state,current.side,node.selection.role!,true,true,node.selection.championId!)[0];if(!second)continue;
+        const moved=node.reassignments?.find(p=>p.championId===first.championId);
+        const responseNode=[...node.children].filter(n=>n.kind==='pick'&&n.side!==current.side&&!n.blocked).sort((a,b)=>(b.preference??0)-(a.preference??0))[0];
+        const response=responseNode?.selection.championId?{championId:responseNode.selection.championId,role:responseNode.selection.role!,preference:responseNode.preference??0}:null;
+        combos.push({first:moved?{...first,role:moved.role}:first,second,response,score:Math.round(clamp(50+node.value*1.3+((first.score+second.score)/2-50)*.25)*10)/10});
+      }
+    }
+    const seen=new Set<string>();return combos.sort((a,b)=>b.score-a.score).filter(d=>{const key=[d.first.championId,d.second.championId].sort().join('|');if(seen.has(key))return false;seen.add(key);return true;}).slice(0,3);
+  }
   for (const first of recs.slice(0, 10)) {
     const afterFirst = append(input, first);
     for (const second of unique(rankCandidates(afterFirst, current.side)).slice(0, 4)) {
@@ -255,14 +305,14 @@ function simulate(input: EngineInput, current: Recommendation[]): Scenario[] {
 export function draftBalance(input:EngineInput):DraftBalance {
   return matchBalance(input);
 }
-export function analyze(input: EngineInput): Analysis {
+export function analyze(input: EngineInput, options:{scenarios?:boolean}={}): Analysis {
   const { draft } = input, next = order(draft)[draft.history.length] ?? null;
   const role = draft.targetRole !== 'AUTO' ? draft.targetRole : draft.mode === 'solo' && next?.side === draft.side && freeRoles(draft, draft.side).includes(draft.role) ? draft.role : 'AUTO';
   const side = next?.side ?? draft.side;
   const all = next?rankCandidates(input, side, role, next.side === draft.side):[];
-  let recommendations = unique(all); const bans = next?banCandidates(input, side, next.kind === 'ban' ? draft.targetRole : 'AUTO'):[];
-  const strategy=next?.kind==='pick'&&draft.mode==='pro'?strategyAnalysis(input):undefined;
-  if(strategy?.options.length){const checked=new Set(strategy.options.map(r=>r.championId));recommendations=[...strategy.options,...recommendations.filter(r=>!checked.has(r.championId))].sort((a,b)=>b.score-a.score);}
+  let recommendations = unique(all), bans = next?banCandidates(input, side, next.kind === 'ban' ? draft.targetRole : 'AUTO'):[];
+  const strategy=next&&draft.mode==='pro'?strategyAnalysis(input):undefined;
+  if(strategy?.options.length){const checked=new Set(strategy.options.map(r=>r.championId));if(next?.kind==='ban')bans=[...strategy.options,...bans.filter(r=>!checked.has(r.championId))].sort((a,b)=>b.score-a.score);else recommendations=[...strategy.options,...recommendations.filter(r=>!checked.has(r.championId))].sort((a,b)=>b.score-a.score);}
   const warnings: string[] = [];
   if (!input.stats.length) warnings.push(text(input, 'Mode heuristique : importez un pack autorisé pour utiliser les winrates, counters et synergies statistiques.', 'Heuristic mode: import an authorized pack to use statistical win rates, counters and synergies.'));
   else if (next && !recommendations.some(r => r.games)) warnings.push(text(input, 'Aucune donnée compatible avec ces filtres et rôles. Les scores restent qualitatifs.', 'No data matches these filters and roles. Scores remain qualitative.'));
@@ -271,23 +321,49 @@ export function analyze(input: EngineInput): Analysis {
   if(draft.league!=='all'&&!(input.games??[]).some(g=>g.league===draft.league))warnings.push(text(input,'Aucun match pro disponible dans cette ligue : les données des autres ligues ne remplacent pas cette sélection.','No pro games available in this league: other leagues do not replace this selection.'));
   if(windows.solo.length&&windows.pro.length&&windows.solo[0]!==windows.pro[0])warnings.push(text(input,`Fenêtres distinctes : Master+ ${windows.solo.join(' / ')} ; pro ${windows.pro.join(' / ')}. Le patch pro est décalé, les recommandations peuvent subir les changements de méta.`,`Different source windows: Master+ ${windows.solo.join(' / ')}; pro ${windows.pro.join(' / ')}. Pro data lags and can be affected by meta changes.`));
   if (draft.mode === 'solo') warnings.push(text(input, 'Les 10 bans sont saisis par équipe ; en ranked ils sont simultanés et les doublons adverses sont autorisés.', 'Enter the 10 bans by team; ranked bans are simultaneous and opposing duplicates are allowed.'));
-  const scenarios = simulate(input, next?.kind === 'ban' ? bans : recommendations);
+  // Full rollouts belong to the simulation worker on demand. The live interface
+  // displays the bounded strategy tree and never consumed these legacy rollouts.
+  const scenarios = options.scenarios?simulate(input, next?.kind === 'ban' ? bans : recommendations):[];
   if (scenarios.some(s => s.history.length < 20)) warnings.push(text(input, 'Le pool restreint ne permet pas de terminer certaines simulations : élargissez les rôles couverts.', 'The restricted pool cannot complete some simulations: broaden its role coverage.'));
   return {coaching:proEvidence(input).report, picks: recommendations, bans: bans.slice(0, 5), enemies: next?predict(input, opposite(draft.side)):[],
-    duos: duos(input, all), scenarios,
+    duos: duos(input, all,strategy), scenarios,
     ally: composition(team(input, draft.side), input.settings.language,picks(draft,draft.side).map(p=>p.role)), enemy: composition(team(input, opposite(draft.side)), input.settings.language,picks(draft,opposite(draft.side)).map(p=>p.role)),
     plans:{ally:gamePlan(team(input,draft.side),picks(draft,draft.side).map(p=>p.role),team(input,opposite(draft.side)),picks(draft,opposite(draft.side)).map(p=>p.role),input.settings.language),
       enemy:gamePlan(team(input,opposite(draft.side)),picks(draft,opposite(draft.side)).map(p=>p.role),team(input,draft.side),picks(draft,draft.side).map(p=>p.role),input.settings.language)},balance:draftBalance(input),evaluation:evaluateMatch(input),strategy, warnings, next };
 }
 
 export function strategyAnalysis(input:EngineInput,request?:StrategyRequest){
+ const rankedCache=new Map<string,Recommendation[]>(),start=(request?.draft??input.draft).history.length;
+ const seed={...input,draft:request?.draft??input.draft},domains=new Map<Side,Set<string>>();
+ const domain=(state:EngineInput,side:Side)=>{
+  let initial=domains.get(side);
+  if(!initial){
+   const ranked=rankCandidates(seed,side,'AUTO',true),ids=new Set<string>();
+   for(const role of ['TOP','JUNGLE','MID','ADC','SUPPORT'] as Role[])for(const rec of ranked.filter(r=>r.role===role).slice(0,5))ids.add(rec.championId);
+   for(const rec of choicePolicy(seed,side,ranked).slice(0,8))ids.add(rec.championId);
+   for(const rec of ranked.filter(r=>(r.viableRoles?.length??0)>1).slice(0,6))ids.add(rec.championId);
+   domains.set(side,ids);initial=ids;
+  }
+  const ids=new Set(initial);
+  // Reopen the beam for newly revealed, well-supported lane counters. A static
+  // opening shortlist must not hide the very response the search should discover.
+  for(const target of picks(state.draft,opposite(side))){
+   const counters=state.champions.map(c=>({id:c.id,delta:interaction(state,c.id,target.role,target.championId!,target.role,side,'matchup')?.delta??0})).filter(c=>c.delta>.005).sort((a,b)=>b.delta-a.delta).slice(0,3);
+   for(const c of counters)ids.add(c.id);
+  }
+  return ids;
+ };
  return exploreStrategy(input,(state,side,kind,restrict='AUTO')=>{
-  const base=kind==='ban'?banCandidates(state,side):rankCandidates(state,side,restrict,true);
+  const seq=order(state.draft),key=JSON.stringify([side,kind,restrict,state.draft.history.length,state.draft.history.map((p,i)=>[seq[i].side,seq[i].kind,p.championId,p.role,p.roleLocked]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))]);
+  const saved=rankedCache.get(key);if(saved)return saved;
+  const narrow=state.draft.history.length!==start,ids=narrow?domain(state,kind==='ban'?opposite(side):side):undefined;
+  const base=kind==='ban'?banCandidates(state,side,restrict,narrow,ids):rankCandidates(state,side,restrict,true,true,ids);
+  if(!base.length&&kind==='pick'&&narrow)return rankCandidates(state,side,restrict,true);
   if(request?.roots.length&&state.draft.history.length===request.draft.history.length&&kind==='pick'){
-   for(const root of request.roots)if(root.championId&&root.role&&freeRoles(state.draft,side).includes(root.role)&&!used(state.draft).has(root.championId)&&!fearlessUsed(state.draft).has(root.championId)){
+   for(const root of request.roots)if(root.championId&&root.role&&!used(state.draft).has(root.championId)&&!fearlessUsed(state.draft).has(root.championId)){
     const forced=rankCandidates(state,side,root.role,false,true,root.championId)[0];if(forced&&!base.some(r=>r.championId===forced.championId&&r.role===forced.role))base.push(forced);
    }
   }
-  return base;
+  rankedCache.set(key,base);return base;
  },request);
 }

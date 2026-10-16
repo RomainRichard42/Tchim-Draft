@@ -10,14 +10,15 @@ interface Prepared {
   windows: Record<'solo'|'pro',string[]>;
   configuration: string;
   pairsInput: PairStat[]; gamesInput: EngineInput['games']; counts: string;
+  contextInput:EngineInput['proContext'];
 }
 const preparedCache = new WeakMap<Stat[], Prepared>();
 export function prepare(input: EngineInput): Prepared {
   const configuration=JSON.stringify([input.draft.league,input.settings.oldPatchDecay,input.settings.proView,input.settings.proRules,input.settings.teamStrengthCorrection,input.draft.series?.format,input.draft.series?.fearless]);
   const counts=`${input.stats.length}|${input.pairs.length}|${input.games?.length??0}`;
-  const existing = preparedCache.get(input.stats); if (existing?.configuration===configuration&&existing.pairsInput===input.pairs&&existing.gamesInput===input.games&&existing.counts===counts) return existing;
+  const existing = preparedCache.get(input.stats); if (existing?.configuration===configuration&&existing.pairsInput===input.pairs&&existing.gamesInput===input.games&&existing.contextInput===input.proContext&&existing.counts===counts) return existing;
   const patches=(source:'solo'|'pro')=>{const stat=input.stats.filter(s=>s.source===source&&(source==='pro'||s.rank==='MASTER_PLUS'||s.rank==='all'));return latestPatches((stat.length?stat:input.pairs.filter(p=>p.source===source)).map(s=>s.patch));};
-  const data: Prepared = { stats: new Map(), pairs: new Map(), roles: new Map(), aggregates: new Map(), historical: new Map(),windows:{solo:patches('solo'),pro:patches('pro')},configuration,pairsInput:input.pairs,gamesInput:input.games,counts };
+  const data: Prepared = { stats: new Map(), pairs: new Map(), roles: new Map(), aggregates: new Map(), historical: new Map(),windows:{solo:patches('solo'),pro:patches('pro')},configuration,pairsInput:input.pairs,gamesInput:input.games,contextInput:input.proContext,counts };
   const pro=proEvidence(input);
   for (const row of [...input.stats.filter(s=>s.source!=='pro'),...pro.stats]) {
     const key = `${row.championId}|${row.role}`, values = data.stats.get(key) ?? []; values.push(row); data.stats.set(key, values);
@@ -74,7 +75,7 @@ export function aggregate(rows: (Stat | PairStat)[], input: EngineInput, side: S
     const desired = input.draft.mode === 'pro' ? (source === 'pro' ? .55 : .45) : (source === 'solo' ? .9 : .1);
     const mixture=desired*n/(n+(source==='pro'?80:800));
     const usable=n >= (source==='pro'?10:200), support=usable?n/(n+(source==='pro'?50:200)):0;
-    return [{ source, n, wins, baseline, estimate, pickRate: exposure?pickRate / exposure:0, banRate: exposure?banRate / exposure:0, mixture, usable, support }];
+    return [{ source, n, wins, baseline, estimate, exposure, pickRate: exposure?pickRate / exposure:0, banRate: exposure?banRate / exposure:0, mixture, usable, support }];
   });
   if (!groups.length) return null;
   const totalWeight = groups.reduce((s, g) => s + g.mixture, 0);

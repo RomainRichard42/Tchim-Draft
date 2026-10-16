@@ -11,6 +11,7 @@ import { datasetSchema, publicChampionSchema, type DatasetManifest } from '../sh
 import type { DataPack } from '../shared/types';
 import { scopedProGames, proStatsFromGames } from './pro-population';
 import { gamePairs } from './gol';
+import { COACH_PRO_LEAGUES } from '../shared/pro-leagues';
 export {proContextSchema} from '../shared/coaching';
 
 const hash=(body:Buffer|string)=>createHash('sha256').update(body).digest('hex');
@@ -60,7 +61,7 @@ export async function exportDataset(db:Database.Database,directory:string,enrich
       const stamp=packs.filter(p=>p.stats.some(s=>s.source===source&&s.patch===patch)||p.pairs.some(s=>s.source===source&&s.patch===patch)||p.games.some(g=>source==='pro'&&g.patch===patch)).map(p=>p.createdAt).sort().at(-1)??createdAt;
       for(let offset=0;offset<Math.max(1,patchPairs.length);offset+=15000) {
         const pack:DataPack={schemaVersion:1,id:`shared-${source}-${patch}-${Math.floor(offset/15000)}`,createdAt:stamp,
-          provenance:{name:source==='pro'?`gol.gg ${patch}${options.proScope!=='all'?' · LFL, EMEA Masters, LCK, LCS, LEC, Worlds':''}`:`Lolalytics Master+ ${patch}`,url:source==='pro'?'https://gol.gg/':'https://lolalytics.com/',license:'Public statistics collected by the publisher. Source attribution retained; robots.txt is not a redistribution license.',demo:false},
+          provenance:{name:source==='pro'?`gol.gg ${patch}${options.proScope!=='all'?' · '+COACH_PRO_LEAGUES.join(', '):''}`:`Lolalytics Master+ ${patch}`,url:source==='pro'?'https://gol.gg/':'https://lolalytics.com/',license:'Public statistics collected by the publisher. Source attribution retained; robots.txt is not a redistribution license.',demo:false},
           stats:offset?[]:patchStats,pairs:patchPairs.slice(offset,offset+15000),games:offset?[]:patchGames};
         const raw=JSON.stringify(validateDataPack(pack,known));let body:Buffer|undefined;
         if(Buffer.byteLength(raw)>48*1024*1024)throw new Error('Dataset part too large');

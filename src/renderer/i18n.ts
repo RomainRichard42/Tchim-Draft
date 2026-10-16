@@ -44,7 +44,7 @@ const fr = {
   waiting: 'Analyse en cours…', loading: 'Ouverture de votre espace de draft…', profiles: 'Profils de rôle à vérifier',
   noSessions: 'Aucune session sauvegardée.', close: 'Fermer', failure: 'Une erreur est survenue', copied: 'Draft exportée',
   firstPick: 'First pick : gardez des options ouvertes.', lastPick: 'Last pick : exploitez le matchup révélé.',
-  chooseRole: 'Rôle attribué', recommendedRole: 'Rôle de recommandation', notes: 'Les rôles sont attribués manuellement ; les flex restent des possibilités jusqu’à votre choix.',
+  chooseRole: 'Rôle attribué', recommendedRole: 'Rôle de recommandation', notes: 'Les placements restent flexibles si les joueurs peuvent les jouer. Fixer un rôle empêche sa réaffectation.',
   overlayTitle: 'Draft en cours', live: 'Synchronisé', shortcutsHint: 'Ctrl+K sélectionner · Ctrl+Z annuler · Ctrl+Shift+D overlay',
   noEnemy: 'Tous les rôles adverses sont déjà attribués.', unknownPatch: 'Hors ligne', inspect: 'Analyser', fresh: 'Catalogue'
 };
@@ -94,7 +94,7 @@ const en: typeof fr = {
   waiting: 'Analyzing…', loading: 'Opening your draft workspace…', profiles: 'Verify role profiles',
   noSessions: 'No saved sessions.', close: 'Close', failure: 'An error occurred', copied: 'Draft exported',
   firstPick: 'First pick: keep your options open.', lastPick: 'Last pick: exploit the revealed matchup.',
-  chooseRole: 'Assigned role', recommendedRole: 'Recommendation role', notes: 'Assign roles manually; flex roles remain possibilities until you choose.',
+  chooseRole: 'Assigned role', recommendedRole: 'Recommendation role', notes: 'Placements stay flexible when players can play them. Lock a role to prevent reassignment.',
   overlayTitle: 'Draft in progress', live: 'Synchronized', shortcutsHint: 'Ctrl+K choose · Ctrl+Z undo · Ctrl+Shift+D overlay',
   noEnemy: 'All enemy roles are already assigned.', unknownPatch: 'Offline', inspect: 'Analyze', fresh: 'Catalog'
 };

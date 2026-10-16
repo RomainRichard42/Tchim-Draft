@@ -4,7 +4,7 @@ const role = z.enum(ROLES);
 const side = z.enum(['blue', 'red']);
 const id = z.string().regex(/^[A-Za-z0-9_]+$/).max(80);
 export const patchSchema = z.string().regex(/^(unknown|\d{1,2}\.\d{1,2}(\.\d{1,3})?)$/);
-export const selectionSchema = z.object({ championId: id.nullable(), role: role.optional() }).strict();
+export const selectionSchema = z.object({ championId: id.nullable(), role: role.optional(), roleLocked:z.boolean().optional(),previousRoles:z.array(z.object({championId:id,role}).strict()).max(5).optional() }).strict();
 export const pickInsightSchema=z.object({championId:id,role,side}).strict();
 export const seriesSchema = z.object({ format: z.enum(['single','bo3','bo5']), fearless:z.boolean().optional(), games: z.array(z.object({
   picks: z.array(id).length(10).refine(p => new Set(p).size === 10, 'Ten distinct picks required'),

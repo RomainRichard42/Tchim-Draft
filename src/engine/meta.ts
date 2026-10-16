@@ -2,6 +2,7 @@ import type { EngineInput, Role, Side } from '../shared/types';
 import { freeRoles } from '../shared/draft';
 import { evidence, prepare } from './evidence';
 import { clamp } from './math';
+import { observedRoles } from './assignments';
 
 export interface MetaProfile { priority:number; roles:Role[]; roleSupport:Partial<Record<Role,number>>; rolePriority:Partial<Record<Role,number>>; proRoleGames:Partial<Record<Role,number>>; proPresence:number|null; soloPresence:number|null }
 const cache=new WeakMap<object,Map<string,Map<string,MetaProfile>>>();
@@ -17,14 +18,18 @@ export function metaProfiles(input:EngineInput,side:Side):Map<string,MetaProfile
   const sources=(['pro','solo'] as const).map(source=>{
    const rows=roles.flatMap(r=>r.data?.groups.filter(g=>g.source===source).map(g=>({role:r.role,...g}))??[]);
    const n=rows.reduce((v,r)=>v+r.n,0),picks=rows.reduce((v,r)=>v+r.pickRate,0),bans=Math.max(0,...rows.map(r=>r.banRate));
-   return {source,n,presence:clamp(picks+bans,0,1),support:rows.some(r=>r.usable)?n/(n+(source==='pro'?50:200)):0,mixture:Math.max(0,...rows.map(r=>r.mixture)),rows};
+   // Presence is observed over draft opportunities, not only games played on
+   // the champion. Heavy bans can establish priority without certifying its WR.
+   const exposure=Math.max(0,...rows.map(r=>r.exposure)),support=exposure>=(source==='pro'?30:200)?exposure/(exposure+(source==='pro'?50:10000)):0;
+   const desired=input.draft.mode==='pro'?(source==='pro'?.7:.3):(source==='pro'?.1:.9);
+   return {source,n,presence:clamp(picks+bans,0,1),support,mixture:desired*support,rows};
   });
   return {id:champion.id,sources};
  });
  const sourceRows=new Map(['pro','solo'].map(source=>[source,entries.flatMap(e=>e.sources.filter(s=>s.source===source).flatMap(s=>s.rows))]));
- const populations=new Map(['pro','solo'].map(source=>[source,entries.flatMap(e=>e.sources.filter(s=>s.source===source&&s.rows.some(r=>r.usable&&r.pickRate>=.005)))]));
+ const populations=new Map(['pro','solo'].map(source=>[source,entries.flatMap(e=>e.sources.filter(s=>s.source===source&&s.n>0))]));
  const rolePopulations=new Map<string,typeof entries[number]['sources'][number]['rows']>();
- for(const source of ['pro','solo'])for(const role of ['TOP','JUNGLE','MID','ADC','SUPPORT'])rolePopulations.set(source+'|'+role,(sourceRows.get(source)??[]).filter(r=>r.role===role&&r.usable&&r.pickRate>=.005));
+ for(const source of ['pro','solo'])for(const role of ['TOP','JUNGLE','MID','ADC','SUPPORT'])rolePopulations.set(source+'|'+role,(sourceRows.get(source)??[]).filter(r=>r.role===role&&r.n>0&&r.pickRate>=.005));
  const result=new Map<string,MetaProfile>();
  for(const entry of entries){
   const viable:Role[]=[],roleSupport:MetaProfile['roleSupport']={},rolePriority:MetaProfile['rolePriority']={},proRoleGames:MetaProfile['proRoleGames']={};let weighted=0,total=0;
@@ -42,12 +47,14 @@ export function metaProfiles(input:EngineInput,side:Side):Map<string,MetaProfile
    let score=0,weight=0;
    for(const source of entry.sources){
     const population=rolePopulations.get(source.source+'|'+role)??[];
-    if(!(sourceRows.get(source.source)??[]).some(r=>r.usable))continue;
+    if(!(sourceRows.get(source.source)??[]).some(r=>r.exposure>=(source.source==='pro'?30:200)))continue;
     const row=source.rows.find(r=>r.role===role),share=row?row.n/Math.max(1,source.n):0;
     const presence=row?clamp(row.pickRate+Math.max(0,...source.rows.map(r=>r.banRate))*Math.min(1,share*2),0,1):0;
     const percentile=row&&population.length?population.reduce((n,r)=>n+(r.pickRate<row.pickRate?1:r.pickRate===row.pickRate?.5:0),0)/population.length:0;
-    const raw=20+presence*45+percentile*35,support=row?.usable?row.support:0;
-    const mixture=input.draft.mode==='pro'?(source.source==='pro'?.55:.45):(source.source==='pro'?.1:.9);
+    // Role attribution still needs appearances. Champion-wide bans cannot turn
+    // a one-game offrole into an established blind position.
+    const raw=20+presence*45+percentile*35,support=row?source.support*Math.min(1,row.n/(source.source==='pro'?10:200)):0;
+    const mixture=input.draft.mode==='pro'?(source.source==='pro'?.7:.3):(source.source==='pro'?.1:.9);
     score+=(35+(raw-35)*support)*mixture;weight+=mixture;
    }
    rolePriority[role]=weight?score/weight:35;
@@ -60,12 +67,14 @@ export function metaProfiles(input:EngineInput,side:Side):Map<string,MetaProfile
 /** A statistical offrole is not a usable flex if its seat is occupied or its known player cannot play it. */
 export function playableFlex(input:EngineInput,id:string,side:Side):{roles:Role[];score:number} {
  const profile=metaProfiles(input,side).get(id),team=input.teams?.[side===input.draft.side?'ally':'enemy'];
- const roles=(input.stats.length?profile?.roles??[]:input.champions.find(c=>c.id===id)?.roles??[]).filter(role=>{
+ const roles=observedRoles(input,id,side).filter(role=>{
   if(!freeRoles(input.draft,side).includes(role))return false;
   const players=team?.players.filter(p=>p.role===role||(p.role==='AUTO'&&!team.players.some(other=>other.role===role)))??[];
   return !players.length||players.some(p=>!p.pool.length||p.pool.some(c=>c.championId===id&&(!c.role||c.role===role)&&(c.games>=3||(c.games===0&&p.status==='manual'))));
  });
- const mass=roles.map(role=>profile?.roleSupport[role]??1),total=mass.reduce((n,v)=>n+v,0);
+ // An available but unproven placement is not one full unit of statistical
+ // ambiguity. It can still gain value through the actual branches it enables.
+ const mass=roles.map(role=>profile?.roleSupport[role]??(input.stats.length?0:1)),total=mass.reduce((n,v)=>n+v,0);
  const ambiguity=total?1-mass.reduce((n,v)=>n+(v/total)**2,0):0;
  return {roles,score:clamp(50+ambiguity*45)};
 }

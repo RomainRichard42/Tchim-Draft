@@ -19,6 +19,7 @@ interface Input {
   candidate: Champion; role: Role; allies: Pick[]; enemies: Pick[]; champions: Champion[];
   weights: Weights; ownPlan: number; language: string; pair: PairLookup;
   blind?: BlindAssessment;
+  enemyRoles?:Record<string,Role[]>;
 }
 type Criterion = 'matchup' | 'synergy' | 'composition';
 const neutral = 50;
@@ -34,14 +35,17 @@ export function roleContext(input: Input): DraftContext {
   const { candidate, role, allies, enemies, weights, pair } = input;
   const fr = input.language === 'fr', tr = (a: string, b: string) => fr ? a : b;
   const champion = (pick: Pick) => input.champions.find(c => c.id === pick.championId);
+  const roles = (pick:Pick) => input.enemyRoles?.[pick.championId??''] ?? [pick.role];
   const allyTeam = allies.flatMap(p => champion(p) ?? []), enemyTeam = enemies.flatMap(p => champion(p) ?? []);
   const mechanics = teamplay(candidate, role, allyTeam, allies.map(p => p.role), enemyTeam);
   // User sliders adjust the role priors relatively to their defaults. No saved settings migration.
   const ratio = (key: Criterion) => weights[key] / DEFAULT_WEIGHTS[key];
   const parts: ContextPart[] = [];
+  let fullBudget = 0;
   const add = (key: ContextPart['key'], label: string, baseWeight: number, coverage: number,
     terms: { score: number; share: number; criterion: Criterion }[]) => {
     const strength = terms.reduce((sum, t) => sum + t.share * ratio(t.criterion), 0);
+    fullBudget += baseWeight * strength;
     const score = strength ? terms.reduce((sum, t) => sum + t.score * t.share * ratio(t.criterion), 0) / strength : neutral;
     parts.push({ key, label, score: clamp(score), baseWeight, coverage: clamp(coverage, 0, 1), weight: baseWeight * coverage * strength });
   };
@@ -52,7 +56,7 @@ export function roleContext(input: Input): DraftContext {
 
   if (role === 'SUPPORT') {
     const mate = allies.find(p => p.role === 'ADC'), adc = mate && champion(mate);
-    const enemyBot = enemies.filter(p => isBot(p.role));
+    const enemyBot = enemies.filter(p => roles(p).every(isBot));
     const botTeam = enemyBot.flatMap(p => champion(p) ?? []);
     const botMechanics = teamplay(candidate, role, adc ? [adc] : [], adc ? ['ADC'] : [], botTeam);
     // Four cross-team pair effects approximate a 2v2. Unknown edges stay neutral.
@@ -66,7 +70,7 @@ export function roleContext(input: Input): DraftContext {
         { score: neutral + duoSynergy, share: .3, criterion: 'synergy' },
         { score: botMechanics.score, share: .1, criterion: 'composition' }
       ]);
-    const outsideBot = enemies.filter(p => !isBot(p.role));
+    const outsideBot = enemies.filter(p => !enemyBot.includes(p));
     add('opposition', tr('Réponse à leur composition', 'Answer to their composition'), 40, enemies.length / 5, [
       { score: neutral + average(outsideBot, match), share: .5, criterion: 'matchup' },
       { score: mechanics.counterScore, share: .5, criterion: 'composition' }
@@ -80,10 +84,12 @@ export function roleContext(input: Input): DraftContext {
       { score: own.ownScore * .65 + input.ownPlan * .35, share: .7, criterion: 'composition' }
     ]);
   } else {
-    const profile = ROLE_CONTEXT_WEIGHTS[role], lane = enemies.find(p => p.role === role);
-    const others = enemies.filter(p => p.role !== role);
-    add('lane', input.blind?tr('Blind : réponses encore disponibles', 'Blind: remaining responses'):tr('Matchup contre le vis-à-vis', 'Matchup against the opposing role'), profile.lane, lane||input.blind ? 1 : 0,
-      [{ score: lane ? neutral + match(lane) : input.blind?.score??neutral, share: 1, criterion: 'matchup' }]);
+    const profile = ROLE_CONTEXT_WEIGHTS[role], lane = enemies.find(p => roles(p).length===1&&roles(p)[0]===role);
+    const others = enemies.filter(p => p!==lane);
+    // Unknown replies do not certify a lane. Uncertainty/development costs belong
+    // to the order criterion; they must not consume the whole context budget too.
+    add('lane', input.blind?tr('Blind : réponses encore disponibles', 'Blind: remaining responses'):tr('Matchup contre le vis-à-vis', 'Matchup against the opposing role'), profile.lane, lane ? 1 : input.blind?.coverage ?? 0,
+      [{ score: lane ? neutral + match(lane) : input.blind?.statisticalScore??neutral, share: 1, criterion: 'matchup' }]);
     add('opposition', tr('Réponse aux autres ennemis', 'Answer to other enemies'), profile.opposition, others.length / 4, [
       { score: neutral + average(others, match, oppositionImportance), share: .7, criterion: 'matchup' },
       { score: mechanics.counterScore, share: .3, criterion: 'composition' }
@@ -95,10 +101,11 @@ export function roleContext(input: Input): DraftContext {
     add('plan', tr('Contribution à notre plan', 'Contribution to our plan'), profile.plan, allies.length / 4,
       [{ score: mechanics.ownScore * .65 + input.ownPlan * .35, share: 1, criterion: 'composition' }]);
   }
-  const total = parts.reduce((sum, p) => sum + p.weight, 0);
-  for (const p of parts) p.weight = total ? p.weight / total * 100 : 0;
-  return { role, score: total ? clamp(parts.reduce((sum, p) => sum + p.score * p.weight, 0) / 100) : neutral,
-    parts, partial: !!input.blind||parts.some(p => p.coverage < 1) };
+  // Keep the unrevealed share neutral instead of reallocating it to the one
+  // known term. Part weights report their actual share of the complete budget.
+  for (const p of parts) p.weight = fullBudget ? p.weight / fullBudget * 100 : 0;
+  return { role, score: fullBudget ? clamp(neutral + parts.reduce((sum, p) => sum + (p.score-neutral) * p.weight, 0) / 100) : neutral,
+    parts, partial: !!input.blind||parts.some(p => p.coverage < 1)||Object.values(input.enemyRoles??{}).some(roles=>roles.length>1) };
 }
 
 // Shared by recommendations and the live gauge. Context replaces, rather than adds

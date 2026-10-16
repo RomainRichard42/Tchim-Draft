@@ -5,6 +5,7 @@ import type { Draft, Recommendation, Role, Selection, SimulationApproach, Simula
 import { ROLES } from '../shared/types';
 import { fearlessUsed, freeRoles, opposite, order, picks, seriesFinished, used } from '../shared/draft';
 import { appendGuidedChoice, guidedContext, guidedRosterIssues } from '../shared/guided-simulation';
+import { rewindDraft } from '../shared/placements';
 import { Portrait } from './ChampionPortrait';
 import { TeamsPanel } from './TeamsPanel';
 import { DraftBalancePanel } from './DraftBalancePanel';
@@ -76,7 +77,7 @@ export function GuidedSimulationPanel({snapshot:snap,active}:{snapshot:Snapshot;
   function commit(selection:Selection,automatic=false,recommendation?:Recommendation){
     if(!session||sessionRef.current!==session||!action)return;
     try{
-      const nextDraft=appendGuidedChoice(session.draft,selection,known);
+      const nextDraft=appendGuidedChoice(session.draft,selection,known,recommendation?.reassignments);
       const player=session.context.teams?.[ours?'ally':'enemy'].players.find(p=>p.role===selection.role);
       const exception=action.kind==='pick'&&!player?.pool.some(p=>p.championId===selection.championId&&(!p.role||p.role===selection.role));
       const reasons=exception?[l('Hors du pool connu de ','Outside the known pool of ')+(player?.riotId??'—')+l(' ; choix imposé par le coach.','; coach choice.')]:recommendation?.reasons.slice(0,3)??[automatic?l('Aucun ban disponible dans ce contexte.','No available ban in this context.'):l('Choix imposé par le coach.','Coach choice.')];
@@ -109,7 +110,7 @@ export function GuidedSimulationPanel({snapshot:snap,active}:{snapshot:Snapshot;
   }
   function rewind(to:number){
     if(!session||to<session.root.history.length||to>=index)return;
-    const next={...session,draft:{...session.draft,history:session.draft.history.slice(0,to)},steps:session.steps.filter(s=>s.index<to)};
+    const next={...session,draft:rewindDraft(session.draft,to),steps:session.steps.filter(s=>s.index<to)};
     finishDrag();setFlight(undefined);sessionRef.current=next;setSession(next);setPaused(true);setAutoplay(false);setSelected(undefined);setError('');setMessage(l('Choix retirés : essaie une autre idée, la suite sera recalculée.','Choices removed: try another idea and the continuation will be recalculated.'));
   }
   function finishDrag(){dragCleanup.current?.();dragCleanup.current=undefined;dragOrigin.current=undefined;setDragging(undefined);setDropTarget('');}
@@ -138,7 +139,7 @@ export function GuidedSimulationPanel({snapshot:snap,active}:{snapshot:Snapshot;
   async function save(){
     if(!session||!name.trim())return;
     setSaving(true);setPaused(true);setAutoplay(false);
-    try{await api.saveSimulation({name,draft:session.root,history:session.draft.history,pins:session.steps.filter(s=>!s.automatic).map(s=>({index:s.index,selection:s.selection})),context:session.context,approach});setMessage(l('Sauvegardée. Tu peux aussi l’explorer dans la bibliothèque de l’atelier.','Saved. You can also explore it in the workshop library.'));}catch(e){setError(cleanError(e));}finally{setSaving(false);}
+    try{await api.saveSimulation({name,draft:session.root,history:session.draft.history,pins:session.steps.filter(s=>!s.automatic).map(s=>({index:s.index,selection:session.draft.history[s.index]})),context:session.context,approach});setMessage(l('Sauvegardée. Tu peux aussi l’explorer dans la bibliothèque de l’atelier.','Saved. You can also explore it in the workshop library.'));}catch(e){setError(cleanError(e));}finally{setSaving(false);}
   }
   async function load(id:number){
     setPaused(true);setAutoplay(false);

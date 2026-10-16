@@ -35,7 +35,7 @@ jobs:
           $headCommit = git rev-parse HEAD
           if ($tagCommit -ne $headCommit) { throw 'Checkout and release tag differ' }
       - run: npm ci
-      - run: npm test
+      - run: npm test -- --maxWorkers=1
       - run: npm run dist:win
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'

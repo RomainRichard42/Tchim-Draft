@@ -10,7 +10,10 @@ export type Source = 'solo' | 'pro';
 export interface Traits { ad: number; frontline: number; engage: number; peel: number; poke: number; scaling: number; early: number }
 export interface Champion { id: string; key: number; name: string; roles: Role[]; traits: Traits; tags: string[]; curated: boolean; icon?: string }
 export interface Action { kind: 'pick' | 'ban'; side: Side; label: string; phase: number }
-export interface Selection { championId: string | null; role?: Role }
+export interface Selection { championId: string | null; role?: Role; roleLocked?:boolean; previousRoles?:{championId:string;role:Role}[] }
+export interface Recommendation { reassignments?:{championId:string;role:Role}[] }
+export interface StrategyNode { reassignments?:{championId:string;role:Role}[] }
+export interface Snapshot { preview?:boolean }
 export interface SeriesGame { picks: string[]; history?: Selection[]; winner?: 'ally' | 'enemy'; side?: Side }
 export interface FearlessSeries { format: 'single' | 'bo3' | 'bo5'; games: SeriesGame[]; fearless?:boolean }
 export interface Draft { teamNames?:{ally:string;enemy:string}; seriesName?:string; mode: Mode; side: Side; role: Role; patch: string; rank: string; league: string; history: Selection[]; targetRole: Role | 'AUTO'; series?: FearlessSeries }
@@ -39,7 +42,7 @@ export interface BlindAssessment { score: number; statisticalScore: number; unce
 export interface PickInteraction {championId:string;role:Role;effect:number;games:number;confidence:number;source:string;present:boolean;inPool:boolean;scope:'lane'|'composition'}
 export interface PickInsight {championId:string;role:Role;side:Side;windows:{source:Source;patches:string[]}[];counters:PickInteraction[];favourable:PickInteraction[];synergies:PickInteraction[];strengths:string[];risks:string[];mechanics:{championId:string;direction:'good'|'risk';reason:string;condition:string}[];confidence:number;games:number;warnings:string[]}
 export interface PickInsightRequest {championId:string;role:Role;side:Side}
-export interface Recommendation { coachAdjustment?:CoachAdjustment; opening?:{games:number;firstShare:number;earlyShare:number;blindShare:number}; meta?:{priority:number;roles:Role[];roleSupport:Partial<Record<Role,number>>;proPresence:number|null;soloPresence:number|null}; alternatives?:{role:Role;score:number;blindScore?:number;after?:number}[]; viableRoles?: Role[]; championId: string; role: Role; score: number; confidence: number; games: number; winrate: number | null; interval: [number, number] | null; factors: Weights; reasons: string[]; summary?: string; responseRisk: number; source: string; banScouting?: BanScouting; banImpact?: BanImpact; lowSample?: boolean; context?: DraftContext; blind?: BlindAssessment; outlook?:StrategyOutlook }
+export interface Recommendation { coachAdjustment?:CoachAdjustment; opening?:{games:number;firstShare:number;earlyShare:number;blindShare:number}; meta?:{priority:number;roles:Role[];roleSupport:Partial<Record<Role,number>>;proPresence:number|null;soloPresence:number|null}; alternatives?:{role:Role;score:number;blindScore?:number;after?:number;reassignments?:{championId:string;role:Role}[]}[]; viableRoles?: Role[]; championId: string; role: Role; score: number; confidence: number; games: number; winrate: number | null; interval: [number, number] | null; factors: Weights; reasons: string[]; summary?: string; responseRisk: number; source: string; banScouting?: BanScouting; banImpact?: BanImpact; lowSample?: boolean; context?: DraftContext; blind?: BlindAssessment; outlook?:StrategyOutlook }
 export type PlanKind = 'building' | 'front-to-back' | 'dive' | 'poke' | 'side' | 'mixed';
 export interface GamePlan { duties?:CompositionDuty[]; kind: PlanKind; title: string; score: number; partial: boolean; profiled: number; axes: { lanes: number; objectives: number; teamfight: number; sideLane: number; execution: number }; timing: string; conditions: string[]; risks: string[]; needs: string[] }
 export interface Composition { count: number; adShare: number; frontline: number; engage: number; peel: number; poke: number; early: number; scaling: number; archetype: string; strengths: string[]; weaknesses: string[]; quality: number }
@@ -100,7 +103,8 @@ export interface DesktopApi {
   activateModel(active:boolean):Promise<CoachState>;
   enrichLocalData():Promise<CoachState>;
   configure(patch: Partial<Omit<Draft, 'history'>>): Promise<Snapshot>;
-  select(championId: string | null, role?: Role): Promise<Snapshot>;
+  select(championId: string | null, role?: Role, roleLocked?:boolean): Promise<Snapshot>;
+  lockRole(index:number,locked:boolean):Promise<Snapshot>;
   undo(toIndex?: number): Promise<Snapshot>;
   reset(): Promise<Snapshot>;
   series(command: 'next' | 'previous' | 'reset', winner?: Side): Promise<Snapshot>;

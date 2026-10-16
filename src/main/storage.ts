@@ -14,6 +14,7 @@ import { compareVersions, releaseNotesStatus } from '../shared/release-notes';
 import { knowledgeSummary,type KnowledgeDataset } from '../shared/knowledge';
 import type {CoachFeedback} from '../shared/coaching';
 import type {ProGameContext} from '../shared/coaching';
+import { rewindDraft } from '../shared/placements';
 
 export class Storage {
   private packCache: DataPack[] | undefined;
@@ -142,7 +143,7 @@ export class Storage {
       leagues: [...new Set(['all', 'LCK', 'LPL', 'LEC', 'LCS', 'WORLDS', ...stats.map(s => s.league),...packs.flatMap(p=>p.games.map(g=>g.league))])],
       coverage: this.cloudCoverage??(['solo','pro'] as const).map(source=>{const rows=stats.filter(s=>s.source===source),patches=latestPatches(rows.map(s=>s.patch));return {source,patches,stats:rows.filter(r=>patches.includes(r.patch)).length,pairs:input.pairs.filter(r=>r.source===source&&patches.includes(r.patch)).length,games:source==='pro'?(input.games??[]).filter(g=>patches.includes(g.patch)).length:0};}) };
     const privateAccess=!this.cloud?.configured||this.cloud.authorized;
-    return { draft: privateAccess?this.draft:newDraft(), settings: privateAccess?this.settings:{...DEFAULT_SETTINGS,language:this.settings.language,theme:this.settings.theme,pool:{}}, teams: privateAccess?this.teams:{ally:{url:'',region:'euw',players:[],poolOnly:false,message:''},enemy:{url:'',region:'euw',players:[],poolOnly:false,message:''}}, champions: this.champions(), data,
+    return { preview:process.env.TCHIM_PREVIEW==='1', draft: privateAccess?this.draft:newDraft(), settings: privateAccess?this.settings:{...DEFAULT_SETTINGS,language:this.settings.language,theme:this.settings.theme,pool:{}}, teams: privateAccess?this.teams:{ally:{url:'',region:'euw',players:[],poolOnly:false,message:''},enemy:{url:'',region:'euw',players:[],poolOnly:false,message:''}}, champions: this.champions(), data,
       match:privateAccess?this.match:undefined,
       sessions: !privateAccess?[]:this.db.prepare('SELECT id, name, saved_at AS savedAt FROM sessions WHERE owner=? ORDER BY id DESC LIMIT 50').all(this.owner()) as Snapshot['sessions'],
       simulations:!privateAccess?[]:this.db.prepare('SELECT id,name,saved_at AS savedAt FROM simulations WHERE owner=? ORDER BY id DESC LIMIT 200').all(this.owner()) as Snapshot['simulations'], update: this.update,evidenceRevision:this.dataRevision,cloud:this.cloud,coachRevision:this.get<number>('coachRevision')??0,knowledge:knowledgeSummary(this.knowledge,!!this.db.prepare('SELECT 1 FROM kv WHERE key=?').get('knowledgeStaged'),this.knowledgeMessage) };
@@ -151,7 +152,8 @@ export class Storage {
     const document=simulationDocumentSchema.parse(raw),known=new Set(this.champions().map(c=>c.id));
     validateSimulation(document.draft,document.pins,known);
     validateDraft({...document.draft,history:document.history},known);
-    if(document.history.length<document.draft.history.length||document.draft.history.some((s,i)=>JSON.stringify(s)!==JSON.stringify(document.history[i])))throw new Error('Simulation prefix mismatch');
+    const original=rewindDraft({...document.draft,history:document.history},document.draft.history.length);
+    if(document.history.length<document.draft.history.length||JSON.stringify(document.draft.history)!==JSON.stringify(original.history))throw new Error('Simulation prefix mismatch');
     if(document.pins.some(p=>p.index<document.history.length&&(p.selection.championId!==document.history[p.index].championId||p.selection.role!==document.history[p.index].role)))throw new Error('Simulation lock mismatch');
     return document;
   }
