@@ -15,15 +15,23 @@ else{const db=new Database(database,{readonly:true,fileMustExist:true});try{mani
 const context=flags.context?proContextSchema.parse(JSON.parse(await readFile(path.resolve(flags.context),'utf8'))):undefined;
 if(context&&context.datasetRevision!==manifest.revision)throw new Error('Pro context and dataset revisions differ');
 const headers={apikey:env.SUPABASE_SECRET_KEY,'Content-Type':'application/json',...(env.SUPABASE_SECRET_KEY.startsWith('eyJ')?{Authorization:'Bearer '+env.SUPABASE_SECRET_KEY}:{})};
-async function request(path,body,extra={},attempt=0){const r=await fetch(env.SUPABASE_URL+path,{headers:{...headers,...extra},...(body!==undefined?{method:'POST',body:Buffer.isBuffer(body)?body:JSON.stringify(body)}:{}),redirect:'error',signal:AbortSignal.timeout(120000)});if(!r.ok){if([429,500,502,503,504].includes(r.status)&&attempt<3){await r.body?.cancel();await new Promise(resolve=>setTimeout(resolve,1000*2**attempt));return request(path,body,extra,attempt+1);}const error=await r.json().catch(()=>({}));throw new Error('Supabase publication failed ('+r.status+'): '+String(error.message??error.error??'request rejected').slice(0,500));}return r;}
+async function request(path,body,extra={},attempt=0){const r=await fetch(env.SUPABASE_URL+path,{headers:{...headers,...extra},...(body!==undefined?{method:'POST',body:Buffer.isBuffer(body)?body:JSON.stringify(body)}:{}),redirect:'error',signal:AbortSignal.timeout(120000)});if(!r.ok){if((r.status===429||r.status>=500)&&attempt<3){await r.body?.cancel();await new Promise(resolve=>setTimeout(resolve,1000*2**attempt));return request(path,body,extra,attempt+1);}const error=await r.json().catch(()=>({}));throw new Error('Supabase publication failed ('+r.status+'): '+String(error.message??error.error??'request rejected').slice(0,500));}return r;}
 const current=await (await request('/rest/v1/draft_channels?name=eq.stable&select=revision')).json(),expected=current[0]?.revision??null;
 const stored=await (await request('/rest/v1/draft_packs?select=sha256&limit=1000')).json(),present=new Set(stored.map(p=>p.sha256));
+// A previous attempt can have inserted Postgres data before its archive upload failed.
+// Check both stores before skipping a part; repair its archive without importing it again.
+const archived=new Map();
+for(let offset=0;;offset+=1000){
+ const objects=await (await request('/storage/v1/object/list/tchim-datasets',{prefix:'',limit:1000,offset,sortBy:{column:'name',order:'asc'}})).json();
+ for(const object of objects)archived.set(object.name,Number(object.metadata?.size));
+ if(objects.length<1000)break;
+}
 for(const [i,part] of manifest.parts.entries()){
- if(present.has(part.sha256)){console.log('Already stored',i+1,manifest.parts.length,part.id);continue;}
+ if(present.has(part.sha256)&&archived.get(part.sha256+'.json.gz')===part.bytes){console.log('Already stored',i+1,manifest.parts.length,part.id);continue;}
  const body=await readFile(path.join(output,part.sha256+'.json.gz'));
  if(body.length!==part.bytes||createHash('sha256').update(body).digest('hex')!==part.sha256)throw new Error('Invalid local dataset block');
  const pack=JSON.parse(gunzipSync(body,{maxOutputLength:48*1024*1024}).toString('utf8'));
- await request('/rest/v1/rpc/draft_ingest',{new_hash:part.sha256,new_pack:pack,new_bytes:part.bytes});
+ if(!present.has(part.sha256))await request('/rest/v1/rpc/draft_ingest',{new_hash:part.sha256,new_pack:pack,new_bytes:part.bytes});
  await request('/storage/v1/object/tchim-datasets/'+part.sha256+'.json.gz',body,{'Content-Type':'application/gzip','x-upsert':'true'});
  const verified=await (await request('/rest/v1/draft_packs?sha256=eq.'+part.sha256+'&select=sha256,stats_count,pairs_count,games_count,bytes')).json();
  if(verified.length!==1||verified[0].bytes!==part.bytes||verified[0].pairs_count!==part.pairs)throw new Error('Stored part mismatch');

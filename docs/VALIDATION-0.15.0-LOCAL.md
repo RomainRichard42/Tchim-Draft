@@ -1,12 +1,12 @@
 # Tchim Draft 0.15.0 — essai local
 
-Statut : changements locaux, aucune publication GitHub ou Supabase. La version partagée reste 0.14.0 et les utilisateurs gardent les données précédemment publiées.
+Ce rapport décrit la validation locale avant publication. Après cet essai, l’utilisateur a validé la version puis demandé explicitement sa publication le 16 octobre. Voir [la publication et les vérifications distantes](VALIDATION-PUBLICATION-0.15.0.md).
 
 ## Lancer l’essai
 
 Double-cliquer sur `Tester Tchim Draft.cmd` à la racine du projet. Il ouvre `release/0.15.0-local/win-unpacked/Tchim Draft.exe` avec le profil séparé `data/local-preview-0.15.0`. Le badge **TEST LOCAL · Worlds / LPL** identifie cette fenêtre. La synchronisation Supabase et les mises à jour de l’application sont désactivées dans ce lancement. Les liens OP.GG peuvent toujours être importés à la demande.
 
-`Lancer Tchim Draft.cmd` et le profil habituel `data/local` ne sont pas modifiés. Les résultats saisis dans le profil de test restent locaux.
+Pendant cet essai, `Lancer Tchim Draft.cmd` et le profil habituel `data/local` n’ont pas été modifiés. Le raccourci normal utilise la 0.15.0 depuis la publication, avec le même dossier de données. Les résultats saisis dans le profil de test restent locaux.
 
 ## Changements à éprouver en coaching
 
@@ -49,4 +49,4 @@ Le contrôle sur l’exécutable Windows final passe : 409 matchs utilisés, fil
 
 Huit matchs Worlds ne définissent pas à eux seuls une méta fiable. La présence pick/ban est évaluée séparément des victoires, avec une couverture minimale ; les winrates et interactions trop peu documentés restent neutralisés. L’exploration est une recherche limitée, avec une politique gloutonne pour les bans suivants, pas une résolution exhaustive du BO. Plusieurs bans d’ouverture peuvent aboutir à la même suite si les bans suivants convergent. Les fréquences de réponse restent heuristiques et l’indice n’est pas une probabilité de victoire validée.
 
-L’apprentissage ML et la qualité des profils de champions non documentés restent ceux de la version précédente. Aucun modèle non validé n’a été activé. L’étape suivante est ton jugement sur des positions réelles de draft ; la publication attend ta demande explicite.
+L’apprentissage ML et la qualité des profils de champions non documentés restent ceux de la version précédente. Aucun modèle non validé n’a été activé. L’étape suivante est ton jugement sur des positions réelles de draft ; la publication a ensuite été demandée explicitement et fait l’objet du rapport séparé.
