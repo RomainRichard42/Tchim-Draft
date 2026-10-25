@@ -3,6 +3,16 @@ import type { ReleaseNote, ReleaseNotesStatus } from './types';
 // User-facing copy shipped with the app: plain text, no remote HTML or network dependency.
 export const RELEASE_NOTES:ReleaseNote[]=[
   {
+    version:'0.15.1',title:{fr:'Les Worlds et les statistiques de draft à jour',en:'Updated Worlds games and draft statistics'},
+    summary:{fr:'Prépare tes matchs avec les nouvelles parties des Worlds et les statistiques Master+ du patch 16.21.',en:'Prepare your matches with new Worlds games and Master+ statistics from patch 16.21.'},
+    sections:[{kind:'improved',items:[
+      {fr:'Les nouvelles parties des Worlds enrichissent les picks, bans, matchups et synergies observés. Les trois derniers patchs disponibles restent conservés pour chaque source.',en:'New Worlds games add observed picks, bans, matchups and synergies. Each source keeps its three latest available patches.'},
+      {fr:'Les statistiques Master+ sont actualisées sur les patchs 16.21, 16.20 et 16.19, pour tous les champions et rôles ayant un échantillon suffisant.',en:'Master+ statistics are refreshed for patches 16.21, 16.20 and 16.19, across all champions and roles with a sufficient sample.'},
+      {fr:'Les fiches des 173 champions et les changements de patch sont actualisés. Les descriptions et paramètres de sorts du patch 16.21 sont disponibles pour préparer tes choix.',en:'All 173 champion kits and patch changes are refreshed. Patch 16.21 ability descriptions and parameters are available to help prepare your choices.'},
+      {fr:'Le modèle est réentraîné et évalué sur des matchs qu’il n’a pas vus pendant l’apprentissage. Il reste candidat si les résultats ou le nombre de matchs ne suffisent pas à le valider.',en:'The model is retrained and evaluated on games excluded from training. It remains a candidate when results or sample size do not meet validation requirements.'}
+    ]}]
+  },
+  {
     version:'0.15.0',title:{fr:'Des flexs jouables et des bans qui préparent la suite',en:'Playable flexes and bans that shape the next picks'},
     summary:{fr:'Compare les placements possibles et les réponses adverses avec une évaluation plus cohérente des drafts incomplètes.',en:'Compare possible role placements and enemy replies with a more consistent evaluation of incomplete drafts.'},
     sections:[{kind:'fixed',items:[

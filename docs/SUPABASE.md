@@ -1,4 +1,4 @@
-# Supabase — Tchim Draft 0.15.0
+# Supabase — Tchim Draft 0.15.1
 
 Le projet `hnpqecujmueyivafhzsx` héberge les statistiques communes, les comptes, les brouillons et les résultats. L’application reste un programme Electron Windows ; elle accède à Supabase depuis le processus principal. Les statistiques sont consultées automatiquement. Aucun utilisateur ne collecte gol.gg ou Lolalytics à l’ouverture.
 
@@ -22,6 +22,10 @@ Chaque choix est conservé dans SQLite, puis envoyé automatiquement à Supabase
 Cette migration de schéma ne publie ni une nouvelle version de l’application ni un nouveau jeu de statistiques. `scripts/matches-cloud-test.mjs` vérifie la confidentialité et les révisions sur le projet ; `scripts/workspace-ui-test.mjs --cloud` vérifie le parcours Electron réel, puis nettoie ses comptes de test.
 
 ## Statistiques et publications
+
+La publication du 25 octobre 2026 contient **444 matchs pro**, dont **38 Worlds** (22 Play-In et 16 Main Event), avec **1 068 agrégats** et **45 366 interactions pro**. Les statistiques Master+ comptent **2 541 agrégats** et **841 825 interactions** sur 16.21/16.20/16.19 ; les fiches de champions couvrent ces mêmes patchs. Les 444 matchs pro ont des dates et des équipes identifiées ; leur fenêtre reste 16.20/16.18/16.17. Voir [la validation 0.15.1](VALIDATION-0.15.1.md) pour les révisions et contrôles exacts.
+
+Le modèle du 25 octobre apprend sur 380 matchs et en réserve 64 au test. Sa log loss de 0,69786 reste supérieure à la référence de 0,69141 ; il échoue aux critères d’échantillon et de performance. Le candidat reste donc **inactif**, sans modification des seuils pour le rendre éligible. Pour reproduire la préparation : `node scripts/initialize-shared-model.mjs --dataset=data/shared-20261025 --output=artifacts/model-20261025`. L’outil vérifie le manifeste et les archives, sauvegarde le candidat complet et le rapport, puis exige `--publish` et la même révision stable avant tout envoi. L’activation reste distincte.
 
 Le 16 octobre 2026, après validation et demande explicite, le jeu partagé passe à **409 matchs pro**, **995 agrégats** et **41 002 interactions pro**, avec la LPL ajoutée au périmètre. Il comprend 8 Worlds Play-In et 61 LPL. Les 2 558 agrégats et 1 008 382 interactions Master+ sont conservés. Les fenêtres restent Master+ 16.20/16.19/16.18 et pro 16.20/16.18/16.17. Les 74 blocs et leurs contextes de série sont associés à la même révision ; huit parties Worlds restent un faible échantillon. Voir [la publication 0.15.0](VALIDATION-PUBLICATION-0.15.0.md).
 
