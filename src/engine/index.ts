@@ -44,6 +44,7 @@ export function rankCandidates(input: EngineInput, side: Side, restrictRole: Rol
   const opponents=picks(input.draft,opposite(side)),enemyPlacements=teamAssignments(input,opposite(side));
   const enemyRoles=Object.fromEntries(opponents.map(p=>[p.championId!,[...new Set(enemyPlacements.flatMap(rows=>rows.filter(other=>other.championId===p.championId).map(other=>other.role!)))]]));
   for(const placement of teamAssignments(input,side)){
+    input.checkCancelled?.();
     const changes=placement.filter(p=>p.role!==current.find(c=>c.championId===p.championId)?.role).map(p=>({championId:p.championId!,role:p.role!}));
     const state=changes.length?{...input,draft:applyRoleChanges(input.draft,side,changes)}:input;
     for(const rec of rankFixedCandidates(state,side,restrictRole,usePool,useFamiliarity,candidateId,enemyRoles)){
@@ -97,6 +98,7 @@ function rankFixedCandidates(input: EngineInput, side: Side, restrictRole: Role 
     responseCache.set(role,options);return options;
   };
   for (const c of input.champions) {
+    input.checkCancelled?.();
     if (locked.has(c.id)||(candidateId&&(forced?c.id!==candidateId:!candidateId.has(c.id)))) continue;
     for (const role of availableRoles.filter(r => (restrictRole === 'AUTO' || r === restrictRole) && (forced||c.roles.includes(r) || prepared.roles.get(c.id)?.has(r)||observedRoles(input,c.id,side).includes(r)))) {
       const players=scout?.players.filter(p=>p.role===role||(p.role==='AUTO'&&!scout.players.some(other=>other.role===role)))??[];

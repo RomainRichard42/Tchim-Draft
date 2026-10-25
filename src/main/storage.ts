@@ -1,4 +1,6 @@
 import Database from 'better-sqlite3';
+import {createHash} from 'node:crypto';
+import type {MetaSnapshot} from '../shared/types';
 import type { Champion, DataPack, DataStatus, Draft, EngineInput, Settings, Snapshot, Teams, SimulationDocument, CoachState, ScrimDocument, ScrimRecord, DraftModel, HistoricalGame, CloudState, TeamProfile } from '../shared/types';
 import { SEED_CHAMPIONS, DEFAULT_SETTINGS } from '../shared/champions';
 import { newDraft } from '../shared/draft';
@@ -50,6 +52,7 @@ export class Storage {
     this.db.exec(`CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS champions (id TEXT PRIMARY KEY, json TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS packs (id TEXT PRIMARY KEY, raw TEXT NOT NULL, imported_at TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS meta_snapshots (id TEXT PRIMARY KEY, available_at TEXT NOT NULL, stats TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS sessions (id INTEGER PRIMARY KEY, name TEXT NOT NULL, saved_at TEXT NOT NULL, json TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS simulations (id INTEGER PRIMARY KEY, name TEXT NOT NULL, saved_at TEXT NOT NULL, json TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS logs (id INTEGER PRIMARY KEY, at TEXT NOT NULL, level TEXT NOT NULL, message TEXT NOT NULL);
@@ -86,6 +89,7 @@ export class Storage {
   validatePack(raw: unknown, known = new Set(this.champions().map(c => c.id))): DataPack { return validateDataPack(raw,known); }
   importPack(raw: unknown): void {
     const pack = this.validatePack(raw);
+    this.archiveMeta([pack],false);
     // Keep raw, validated source payload and metadata together. Atomic replacement.
     this.db.transaction(() => {
       this.db.prepare('INSERT OR REPLACE INTO packs VALUES (?, ?, ?)').run(pack.id, JSON.stringify(pack), new Date().toISOString());
@@ -124,13 +128,28 @@ export class Storage {
     if(this.packCache)this.packCache=this.packCache.filter(p=>prefix?!p.id.startsWith(prefix):p.id!==id);
     this.packSignature=this.signature();this.merged=undefined;this.dataRevision++;
   }
+  private metaCache?:{packs:DataPack[];cloud:DataPack|undefined;snapshots:NonNullable<EngineInput['metaSnapshots']>};
+  private archiveMeta(packs:DataPack[],read=true):MetaSnapshot[]{
+    const insert=this.db.prepare('INSERT OR IGNORE INTO meta_snapshots VALUES (?,?,?)');
+    this.db.transaction(()=>{for(const pack of packs){if(pack.provenance.demo||!Number.isFinite(Date.parse(pack.createdAt)))continue;const stats=pack.stats.filter(s=>s.source==='solo');if(!stats.length)continue;const raw=JSON.stringify(stats),id=createHash('sha256').update(pack.createdAt+'|'+raw).digest('hex');insert.run(id,pack.createdAt,raw);}})();
+    if(!read)return [];
+    return (this.db.prepare('SELECT available_at,stats FROM meta_snapshots ORDER BY available_at').all() as {available_at:string;stats:string}[]).map(row=>({availableAt:row.available_at,stats:JSON.parse(row.stats)}));
+  }
   engineInput(): EngineInput {
     const packs = this.packs();
-    const configuration={proContext:this.proContext,feedback:this.feedbackRecords(),draft:this.draft,settings:this.settings,teams:this.teams,champions:this.champions(),model:this.get<DraftModel>('draftModel'),teamProfiles:this.teamProfiles,teamContext:this.teamContext,knowledge:this.knowledge};
+    if(!this.metaCache||this.metaCache.packs!==packs||this.metaCache.cloud!==this.cloudData)this.metaCache={packs,cloud:this.cloudData,snapshots:this.archiveMeta(this.cloudData?[this.cloudData]:packs)};
+    const configuration={metaSnapshots:this.metaCache.snapshots,proContext:this.proContext,feedback:this.feedbackRecords(),draft:this.draft,settings:this.settings,teams:this.teams,champions:this.champions(),model:this.get<DraftModel>('draftModel'),teamProfiles:this.teamProfiles,teamContext:this.teamContext,knowledge:this.knowledge};
     if(this.cloudData)return {...configuration,stats:this.cloudData.stats,pairs:this.cloudData.pairs,games:this.cloudData.games,demo:false};
     if(this.merged)return {...configuration,...this.merged};
     this.merged=mergeDataPacks(packs);
     return {...configuration,...this.merged};
+  }
+  private coverageCache?:{stats:EngineInput['stats'];pairs:EngineInput['pairs'];games:EngineInput['games'];value:DataStatus['coverage']};
+  private coverage(input:EngineInput):DataStatus['coverage']{
+    if(this.cloudCoverage)return this.cloudCoverage;
+    const saved=this.coverageCache;if(saved?.stats===input.stats&&saved.pairs===input.pairs&&saved.games===input.games)return saved.value;
+    const value=(['solo','pro'] as const).map(source=>{const rows=input.stats.filter(s=>s.source===source),patches=latestPatches(rows.map(s=>s.patch));return {source,patches,stats:rows.filter(r=>patches.includes(r.patch)).length,pairs:input.pairs.filter(r=>r.source===source&&patches.includes(r.patch)).length,games:source==='pro'?(input.games??[]).filter(g=>patches.includes(g.patch)).length:0};});
+    this.coverageCache={stats:input.stats,pairs:input.pairs,games:input.games,value};return value;
   }
   snapshot(): Snapshot {
     const packs = this.packs(), input=this.engineInput(), stats=input.stats;
@@ -141,7 +160,7 @@ export class Storage {
       patches: [...new Set([this.draft.patch, ...(this.get<string>('staticVersion') ? [this.get<string>('staticVersion')!.split('.').slice(0, 2).join('.')] : []), ...stats.map(s => s.patch.split('.').slice(0, 2).join('.'))])].sort((a, b) => b.localeCompare(a, undefined, { numeric: true })),
       ranks: [...new Set(['all', 'EMERALD_PLUS', 'DIAMOND_PLUS', 'MASTER_PLUS', 'GOLD', ...stats.map(s => s.rank)])],
       leagues: [...new Set(['all', 'LCK', 'LPL', 'LEC', 'LCS', 'WORLDS', ...stats.map(s => s.league),...packs.flatMap(p=>p.games.map(g=>g.league))])],
-      coverage: this.cloudCoverage??(['solo','pro'] as const).map(source=>{const rows=stats.filter(s=>s.source===source),patches=latestPatches(rows.map(s=>s.patch));return {source,patches,stats:rows.filter(r=>patches.includes(r.patch)).length,pairs:input.pairs.filter(r=>r.source===source&&patches.includes(r.patch)).length,games:source==='pro'?(input.games??[]).filter(g=>patches.includes(g.patch)).length:0};}) };
+      coverage:this.coverage(input) };
     const privateAccess=!this.cloud?.configured||this.cloud.authorized;
     return { preview:process.env.TCHIM_PREVIEW==='1', draft: privateAccess?this.draft:newDraft(), settings: privateAccess?this.settings:{...DEFAULT_SETTINGS,language:this.settings.language,theme:this.settings.theme,pool:{}}, teams: privateAccess?this.teams:{ally:{url:'',region:'euw',players:[],poolOnly:false,message:''},enemy:{url:'',region:'euw',players:[],poolOnly:false,message:''}}, champions: this.champions(), data,
       match:privateAccess?this.match:undefined,

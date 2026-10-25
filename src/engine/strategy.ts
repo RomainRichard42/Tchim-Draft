@@ -66,6 +66,7 @@ export function exploreStrategy(input:EngineInput,provider:CandidateProvider,req
   return {...state,draft:appendWithRoleChanges(state.draft,{...selection,...(pins.has(at)&&selection.role?{roleLocked:true}:{})},seq[at].kind==='pick'?rec?.reassignments:[])};
  };
  function walk(state:EngineInput,left:number):{expected:number;worst:number;after:number;nodes:StrategyNode[]} {
+  state.checkCancelled?.();
   const now=value(state),at=state.draft.history.length,next=seq[at];
   if(!left||!next)return {expected:now,worst:now,after:now,nodes:[]};
   const narrow=evaluated-rootStart>=rootBudget;if(narrow)limited=true;

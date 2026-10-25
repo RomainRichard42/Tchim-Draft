@@ -14,6 +14,7 @@ interface Prepared {
 }
 const preparedCache = new WeakMap<Stat[], Prepared>();
 export function prepare(input: EngineInput): Prepared {
+  input.checkCancelled?.();
   const configuration=JSON.stringify([input.draft.league,input.settings.oldPatchDecay,input.settings.proView,input.settings.proRules,input.settings.teamStrengthCorrection,input.draft.series?.format,input.draft.series?.fearless]);
   const counts=`${input.stats.length}|${input.pairs.length}|${input.games?.length??0}`;
   const existing = preparedCache.get(input.stats); if (existing?.configuration===configuration&&existing.pairsInput===input.pairs&&existing.gamesInput===input.games&&existing.contextInput===input.proContext&&existing.counts===counts) return existing;

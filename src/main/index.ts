@@ -7,9 +7,11 @@ import { pickInsightSchema } from '../shared/validation';
 import { KnowledgeService } from './knowledge';
 import { sourceUrlSchema } from '../shared/knowledge';
 import { interaction,evidence } from '../engine/evidence';
-import { rankCandidates } from '../engine';
-import { appendWithRoleChanges, rewindDraft } from '../shared/placements';
+import {commitSelection} from '../engine/selection';
+import {AnalysisService,BackgroundRefresh} from './analysis-service';
+import { rewindDraft } from '../shared/placements';
 import { patchPrior } from '../engine/patch-prior';
+import {latestPatches} from '../shared/patches';
 import { app, BrowserWindow, clipboard, dialog, globalShortcut, ipcMain, nativeTheme, net, protocol, screen, session, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { Worker } from 'node:worker_threads';
@@ -42,7 +44,8 @@ function coachJob<T>(kind:'train'|'enrich',scrims?:ScrimRecord[]):Promise<T>{
   const timer=setTimeout(()=>{finish();reject(new Error('Coach operation timed out'));},120000);
   job.once('message',({result,error})=>{finish();if(error)reject(new Error(error));else if(storage.dataRevision!==revision)reject(new Error('Les données ont changé : relance cette opération / Data changed: run again'));else resolve(result as T);});
   job.once('error',error=>{finish();reject(error);});
-  job.postMessage({kind,root:path.join(app.getPath('userData'),'scraping'),champions:input.champions,games:input.demo?[]:input.games??[],scrims:scrims??storage.scrims()});
+  const livePatch=latestPatches([storage.get<string>('staticVersion')??'',...input.stats.filter(s=>s.source==='solo').map(s=>s.patch)])[0];
+  job.postMessage({kind,root:path.join(app.getPath('userData'),'scraping'),champions:input.champions,games:input.demo?[]:input.games??[],scrims:scrims??storage.scrims(),trainingOptions:{livePatch,asOf:new Date().toISOString(),meta:{snapshots:input.metaSnapshots,knowledge:input.knowledge}}});
  });
 }
 
@@ -54,39 +57,23 @@ let cloud:CloudService;
 let matches:MatchService;
 let knowledge:KnowledgeService;
 let feedback:FeedbackService;
-let storage: Storage, mainWindow: BrowserWindow | null = null, overlayWindow: BrowserWindow | null = null, worker: Worker;
-let analysisCache: { key: string; result: Promise<Analysis> } | null = null;
-let requestId = 0;
-let workerRevision='';
-const pending = new Map<number, { resolve: (value: Analysis) => void; reject: (error: Error) => void }>();
+let storage: Storage, mainWindow: BrowserWindow | null = null, overlayWindow: BrowserWindow | null = null;
+const analyses=new AnalysisService(()=>new Worker(path.join(__dirname,'worker.cjs')));
+const backgroundEvidence=new BackgroundRefresh(error=>storage.log('warn','Background evidence: '+String(error)));
+let lastAnalysis:{key:string;result:Analysis}|undefined;
+const analysisIdentity=()=>JSON.stringify([storage.dataRevision,storage.get('staticVersion'),cloud?.state.userId,storage.draft,storage.settings,storage.teams]);
 const isSmoke = process.argv.includes('--smoke-test');
 const developmentUrl = !app.isPackaged && process.env.TCHIM_DEV_URL === 'http://127.0.0.1:5173' ? process.env.TCHIM_DEV_URL : undefined;
-function notify(): void { const snap = storage.snapshot(); for (const w of [mainWindow, overlayWindow]) if (w && !w.isDestroyed()) w.webContents.send('draft:changed', snap) }
-function changed() { analysisCache = null; storage.persist(); matches?.capture(); cloud?.scheduleWorkspace(); notify(); return storage.snapshot() }
-function createWorker() {
-  workerRevision='';
-  worker = new Worker(path.join(__dirname, 'worker.cjs'));
-  worker.on('message', ({ id, result, error }: { id: number; result: Analysis; error?: string }) => {
-    const promise = pending.get(id); if (!promise) return; pending.delete(id);
-    if (error) promise.reject(new Error(error)); else promise.resolve(result);
-  });
-  worker.on('error', error => { pending.forEach(p => p.reject(error)); pending.clear(); analysisCache = null; storage.log('error', `Worker: ${error.message}`) });
-  worker.on('exit', code => { if (code) { pending.forEach(p => p.reject(new Error('Analysis worker stopped'))); pending.clear(); analysisCache = null } });
-}
-async function runAnalysis(): Promise<Analysis> {
-  if(cloud?.state.configured)await cloud.sync();
-  storage.packs(); // Observe atomic imports made by an external local collector.
-  const revision=`${storage.dataRevision}|${storage.get('staticVersion')}`, key=JSON.stringify([revision,storage.draft,storage.settings,storage.teams]);
-  if (analysisCache?.key === key) return analysisCache.result;
-  const input: EngineInput = storage.engineInput();
-  const id = ++requestId;
-  const result = new Promise<Analysis>((resolve, reject) => {
-    const timeout = setTimeout(() => { pending.delete(id); reject(new Error('Analysis timed out')); analysisCache = null }, 30000);
-    pending.set(id, { resolve: value => { clearTimeout(timeout); resolve(value) }, reject: error => { clearTimeout(timeout); reject(error) } });
-    worker.postMessage({ id, input:workerRevision===revision?{draft:input.draft,settings:input.settings,teams:input.teams,model:input.model,teamContext:input.teamContext,teamProfiles:input.teamProfiles}:input });
-    workerRevision=revision;
-  });
-  analysisCache = { key, result }; return result;
+function notify(snap=storage.snapshot()): void { for (const w of [mainWindow, overlayWindow]) if (w && !w.isDestroyed()) w.webContents.send('draft:changed', snap) }
+function changed() { analyses.invalidate(); storage.persist(); matches?.capture(); cloud?.scheduleWorkspace(); const snap=storage.snapshot();notify(snap);return snap }
+async function runAnalysis():Promise<Analysis>{
+  // Picks remain local and usable while central statistics arrive.
+  if(cloud?.state.configured){const draft=storage.draft,teams=storage.teams,actor=cloud.state.userId;backgroundEvidence.request(JSON.stringify([actor,draft,teams]),()=>cloud.state.userId===actor&&cloud.state.authorized?cloud.sync(draft,[],teams):Promise.resolve());}
+  storage.packs();
+  const key=analysisIdentity(),revision=String(storage.dataRevision)+'|'+storage.get('staticVersion')+'|'+(cloud?.state.userId??'');
+  const result=await analyses.run(storage.engineInput(),revision);
+  if(analysisIdentity()===key)lastAnalysis={key,result};
+  return result;
 }
 function createWindow(overlay = false): BrowserWindow {
   const saved = storage.get<{ x: number; y: number; width: number; height: number }>(overlay ? 'overlayBounds' : 'windowBounds');
@@ -135,9 +122,9 @@ function handlers() {
   bind('knowledge:source',value=>shell.openExternal(sourceUrlSchema.parse(value)));
   const scouting=new Set<string>();
   const credentials=z.object({email:z.string().email().max(254),password:z.string().min(8).max(72)}).strict();
-  bind('cloud:login',async value=>{const {email,password}=credentials.parse(value);await matches.flush().catch(()=>{});await cloud.login(email,password);await feedback.sync();await matches.list();analysisCache=null;return storage.snapshot();});
+  bind('cloud:login',async value=>{const {email,password}=credentials.parse(value);await matches.flush().catch(()=>{});await cloud.login(email,password);await feedback.sync();await matches.list();analyses.invalidate();return storage.snapshot();});
   bind('cloud:signup',value=>{const {email,password,code}=credentials.extend({code:z.string().trim().regex(/^TD-[a-f0-9]{32}$/i)}).parse(value);return cloud.signup(email,password,code);});
-  bind('cloud:logout',async()=>{simulations.stop();await matches.flush().catch(()=>{});matches.stop();storage.match=undefined;await cloud.logout();analysisCache=null;return storage.snapshot();});
+  bind('cloud:logout',async()=>{analyses.stop();lastAnalysis=undefined;simulations.stop();await matches.flush().catch(()=>{});matches.stop();storage.match=undefined;await cloud.logout();analyses.invalidate();return storage.snapshot();});
   bind('cloud:workspace',async value=>{const id=z.string().uuid().parse(value);const rows=await cloud.workspaces() as import('../shared/types').CloudWorkspace[];const workspace=rows.find(w=>w.user_id===id);if(!workspace)throw new Error('Workspace not found');matches.capture();await matches.flush().catch(()=>{});matches.detach();if(storage.draft.history.length)storage.saveSession('Before workspace review');storage.draft=validateHistory(workspace.draft);storage.teams=teamsSchema.parse(workspace.teams);return changed();});
   bind('cloud:invite',value=>cloud.invite(z.string().email().max(254).parse(value)));
   bind('cloud:copy-invitation',async value=>{cloud.requireAccess();if(cloud.state.role!=='owner')throw new Error('Administrator only');await clipboard.writeText(z.string().regex(/^TD-[a-f0-9]{32}$/).parse(value));});
@@ -163,9 +150,9 @@ function handlers() {
     const selected = selectionSchema.parse(value), action = order(storage.draft)[storage.draft.history.length];
     if (!action) throw new Error('Draft is complete');
     if (action.kind === 'pick' && (!selected.championId || !selected.role)) throw new Error('Choose a role');
-    const rec=action.kind==='pick'?rankCandidates(storage.engineInput(),action.side,selected.role!,false,true,selected.championId!)[0]:undefined;
-    if(action.kind==='pick'&&!rec)throw Error('Ce rôle ne peut pas être libéré avec les flexs et pools connus / No feasible flex assignment for this role');
-    storage.draft = validateHistory(appendWithRoleChanges(storage.draft,action.kind==='ban'?{championId:selected.championId}:{championId:selected.championId,role:selected.role,...(selected.roleLocked?{roleLocked:true}:{})},rec?.reassignments)); return changed();
+    const recommendations=lastAnalysis?.key===analysisIdentity()?lastAnalysis.result.picks:[];
+    const root=recommendations.find(r=>r.championId===selected.championId),rec=root?.role===selected.role?root:root?.alternatives?.find(r=>r.role===selected.role);
+    storage.draft=validateHistory(commitSelection(storage.engineInput(),selected,rec?.reassignments));return changed();
   });
   bind('draft:lock-role',value=>{const {index,locked}=z.object({index:z.number().int().min(0).max(19),locked:z.boolean()}).strict().parse(value);const selection=storage.draft.history[index];if(!selection?.championId||order(storage.draft)[index]?.kind!=='pick')throw Error('Pick required');storage.draft={...storage.draft,history:storage.draft.history.map((p,i)=>i===index?{...p,roleLocked:locked}:p)};return changed();});
   bind('draft:undo', value => { const index = value === undefined ? Math.max(0, storage.draft.history.length - 1) : z.number().int().min(0).max(storage.draft.history.length).parse(value); storage.draft = validateHistory(rewindDraft(storage.draft,index)); return changed() });
@@ -235,7 +222,7 @@ function handlers() {
     try{await scoutTeam(http,storage.champions(),url,storage.teams[team],current=>{if(actor!==cloud.state.userId||matchId!==storage.match?.id)throw new Error('Le match a changé : relance l’import / Match changed: import again');storage.teams[team]=current;changed()});return storage.snapshot();}
     finally{http.close();scouting.delete(team);}
   });
-  bind('draft:refresh', async () => { if(cloud.state.configured){await cloud.refreshStatistics();return;} await refreshData(storage, app.getPath('userData'), () => { analysisCache = null; notify() }) });
+  bind('draft:refresh', async () => { if(cloud.state.configured){await cloud.refreshStatistics();return;} await refreshData(storage, app.getPath('userData'), () => { analyses.invalidate(); notify() }) });
   bind('draft:prepare-data',async()=>{cloud.requireAccess();if(cloud.state.configured)await cloud.prepareDraft();return changed();});
   bind('draft:import-pack', async () => { const result = await dialog.showOpenDialog(mainWindow!, { filters: [{ name: 'Data pack JSON', extensions: ['json'] }], properties: ['openFile'] }); if (!result.canceled) storage.importPack(await readJson(result.filePaths[0],64*1024*1024)); return changed() });
   bind('draft:demo', () => { const pack = demoPack(storage); storage.importPack(pack); if (storage.draft.patch === 'unknown') storage.draft.patch = pack.stats[0].patch; return changed() });
@@ -278,11 +265,11 @@ else {
     });
     session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
     session.defaultSession.setPermissionCheckHandler(() => false);
-    createWorker(); handlers(); initUpdater();
+    handlers(); initUpdater();
     mainWindow = createWindow(); void cloud.initialize().then(()=>{if(!cloud.state.configured||cloud.state.authorized)return matches.list().then(()=>feedback.sync()).then(()=>notify());}); mainWindow.on('closed', () => { mainWindow = null; overlayWindow?.close() });
     if (!isSmoke) {
       let wasCollecting=false;
-      const externalProgress=setInterval(()=>{const active=storage.collecting();if(active||wasCollecting){analysisCache=null;notify();}wasCollecting=active;},3000);externalProgress.unref();
+      const externalProgress=setInterval(()=>{const active=storage.collecting();if(active||wasCollecting){analyses.invalidate();notify();}wasCollecting=active;},3000);externalProgress.unref();
       globalShortcut.register('CommandOrControl+Shift+D', toggleOverlay);
     }
     if (isSmoke) {
@@ -304,4 +291,4 @@ app.on('before-quit',event=>{
   // Every choice is already stored in SQLite. Give cloud writes a short grace period at close.
   void Promise.race([Promise.allSettled([matches.flush(),cloud.flushWorkspace()]),new Promise(resolve=>setTimeout(resolve,2000))]).finally(()=>{quitFlushed=true;app.quit();});
 });
-app.on('will-quit', () => { globalShortcut.unregisterAll(); if (worker) void worker.terminate(); simulations.stop(); pickInsights.stop(); matches?.stop(); knowledge?.stop(); void coachWorker?.terminate(); storage?.close() });
+app.on('will-quit', () => { globalShortcut.unregisterAll(); analyses.stop(); simulations.stop(); pickInsights.stop(); matches?.stop(); knowledge?.stop(); void coachWorker?.terminate(); storage?.close() });

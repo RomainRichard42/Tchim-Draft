@@ -20,6 +20,11 @@ export interface Draft { teamNames?:{ally:string;enemy:string}; seriesName?:stri
 export interface Weights { winrate: number; matchup: number; synergy: number; meta: number; flex: number; order: number; composition: number; mastery: number }
 export interface Settings { proView?:ProView;teamStrengthCorrection?:boolean;proRules?:Record<string,ProRule>; strategyDepth?:2|3|4; strategyRisk?:number; theme?: Theme; language: Lang; weights: Weights; banScoutingWeight: number; banImpactWeight?: number; pool: Record<string, number>; poolOnly: boolean; overlayOpacity: number; feedUrl: string; oldPatchDecay: number; scrapingEnabled: boolean; dataSource?: 'shared' | 'scrape' }
 export interface Stat { championId: string; role: Role; patch: string; source: Source; rank: string; league: string; side: Side | 'all'; games: number; wins: number; pickRate: number; banRate: number; baseline: number; countMethod?: 'reported' | 'rounded_rate'; reportedWinRate?: number }
+export interface MetaSnapshot {availableAt:string;stats:Stat[]}
+export interface MetaEnvironment {snapshots?:MetaSnapshot[];knowledge?:KnowledgeDataset}
+export interface EngineInput {metaSnapshots?:MetaSnapshot[]}
+/** Worker-local callback; never serialized across IPC. */
+export interface EngineInput {checkCancelled?:()=>void}
 export interface PairStat { championId: string; otherId: string; role: Role; otherRole: Role; kind: 'synergy' | 'matchup'; patch: string; source: Source; rank: string; league: string; side: Side | 'all'; games: number; wins: number; baseline: number; countMethod?: 'reported' | 'rounded_rate'; reportedWinRate?: number }
 export interface HistoricalGame { id: string; patch: string; league: string; tournament: string; winner: Side; playedAt?:string; teams?:Record<Side,{id:string;name:string}>; durationSeconds?: number; goldDiff15?: number; objectives?: Record<string, number>; history: Selection[]; draftOrderKnown?: boolean; lineups?: Record<Side, { picks: { championId: string; role: Role }[]; bans: (string | null)[] }> }
 export interface DataPack { schemaVersion: 1; id: string; createdAt: string; provenance: { name: string; url: string; license: string; demo: boolean }; stats: Stat[]; pairs: PairStat[]; games: HistoricalGame[] }
@@ -147,7 +152,15 @@ export interface StrategyRequest { draft:Draft; pins:SimulationPin[]; depth:2|3|
 export interface ScrimDocument { blueTeam?:string;redTeam?:string;seriesName?:string;kills?:{blue:number;red:number}; name:string; playedAt:string; draft:Draft; teams:Teams; winner:Side|null; coachRating:number; notes:string; rival:string }
 export interface ScrimRecord extends ScrimDocument { id:number; author?:string }
 export interface ModelMetrics { games:number; logLoss:number; brier:number; accuracy:number }
-export interface DraftModel { baselineName?:string; datasetRevision?:string; schema:1; id:string; trainedAt:string; features:Record<string,number>; train:ModelMetrics; test:ModelMetrics; baseline:ModelMetrics; patches:string[]; teamsCoverage:number; datesCoverage:number; eligible:boolean; reasons:string[]; fingerprint:string; active:boolean }
+export interface ModelLearning {
+ method:'recency-tier-v1'|'patch-meta-v2';
+ meta?:{policy:Record<string,string|number>;availableSnapshots:number;validationWithSolo:number;validationGames:number;firstWeek:{candidate:ModelMetrics;recencyOnly:ModelMetrics;strengthBaseline:ModelMetrics};recencyOnly:ModelMetrics;latestRecencyOnly:ModelMetrics;strengthBaseline:ModelMetrics;latestStrengthBaseline:ModelMetrics;byPatch:{patch:string;candidate:ModelMetrics;recencyOnly:ModelMetrics;strengthBaseline:ModelMetrics}[]};
+ asOf:string;livePatch:string;halfLifeDays:number;halfLifePatches:number;regularization:number;
+ effectiveGames:number;excludedGames:number;refitIncludesLatestPatch:boolean;
+ weightGroups:{league:string;patch:string;games:number;totalWeight:number;share:number}[];
+ validation:{method:'expanding-days';days:number;overall:ModelMetrics;previous:ModelMetrics;unweightedControl:ModelMetrics;latestPrevious:ModelMetrics;latestUnweightedControl:ModelMetrics;worlds:ModelMetrics;worldsPrevious:ModelMetrics;skippedDays:number};
+}
+export interface DraftModel { learning?:ModelLearning; baselineName?:string; datasetRevision?:string; schema:1; id:string; trainedAt:string; features:Record<string,number>; train:ModelMetrics; test:ModelMetrics; baseline:ModelMetrics; patches:string[]; teamsCoverage:number; datesCoverage:number; eligible:boolean; reasons:string[]; fingerprint:string; active:boolean }
 export interface CoachState { workspaces?:CloudWorkspace[]; activeModel?:DraftModel; scrims:ScrimRecord[]; model:DraftModel|null; coverage:{games:number;ordered:number;dated:number;teams:number;patches:string[]}; revision:number }
 
 export interface CloudState {configured:boolean;authorized:boolean;email:string;userId:string;role:'owner'|'coach'|null;organizationId:string;message:string;syncing:boolean;revision?:string}

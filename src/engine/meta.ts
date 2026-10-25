@@ -80,7 +80,9 @@ export function playableFlex(input:EngineInput,id:string,side:Side):{roles:Role[
 }
 
 /** Shared-data queries must cover alternative flexes, not just the six most picked champions. */
+const metadataPairs:EngineInput['pairs']=[];
 export function contextChampionIds(input:EngineInput):string[] {
+ input={...input,pairs:metadataPairs};
  const profiles=metaProfiles(input,input.draft.side),ids=new Set<string>();
  for(const role of ['TOP','JUNGLE','MID','ADC','SUPPORT'] as Role[]){
   const ranked=[...profiles].filter(([,p])=>p.roles.includes(role)).sort((a,b)=>

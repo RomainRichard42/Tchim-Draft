@@ -1,0 +1,22 @@
+import {describe,it,expect,vi} from 'vitest';
+import {EventEmitter} from 'node:events';
+import type {Worker} from 'node:worker_threads';
+import {AnalysisService,BackgroundRefresh} from '../src/main/analysis-service';
+import {commitSelection} from '../src/engine/selection';
+import {DEFAULT_SETTINGS,SEED_CHAMPIONS} from '../src/shared/champions';
+import {newDraft} from '../src/shared/draft';
+import {rewindDraft} from '../src/shared/placements';
+import {validateDraft} from '../src/shared/series';
+import type {EngineInput,Analysis} from '../src/shared/types';
+const input=():EngineInput=>({draft:{...newDraft('16.21'),history:Array.from({length:6},()=>({championId:null}))},settings:DEFAULT_SETTINGS,champions:SEED_CHAMPIONS,stats:[],pairs:[],games:[],demo:false});
+class FakeWorker extends EventEmitter{postMessage=vi.fn();terminate=vi.fn(async()=>0);}
+describe('responsive draft decisions',()=>{
+ it('commits a free role without touching matchup data or scoring',()=>{const state=input();Object.defineProperty(state,'pairs',{get(){throw Error('Must not index pairs');}});const draft=commitSelection(state,{championId:'Gragas',role:'TOP'});expect(draft.history[6]).toMatchObject({championId:'Gragas',role:'TOP'});});
+ it('keeps flex moves, locks and undo legal',()=>{const state=input();state.draft.history.push({championId:'Gragas',role:'TOP'},{championId:'Ahri',role:'MID'},{championId:'Jinx',role:'ADC'});state.teams={ally:{url:'',region:'euw',poolOnly:false,message:'',players:[{riotId:'j',role:'JUNGLE',pool:[{championId:'Gragas',games:0,wins:0,role:'JUNGLE'}],status:'manual',message:''}]},enemy:{url:'',region:'euw',players:[],poolOnly:false,message:''}};const draft=commitSelection(state,{championId:'Gwen',role:'TOP'},[{championId:'Gragas',role:'JUNGLE'}]);expect(draft.history[6].role).toBe('JUNGLE');expect(rewindDraft(draft,9).history[6].role).toBe('TOP');state.draft.history[6].roleLocked=true;expect(()=>commitSelection(state,{championId:'Gwen',role:'TOP'})).toThrow('flex');});
+ it('still rejects already picked champions at the authoritative validation boundary',()=>{const state=input();state.draft.history.push({championId:'Gragas',role:'TOP'});expect(()=>validateDraft(commitSelection(state,{championId:'Gragas',role:'MID'}),new Set(SEED_CHAMPIONS.map(c=>c.id)))).toThrow();});
+});
+describe('latest analysis and asynchronous evidence',()=>{
+ it('cancels superseded work without copying the dataset again and ignores its late response',async()=>{const workers:FakeWorker[]=[];const runner=new AnalysisService(()=>{const w=new FakeWorker();workers.push(w);return w as unknown as Worker;});const first=runner.run(input(),'1').catch(e=>e.message),state=input();state.draft.history.push({championId:'Gragas',role:'TOP'});const second=runner.run(state,'1');expect(workers[0].terminate).not.toHaveBeenCalled();expect(workers).toHaveLength(1);expect(workers[0].postMessage.mock.calls[1][0].input.stats).toBeUndefined();expect(Atomics.load(workers[0].postMessage.mock.calls[0][0].generation,0)).toBe(2);expect(await first).toBe('Analysis superseded');workers[0].emit('message',{id:1,result:{stale:true}});workers[0].emit('message',{id:2,result:{picks:[]} as unknown as Analysis});expect(await second).toEqual({picks:[]});expect(runner.run(state,'1')).toBe(second);runner.stop();});
+ it('kills timed-out workers so the next draft starts cleanly',async()=>{vi.useFakeTimers();try{const workers:FakeWorker[]=[];const runner=new AnalysisService(()=>{const w=new FakeWorker();workers.push(w);return w as unknown as Worker;},30);const result=runner.run(input(),'1').catch(e=>e.message);await vi.advanceTimersByTimeAsync(31);expect(await result).toBe('Analysis timed out');expect(workers[0].terminate).toHaveBeenCalledOnce();const next=runner.run(input(),'1').catch(e=>e.message);expect(workers).toHaveLength(2);runner.stop();await next;}finally{vi.useRealTimers();}});
+ it('coalesces network refreshes while leaving the caller free immediately',async()=>{let release!:()=>void;const errors=vi.fn(),refresh=new BackgroundRefresh(errors),first=vi.fn(()=>new Promise<void>(r=>release=r)),middle=vi.fn(async()=>{}),latest=vi.fn(async()=>{});expect(refresh.request('a',first)).toBeUndefined();refresh.request('b',middle);refresh.request('c',latest);await Promise.resolve();expect(latest).not.toHaveBeenCalled();release();await new Promise(r=>setTimeout(r,0));expect(middle).not.toHaveBeenCalled();expect(latest).toHaveBeenCalledOnce();expect(errors).not.toHaveBeenCalled();});
+});

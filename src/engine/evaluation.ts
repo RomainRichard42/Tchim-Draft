@@ -1,3 +1,4 @@
+import {liveMetaContext} from './meta-features';
 import type { Champion, DraftBalance, EngineInput, MatchAxis, MatchEvaluation, Role, Side } from '../shared/types';
 import { picks, order } from '../shared/draft';
 import { clamp } from './math';
@@ -48,6 +49,8 @@ export function evaluateMatch(input:EngineInput,lineups?:Record<Side,Member[]>):
   })}};
  }
  const blue=lineups?.blue??members(input,'blue'),red=lineups?.red??members(input,'red'),features=confrontationFeatures(blue,red);
+ const dynamic=input.model?.active&&input.model.eligible&&blue.length===5&&red.length===5&&input.model.learning?.method==='patch-meta-v2';
+ const learnedFeatures=dynamic?{...features,...liveMetaContext(input).features({blue:blue.map(m=>({championId:m.champion.id,role:m.role})),red:red.map(m=>({championId:m.champion.id,role:m.role}))})}:features;
  const base=(side:Side,list:Member[])=>avg(list.map(m=>evidence(input,m.champion.id,m.role,side)?.delta??0));
  const synergies=(side:Side,list:Member[])=>{const values:number[]=[];for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++)values.push(interaction(input,list[i].champion.id,list[i].role,list[j].champion.id,list[j].role,side,'synergy')?.delta??0);return avg(values);};
  const laneWeight:Record<Role,number>={TOP:1,MID:.7,JUNGLE:.3,ADC:.35,SUPPORT:.15};
@@ -63,7 +66,7 @@ export function evaluateMatch(input:EngineInput,lineups?:Record<Side,Member[]>):
  const raw=((base('blue',blue)-base('red',red))*400*weights.winrate+matchup*450*weights.matchup+(synergies('blue',blue)-synergies('red',red))*450*weights.synergy+composition*40*weights.composition)/den;
  const complete=blue.length===5&&red.length===5,model=input.model?.active&&input.model.eligible&&!input.demo&&complete?input.model:undefined;
  let adjustment=0;if(model&&input.teamContext)for(const side of ['blue','red'] as const){const profile=input.teamProfiles?.find(p=>p.key===input.teamContext![side]);if(profile&&profile.games>=20){const support=profile.games/(profile.games+50);const effect=Object.entries(profile.features).reduce((v,[key,w])=>v+w*(features[key]??0)*(side==='blue'?1:-1),0);adjustment+=Math.max(-4,Math.min(4,effect*support*4))*(side==='blue'?1:-1);}}
- const learned=model?Object.entries(features).reduce((v,[key,value])=>v+value*(model.features[key]??0),model.features.bias??0):0;
+ const learned=model?Object.entries(learnedFeatures).reduce((v,[key,value])=>v+value*(model.features[key]??0),model.features.bias??0):0;
  const kit=compositionKitEdge(input),prior=(side:'blue'|'red',list:Member[])=>list.length?list.reduce((n,m)=>n+patchPrior({...input,draft:{...input.draft,side}},m.champion.id,m.role).value,0)/list.length:0;
  const patchEdge=prior('blue',blue)-prior('red',red);
  const value=Math.round(Math.max(-40,Math.min(40,raw*.85+(model?Math.tanh(learned/2)*30:raw)*.15+adjustment+kit.value+patchEdge))*10)/10;

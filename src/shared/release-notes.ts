@@ -3,6 +3,17 @@ import type { ReleaseNote, ReleaseNotesStatus } from './types';
 // User-facing copy shipped with the app: plain text, no remote HTML or network dependency.
 export const RELEASE_NOTES:ReleaseNote[]=[
   {
+    version:'0.15.2',title:{fr:'Verrouiller un champion sans attendre les recommandations',en:'Lock in a champion without waiting for recommendations'},
+    summary:{fr:'Continue ta draft pendant les calculs et les téléchargements. Le modèle en évaluation tient davantage compte de la méta de chaque patch.',en:'Keep drafting while calculations and downloads continue. The model under evaluation now accounts for each patch’s meta.'},
+    sections:[{kind:'fixed',items:[
+      {fr:'Le choix manuel, les placements de rôles et l’annulation restent disponibles pendant l’analyse. Confirmer un champion ne relance plus son classement complet.',en:'Manual selection, role placement and undo remain available during analysis. Confirming a champion no longer recalculates its full ranking.'},
+      {fr:'Les calculs des anciennes étapes sont interrompus quand la draft change. Les statistiques déjà chargées sont conservées et les téléchargements ne bloquent plus tes choix.',en:'Calculations for previous steps stop when the draft changes. Loaded statistics are retained and downloads no longer block your choices.'}
+    ]},{kind:'improved',items:[
+      {fr:'Le modèle en évaluation utilise la force des champions par rôle et patch, les priorités pro et les interactions de composition. Les matchs récents et de haut niveau pèsent davantage.',en:'The model under evaluation uses champion strength by role and patch, pro priorities and composition interactions. Recent, higher-tier games receive more weight.'},
+      {fr:'Les statistiques sont conservées avec leur date pour vérifier les prédictions sans utiliser d’informations futures. Le nouveau candidat reste désactivé tant que ses résultats et son historique ne suffisent pas.',en:'Statistics retain their dates so predictions can be checked without using future information. The new candidate stays disabled until its results and history are sufficient.'}
+    ]}]
+  },
+  {
     version:'0.15.1',title:{fr:'Les Worlds et les statistiques de draft à jour',en:'Updated Worlds games and draft statistics'},
     summary:{fr:'Prépare tes matchs avec les nouvelles parties des Worlds et les statistiques Master+ du patch 16.21.',en:'Prepare your matches with new Worlds games and Master+ statistics from patch 16.21.'},
     sections:[{kind:'improved',items:[
